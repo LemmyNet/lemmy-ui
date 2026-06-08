@@ -160,6 +160,7 @@ interface HomeProps {
   time: Interval;
   showHidden?: boolean;
   showRead?: boolean;
+  hidePostsWithMedia?: boolean;
   cursor?: PaginationCursor;
 }
 
@@ -229,11 +230,19 @@ function getShowReadFromQuery(
   return showRead ? showRead === "true" : fallback;
 }
 
+function getHidePostsWithMediaFromQuery(
+  hidePostsWithMedia: string | undefined,
+  fallback: boolean,
+): boolean {
+  return hidePostsWithMedia ? hidePostsWithMedia === "true" : fallback;
+}
+
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
   time: Interval;
   listingType: ListingType;
   showRead: boolean;
+  hidePostsWithMedia: boolean;
 };
 
 export function getHomeQueryParams(
@@ -252,6 +261,7 @@ export function getHomeQueryParams(
       postOrCommentType: getPostOrCommentTypeFromQuery,
       showHidden: getShowHiddenFromQuery,
       showRead: getShowReadFromQuery,
+      hidePostsWithMedia: getHidePostsWithMediaFromQuery,
     },
     source,
     {
@@ -264,6 +274,7 @@ export function getHomeQueryParams(
         secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
         ALL_TIME_INTERVAL,
       showRead: local_user?.show_read_posts ?? true,
+      hidePostsWithMedia: local_user?.hide_posts_with_media ?? false,
     },
   );
 }
@@ -351,6 +362,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       cursor,
       showHidden,
       showRead,
+      hidePostsWithMedia,
     },
     headers,
   }: InitialFetchRequest<HomePathProps, HomeProps>): Promise<HomeData> => {
@@ -371,6 +383,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         time_range_seconds: intervalToSeconds(time),
         show_hidden: showHidden,
         show_read: showRead,
+        hide_posts_with_media: hidePostsWithMedia,
       };
 
       postsFetch = client.getPosts(getPostsForm);
@@ -679,6 +692,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       time,
       showHidden,
       showRead,
+      hidePostsWithMedia,
     } = {
       ...this.props,
       ...props,
@@ -691,6 +705,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       time: intervalToQuery(time),
       showHidden: showHidden?.toString(),
       showRead: showRead?.toString(),
+      hidePostsWithMedia: hidePostsWithMedia?.toString(),
     };
 
     this.props.history.push({
@@ -878,8 +893,15 @@ export class Home extends Component<HomeRouteProps, HomeState> {
   }
 
   get selects() {
-    const { listingType, postOrCommentType, sort, time, showHidden, showRead } =
-      this.props;
+    const {
+      listingType,
+      postOrCommentType,
+      sort,
+      time,
+      showHidden,
+      showRead,
+      hidePostsWithMedia,
+    } = this.props;
 
     const { showSubscribedMobile, showSidebarMobile, selectButtonsHidden } =
       this.state;
@@ -998,6 +1020,20 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                 onCheck={hideRead => handleHideReadChange(this, hideRead)}
               />
             </div>
+            <div
+              className="col mt-0"
+              data-tippy-content={I18NextService.i18n.t(
+                "hide_memes_description",
+              )}
+            >
+              <FilterChipCheckbox
+                option={"hide_memes"}
+                isChecked={hidePostsWithMedia ?? false}
+                onCheck={hidePostsWithMedia =>
+                  handlePostsWithMediaChange(this, hidePostsWithMedia)
+                }
+              />
+            </div>
           </div>
         )}
       </div>
@@ -1013,6 +1049,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     time,
     showHidden,
     showRead,
+    hidePostsWithMedia,
   }: HomeProps) {
     const token = (this.fetchDataToken = Symbol());
     if (postOrCommentType === "post") {
@@ -1024,6 +1061,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         type_: listingType,
         show_hidden: showHidden,
         show_read: showRead,
+        hide_posts_with_media: hidePostsWithMedia,
       });
       if (token === this.fetchDataToken) {
         this.setState({ postsRes });
@@ -1212,6 +1250,13 @@ function handleShowHiddenChange(i: Home, showHidden: boolean) {
 function handleHideReadChange(i: Home, hideRead: boolean) {
   i.updateUrl({
     showRead: !hideRead,
+    cursor: undefined,
+  });
+}
+
+function handlePostsWithMediaChange(i: Home, hidePostsWithMedia: boolean) {
+  i.updateUrl({
+    hidePostsWithMedia,
     cursor: undefined,
   });
 }

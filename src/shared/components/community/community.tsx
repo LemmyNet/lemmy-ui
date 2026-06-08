@@ -172,12 +172,14 @@ interface CommunityProps {
   cursor?: PaginationCursor;
   showHidden?: boolean;
   showRead?: boolean;
+  hidePostsWithMedia?: boolean;
 }
 
 type Fallbacks = {
   sort: PostSortType | CommentSortType;
   time: Interval;
   showRead: boolean;
+  hidePostsWithMedia: boolean;
 };
 
 export function getCommunityQueryParams(
@@ -196,6 +198,7 @@ export function getCommunityQueryParams(
       time: intervalFromQuery,
       showHidden: getShowHiddenFromQuery,
       showRead: getShowReadFromQuery,
+      hidePostsWithMedia: getHidePostsWithMediaFromQuery,
     },
     source,
     {
@@ -205,6 +208,7 @@ export function getCommunityQueryParams(
         secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
         ALL_TIME_INTERVAL,
       showRead: local_user?.show_read_posts ?? true,
+      hidePostsWithMedia: local_user?.hide_posts_with_media ?? false,
     },
   );
 }
@@ -233,6 +237,13 @@ function getShowReadFromQuery(
   fallback: boolean,
 ): boolean {
   return showRead ? showRead === "true" : fallback;
+}
+
+function getHidePostsWithMediaFromQuery(
+  hidePostsWithMedia: string | undefined,
+  fallback: boolean,
+): boolean {
+  return hidePostsWithMedia ? hidePostsWithMedia === "true" : fallback;
 }
 
 type CommunityPathProps = { name: string };
@@ -340,6 +351,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       showHidden,
       showRead,
       tagId,
+      hidePostsWithMedia,
     },
     match: { params: props },
   }: InitialFetchRequest<
@@ -369,6 +381,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         show_hidden: showHidden,
         show_read: showRead,
         tag_id: tagId,
+        hide_posts_with_media: hidePostsWithMedia,
         page_cursor: cursor,
       };
 
@@ -408,6 +421,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       sort,
       showHidden,
       showRead,
+      hidePostsWithMedia,
       time,
       match: {
         params: { name },
@@ -424,6 +438,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       showHidden: showHidden?.toString(),
       showRead: showRead?.toString(),
       tagId: tagId?.toString(),
+      hidePostsWithMedia: hidePostsWithMedia?.toString(),
       time: intervalToQuery(time),
     };
 
@@ -441,6 +456,7 @@ export class Community extends Component<CommunityRouteProps, State> {
       showHidden,
       showRead,
       tagId,
+      hidePostsWithMedia,
     } = props;
     const name = decodeURIComponent(props.match.params.name);
 
@@ -455,6 +471,7 @@ export class Community extends Component<CommunityRouteProps, State> {
         show_hidden: showHidden,
         show_read: showRead,
         tag_id: tagId,
+        hide_posts_with_media: hidePostsWithMedia,
       });
       if (token === this.fetchDataToken) {
         this.setState({ postsRes });
@@ -789,8 +806,15 @@ export class Community extends Component<CommunityRouteProps, State> {
     const res =
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
-    const { postOrCommentType, sort, time, showHidden, showRead, tagId } =
-      this.props;
+    const {
+      postOrCommentType,
+      sort,
+      time,
+      showHidden,
+      showRead,
+      tagId,
+      hidePostsWithMedia,
+    } = this.props;
     const communityRss = res
       ? communityRSSUrl(res.community_view.community, sort)
       : undefined;
@@ -898,6 +922,20 @@ export class Community extends Component<CommunityRouteProps, State> {
                 onCheck={hideRead => handleHideReadChange(this, hideRead)}
               />
             </div>
+            <div
+              className="col"
+              data-tippy-content={I18NextService.i18n.t(
+                "hide_memes_description",
+              )}
+            >
+              <FilterChipCheckbox
+                option={"hide_memes"}
+                isChecked={hidePostsWithMedia ?? false}
+                onCheck={hidePostsWithMedia =>
+                  handlePostsWithMediaChange(this, hidePostsWithMedia)
+                }
+              />
+            </div>
           </div>
         )}
       </>
@@ -1000,6 +1038,13 @@ function handleShowHiddenChange(i: Community, showHidden: boolean) {
 function handleHideReadChange(i: Community, hideRead: boolean) {
   i.updateUrl({
     showRead: !hideRead,
+    cursor: undefined,
+  });
+}
+
+function handlePostsWithMediaChange(i: Community, hidePostsWithMedia: boolean) {
+  i.updateUrl({
+    hidePostsWithMedia,
     cursor: undefined,
   });
 }

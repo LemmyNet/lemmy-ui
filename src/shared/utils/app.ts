@@ -213,9 +213,10 @@ export async function communitySearch(
 }
 
 export function communitySelectName(cv: CommunityView): string {
+  const nameOrTitle = cv.community.title ?? cv.community.name;
   return cv.community.local
-    ? (cv.community.title ?? cv.community.name)
-    : `!${cv.community.title}@${hostname(cv.community.ap_id)}`;
+    ? nameOrTitle
+    : `!${nameOrTitle}@${hostname(cv.community.ap_id)}`;
 }
 
 export function communityToChoice(cv: CommunityView): Choice {
@@ -661,6 +662,10 @@ export function showAvatars(myUserInfo: MyUserInfo | undefined): boolean {
   return myUserInfo?.local_user_view.local_user.show_avatars ?? true;
 }
 
+export function showMedia(myUserInfo: MyUserInfo | undefined): boolean {
+  return myUserInfo?.local_user_view.local_user.show_media ?? true;
+}
+
 export function showLocal(isoData: IsoData): boolean {
   return isoData.siteRes.site_view.local_site.federation_enabled;
 }
@@ -924,16 +929,6 @@ export function canViewCommunity(cv: CommunityView): boolean {
     cv.community.visibility !== "private" ||
     cv.community_actions?.follow_state === "accepted"
   );
-}
-
-/**
- * Hide the image if its in the prop, or you have hide_media in your local user settings.
- **/
-export function hideImages(
-  hideImage: boolean,
-  user: MyUserInfo | undefined,
-): boolean {
-  return hideImage || !!user?.local_user_view.local_user.hide_media;
 }
 
 /**
