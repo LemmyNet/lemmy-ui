@@ -382,37 +382,37 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         className="dropdown-menu dropdown-menu-end"
                         style={{ "min-width": "fit-content" }}
                       >
-                        <Mynavlink
-                          i={this}
+                        <MyNavLink
+                          onClick={() => handleCollapseClick(this)}
                           to={`/u/${person.name}`}
                           icon="user"
                           label="profile"
                         />
-                        <Mynavlink
-                          i={this}
+                        <MyNavLink
+                          onClick={() => handleCollapseClick(this)}
                           to="/settings"
                           icon="settings"
                           label="settings"
                         />
                         {moderatesSomething(this.props.myUserInfo) && (
-                          <Mynavlink
-                            i={this}
+                          <MyNavLink
+                            onClick={() => handleCollapseClick(this)}
                             to="/reports"
                             icon="shield"
                             label="reports"
                           />
                         )}
                         {amAdmin(this.props.myUserInfo) && (
-                          <Mynavlink
-                            i={this}
+                          <MyNavLink
+                            onClick={() => handleCollapseClick(this)}
                             to="/registration_applications"
                             icon="clipboard"
                             label="registration_applications"
                           />
                         )}
                         {moderatesPrivateCommunity(this.props.myUserInfo) && (
-                          <Mynavlink
-                            i={this}
+                          <MyNavLink
+                            onClick={() => handleCollapseClick(this)}
                             to="/pending_follows"
                             icon="lock"
                             label="community_pending_follows"
@@ -488,20 +488,21 @@ async function handleLogOut(i: Navbar) {
   handleCollapseClick(i);
 }
 
-interface NavlinkProps {
-  i: Navbar;
+interface MyNavLinkProps {
+  onClick: () => void;
   to: string;
   icon: string;
   label: NoOptionI18nKeys;
 }
-function Mynavlink({ i, to, icon, label }: NavlinkProps) {
+
+function MyNavLink({ onClick, to, icon, label }: MyNavLinkProps) {
   return (
     <li>
       <NavLink
         to={to}
         className="dropdown-item px-2"
         title={I18NextService.i18n.t(label)}
-        onClick={() => handleCollapseClick(i)}
+        onClick={onClick}
       >
         <Icon icon={icon} classes="me-1" />
         {I18NextService.i18n.t(label)}
