@@ -1020,7 +1020,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                 onCheck={hideRead => handleHideReadChange(this, hideRead)}
               />
             </div>
-            <div className="col mt-0">
+            <div
+              className="col mt-0"
+              data-tippy-content={I18NextService.i18n.t(
+                "hide_memes_description",
+              )}
+            >
               <FilterChipCheckbox
                 option={"hide_memes"}
                 isChecked={hidePostsWithMedia ?? false}

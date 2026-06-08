@@ -897,7 +897,10 @@ export class Community extends Component<CommunityRouteProps, State> {
                 onCheck={hideRead => handleHideReadChange(this, hideRead)}
               />
             </div>
-            <div className="col">
+            <div
+              className="col"
+              data-tippy-content={I18NextService.i18n.t("locked")}
+            >
               <FilterChipCheckbox
                 option={"hide_memes"}
                 isChecked={hidePostsWithMedia ?? false}

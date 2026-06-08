@@ -1133,7 +1133,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             </div>
           </div>
           <div className="row mb-3">
-            <div className="col">
+            <div
+              className="col"
+              data-tippy-content={I18NextService.i18n.t(
+                "hide_memes_description",
+              )}
+            >
               <FilterChipCheckbox
                 option={"hide_memes"}
                 isChecked={
