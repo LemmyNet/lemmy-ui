@@ -242,6 +242,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                                 getCommunityRes.community_view.community
                               }
                               myUserInfo={myUserInfo}
+                              muted={false}
                             />
                           </T>
                         </h1>
@@ -383,117 +384,116 @@ export class CommunitySettings extends Component<RouteProps, State> {
           <TableHr />
           {res &&
             res.moderators.map(m => (
-              <>
-                <div className="row" key={m.moderator.id}>
-                  <div className={nameCols}>
-                    <PersonListing
-                      person={m.moderator}
-                      banned={false}
-                      myUserInfo={myUserInfo}
-                    />
-                    <UserBadges
-                      classNames="ms-1"
-                      myUserInfo={myUserInfo}
-                      creator={m.moderator}
-                    />
-                    {amHigherModerator(res.moderators, m, myUserInfo) && (
-                      <>
-                        <button
-                          className="btn btn-link"
-                          onClick={() =>
-                            this.setState({
-                              showRemoveModDialog: m,
-                            })
-                          }
-                          data-tippy-content={I18NextService.i18n.t(
-                            "remove_as_mod",
-                          )}
-                        >
-                          <Icon icon="x" classes="icon-inline text-danger" />
-                        </button>
-                        <ConfirmationModal
-                          show={
-                            this.state.showRemoveModDialog?.moderator.id ===
-                            m.moderator.id
-                          }
-                          message={I18NextService.i18n.t(
-                            "remove_as_mod_are_you_sure",
-                            {
-                              user: getApubName(m.moderator),
-                              community: getApubName(m.community),
-                            },
-                          )}
-                          loadingMessage={I18NextService.i18n.t("removing_mod")}
-                          onNo={() =>
-                            this.setState({ showRemoveModDialog: undefined })
-                          }
-                          onYes={() =>
-                            handleAddMod(this, {
-                              community_id: res.community_view.community.id,
-                              person_id: m.moderator.id,
-                              added: false,
-                            })
-                          }
-                        />
-                      </>
-                    )}
-                    {amTopModExcludeMe(
-                      m.moderator.id,
-                      res.moderators,
-                      myUserInfo,
-                    ) && (
-                      <>
-                        <button
-                          className="btn btn-link"
-                          onClick={() =>
-                            this.setState({
-                              showTransferDialog: m,
-                            })
-                          }
-                          data-tippy-content={I18NextService.i18n.t(
-                            "transfer_community",
-                          )}
-                        >
-                          <Icon icon="transfer" classes="icon-inline" />
-                        </button>
-                        <ConfirmationModal
-                          show={
-                            this.state.showTransferDialog?.moderator.id ===
-                            m.moderator.id
-                          }
-                          message={I18NextService.i18n.t(
-                            "transfer_community_are_you_sure",
-                            {
-                              user: getApubName(m.moderator),
-                              community: getApubName(m.community),
-                            },
-                          )}
-                          loadingMessage={I18NextService.i18n.t(
-                            "transferring_community",
-                          )}
-                          onNo={() =>
-                            this.setState({ showTransferDialog: undefined })
-                          }
-                          onYes={() =>
-                            handleTransferCommunity(this, {
-                              community_id: res.community_view.community.id,
-                              person_id: m.moderator.id,
-                            })
-                          }
-                        />
-                      </>
-                    )}
-                  </div>
-                  <div className={dataCols}>
-                    <MomentTime published={m.moderator.published_at} />
-                  </div>
-                  <div className={dataCols}>{m.moderator.post_count}</div>
-                  <div className={dataCols}>{m.moderator.comment_count}</div>
+              <div className="row" key={m.moderator.id}>
+                <div className={nameCols}>
+                  <PersonListing
+                    person={m.moderator}
+                    banned={false}
+                    myUserInfo={myUserInfo}
+                    muted={false}
+                  />
+                  <UserBadges
+                    classNames="ms-1"
+                    myUserInfo={myUserInfo}
+                    creator={m.moderator}
+                  />
+                  {amHigherModerator(res.moderators, m, myUserInfo) && (
+                    <>
+                      <button
+                        className="btn btn-link"
+                        onClick={() =>
+                          this.setState({
+                            showRemoveModDialog: m,
+                          })
+                        }
+                        data-tippy-content={I18NextService.i18n.t(
+                          "remove_as_mod",
+                        )}
+                      >
+                        <Icon icon="x" classes="icon-inline text-danger" />
+                      </button>
+                      <ConfirmationModal
+                        show={
+                          this.state.showRemoveModDialog?.moderator.id ===
+                          m.moderator.id
+                        }
+                        message={I18NextService.i18n.t(
+                          "remove_as_mod_are_you_sure",
+                          {
+                            user: getApubName(m.moderator),
+                            community: getApubName(m.community),
+                          },
+                        )}
+                        loadingMessage={I18NextService.i18n.t("removing_mod")}
+                        onNo={() =>
+                          this.setState({ showRemoveModDialog: undefined })
+                        }
+                        onYes={() =>
+                          handleAddMod(this, {
+                            community_id: res.community_view.community.id,
+                            person_id: m.moderator.id,
+                            added: false,
+                          })
+                        }
+                      />
+                    </>
+                  )}
+                  {amTopModExcludeMe(
+                    m.moderator.id,
+                    res.moderators,
+                    myUserInfo,
+                  ) && (
+                    <>
+                      <button
+                        className="btn btn-link"
+                        onClick={() =>
+                          this.setState({
+                            showTransferDialog: m,
+                          })
+                        }
+                        data-tippy-content={I18NextService.i18n.t(
+                          "transfer_community",
+                        )}
+                      >
+                        <Icon icon="transfer" classes="icon-inline" />
+                      </button>
+                      <ConfirmationModal
+                        show={
+                          this.state.showTransferDialog?.moderator.id ===
+                          m.moderator.id
+                        }
+                        message={I18NextService.i18n.t(
+                          "transfer_community_are_you_sure",
+                          {
+                            user: getApubName(m.moderator),
+                            community: getApubName(m.community),
+                          },
+                        )}
+                        loadingMessage={I18NextService.i18n.t(
+                          "transferring_community",
+                        )}
+                        onNo={() =>
+                          this.setState({ showTransferDialog: undefined })
+                        }
+                        onYes={() =>
+                          handleTransferCommunity(this, {
+                            community_id: res.community_view.community.id,
+                            person_id: m.moderator.id,
+                          })
+                        }
+                      />
+                    </>
+                  )}
                 </div>
-                <hr />
-              </>
+                <div className={dataCols}>
+                  <MomentTime published={m.moderator.published_at} />
+                </div>
+                <div className={dataCols}>{m.moderator.post_count}</div>
+                <div className={dataCols}>{m.moderator.comment_count}</div>
+              </div>
             ))}
         </div>
+        <hr />
         <div className="row mb-4">
           <div className="col-12 col-md-4">
             <FilterChipSelect
@@ -669,6 +669,9 @@ async function handleEditTag(i: CommunitySettings, form: EditCommunityTag) {
   i.setState({
     createOrEditTagRes: { id: form.tag_id, res },
   });
+
+  // Need to refetch community to update tags
+  await i.fetchCommunity(i.props);
 
   if (res.state === "success") {
     toast(I18NextService.i18n.t("community_tag_edited"));

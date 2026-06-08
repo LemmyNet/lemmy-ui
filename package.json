@@ -75,14 +75,14 @@
     "inferno-router": "^9.1.0",
     "inferno-server": "^9.1.0",
     "jwt-decode": "^4.0.0",
-    "lemmy-js-client": "1.0.0-admin-endpoints.0",
+    "lemmy-js-client": "1.0.0-tag-id.3",
     "markdown-it": "^14.1.0",
     "markdown-it-bidi": "^0.2.0",
     "markdown-it-container": "^4.0.0",
     "markdown-it-emoji": "^3.0.0",
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-highlightjs": "^4.1.0",
-    "markdown-it-html5-embed": "^1.0.0",
+    "markdown-it-html5-media": "^0.8.0",
     "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-ruby": "^1.0.0",
     "markdown-it-sub": "^2.0.0",
@@ -151,7 +151,7 @@
     "webpack-bundle-analyzer": "^5.0.0",
     "webpack-dev-server": "5.2.4"
   },
-  "packageManager": "pnpm@11.3.0",
+  "packageManager": "pnpm@11.5.2",
   "engines": {
     "node": ">=8.9.0"
   },

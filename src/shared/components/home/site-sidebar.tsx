@@ -159,6 +159,7 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
               person={av.person}
               banned={av.banned}
               myUserInfo={this.props.myUserInfo}
+              muted={false}
             />
           </li>
         ))}

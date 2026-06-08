@@ -200,12 +200,14 @@ export class PendingFollows extends Component<
   }
 
   applicationList(pending: PendingFollowView[]) {
-    if (this.props.viewState === "denied") {
-      pending = pending.filter(p => p.follow_state === "denied");
-    }
+    const pendingFollows =
+      this.props.viewState === "denied"
+        ? pending.filter(p => p.follow_state === "denied")
+        : pending;
+
     return (
       <div>
-        {pending.map(pendingFollow => (
+        {pendingFollows.map(pendingFollow => (
           <>
             <hr />
             <PendingFollow

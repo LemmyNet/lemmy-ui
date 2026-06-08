@@ -178,6 +178,7 @@ export class Communities extends Component<
                     <CommunityLink
                       community={cv.community}
                       myUserInfo={this.isoData.myUserInfo}
+                      muted={false}
                     />
                   </div>
                   <div className={countCols}>

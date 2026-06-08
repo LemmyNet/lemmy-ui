@@ -50,6 +50,18 @@ const PRESET_OAUTH_PROVIDERS: ProviderToEdit[] = [
     account_linking_enabled: true,
     enabled: true,
   },
+  {
+    display_name: "Reddit",
+    issuer: "https://reddit.com/",
+    authorization_endpoint: "https://www.reddit.com/api/v1/authorize",
+    token_endpoint: "https://www.reddit.com/api/v1/access_token",
+    userinfo_endpoint: "https://oauth.reddit.com/api/v1/me",
+    id_claim: "id",
+    scopes: "identity",
+    auto_verify_email: true,
+    account_linking_enabled: true,
+    enabled: true,
+  },
   // additional preset providers can be added here
 ];
 

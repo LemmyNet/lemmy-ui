@@ -294,7 +294,7 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                 <div className="row">
                   <div className="col">
                     <ProviderCheckboxField
-                      id="auto-verfiy-email"
+                      id="auto-verify-email"
                       i18nKey="oauth_auto_verify_email"
                       checked={provider?.auto_verify_email}
                       onInput={() =>

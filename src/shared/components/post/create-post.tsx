@@ -293,8 +293,8 @@ export class CreatePost extends Component<
               localSite={siteRes.site_view.local_site}
               admins={siteRes.admins}
               onBodyBlur={form => handleBodyBlur(this, form)}
-              onLanguageChange={languangeId =>
-                handleLanguageChange(this, languangeId)
+              onLanguageChange={languageId =>
+                handleLanguageChange(this, languageId)
               }
               onTitleBlur={form => handleTitleBlur(this, form)}
               onUrlBlur={form => handleUrlBlur(this, form)}

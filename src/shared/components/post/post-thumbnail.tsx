@@ -1,7 +1,7 @@
 import { Icon } from "@components/common/icon";
 import { PictrsImage } from "@components/common/pictrs-image";
 import { I18NextService } from "@services/index";
-import { hideAnimatedImage, hideImages, linkTarget } from "@utils/app";
+import { hideAnimatedImage, linkTarget, showMedia } from "@utils/app";
 import { relTags } from "@utils/config";
 import { isImage, isVideo } from "@utils/media";
 import classNames from "classnames";
@@ -17,7 +17,7 @@ export function PostThumbnail({ postView, hideImage, myUserInfo }: Props) {
   const post = postView.post;
   const url = post.url;
   const thumbnail = post.thumbnail_url;
-  const hideImages_ = hideImages(hideImage, myUserInfo);
+  const hideImages_ = hideImage || !showMedia(myUserInfo);
 
   if (
     !hideImages_ &&

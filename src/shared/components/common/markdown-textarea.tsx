@@ -91,7 +91,7 @@ export class MarkdownTextArea extends Component<
   state: MarkdownTextAreaState = {
     id: `markdown-textarea-${randomStr()}`,
     formId: `markdown-form-${randomStr()}`,
-    content: this.props.initialContent,
+    content: undefined,
     languageId: this.props.initialLanguageId,
     previewMode: false,
   };
@@ -102,7 +102,9 @@ export class MarkdownTextArea extends Component<
       const textarea = this.textAreaRef.current;
       if (textarea) {
         const content: string | undefined =
-          localStorage.getItem(LOCAL_STORAGE_KEY) ?? undefined;
+          this.props.initialContent ??
+          localStorage.getItem(LOCAL_STORAGE_KEY) ??
+          undefined;
         this.setState({ content });
         autosize(textarea);
         tribute.attach(textarea);
@@ -265,7 +267,7 @@ export class MarkdownTextArea extends Component<
                       value={this.state.imageUploadStatus.uploaded}
                       max={this.state.imageUploadStatus.total}
                       text={
-                        I18NextService.i18n.t("pictures_uploaded_progess", {
+                        I18NextService.i18n.t("pictures_uploaded_progress", {
                           uploaded: this.state.imageUploadStatus.uploaded,
                           total: this.state.imageUploadStatus.total,
                         }) ?? undefined

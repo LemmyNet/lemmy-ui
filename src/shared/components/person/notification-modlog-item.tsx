@@ -59,6 +59,7 @@ export class NotificationModlogItem extends Component<
                 person={moderator}
                 banned={false}
                 myUserInfo={this.props.myUserInfo}
+                muted={false}
               />
             ) : (
               I18NextService.i18n.t("mod")

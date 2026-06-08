@@ -35,6 +35,7 @@ export class PrivateMessageReport extends Component<Props, object> {
             person={r.private_message_creator}
             banned={r.creator_banned}
             myUserInfo={this.props.myUserInfo}
+            muted={false}
           />
         </div>
         <div>
@@ -53,6 +54,7 @@ export class PrivateMessageReport extends Component<Props, object> {
             person={r.creator}
             banned={false}
             myUserInfo={this.props.myUserInfo}
+            muted={false}
           />
         </div>
         <div>
@@ -67,6 +69,7 @@ export class PrivateMessageReport extends Component<Props, object> {
                   person={r.resolver}
                   banned={false}
                   myUserInfo={this.props.myUserInfo}
+                  muted={false}
                 />
               </T>
             ) : (
@@ -76,6 +79,7 @@ export class PrivateMessageReport extends Component<Props, object> {
                   person={r.resolver}
                   banned={false}
                   myUserInfo={this.props.myUserInfo}
+                  muted={false}
                 />
               </T>
             )}

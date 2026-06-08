@@ -61,6 +61,7 @@ import { TableHr } from "./common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { ModlogKindFilterDropdown } from "./common/modlog-kind-filter-dropdown";
 import { FilterChipSelect } from "./common/filter-chip-select";
+import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
@@ -82,6 +83,7 @@ export function getModlogQueryParams(source?: string): ModlogProps {
       commentId: getIdFromString,
       postId: getIdFromString,
       communityId: getIdFromString,
+      bulkActionParentId: getIdFromString,
       cursor: (cursor?: string) => cursor,
     },
     source,
@@ -109,6 +111,7 @@ interface ModlogProps {
   postId?: number;
   commentId?: number;
   communityId?: number;
+  bulkActionParentId?: number;
 }
 
 function getActionFromString(action?: string): ModlogKindFilter {
@@ -232,6 +235,7 @@ export function processModlogEntry(
             <CommunityLink
               community={target_community}
               myUserInfo={myUserInfo}
+              muted={false}
             />
             {reason && (
               <span>
@@ -255,6 +259,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
+                muted={false}
               />
             </span>
             <span> as an admin </span>
@@ -275,6 +280,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
+                muted={false}
               />
             </span>
             <span> as a mod to the community </span>
@@ -282,6 +288,7 @@ export function processModlogEntry(
               <CommunityLink
                 community={target_community}
                 myUserInfo={myUserInfo}
+                muted={false}
               />
             </span>
           </>
@@ -301,6 +308,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={!is_revert}
+                muted={false}
               />
             </span>
             {reason && (
@@ -311,6 +319,13 @@ export function processModlogEntry(
             {expires_at && (
               <span>
                 <div>expires: {formatRelativeDate(expires_at)}</div>
+              </span>
+            )}
+            {modlog.child_count && (
+              <span>
+                <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
+                  {I18NextService.i18n.t("modlog_view_children")}
+                </a>
               </span>
             )}
           </>
@@ -330,6 +345,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={!is_revert}
+                muted={false}
               />
             </span>
             <span> from the community </span>
@@ -337,6 +353,7 @@ export function processModlogEntry(
               <CommunityLink
                 community={target_community}
                 myUserInfo={myUserInfo}
+                muted={false}
               />
             </span>
             {reason && (
@@ -347,6 +364,13 @@ export function processModlogEntry(
             {expires_at && (
               <span>
                 <div>expires: {formatRelativeDate(expires_at)}</div>
+              </span>
+            )}
+            {modlog.child_count && (
+              <span>
+                <a href={`/modlog?bulkActionParentId=${modlog.id}`}>
+                  {I18NextService.i18n.t("modlog_view_children")}
+                </a>
               </span>
             )}
           </>
@@ -365,6 +389,7 @@ export function processModlogEntry(
               <CommunityLink
                 community={target_community}
                 myUserInfo={myUserInfo}
+                muted={false}
               />
             </span>
           </>
@@ -387,6 +412,7 @@ export function processModlogEntry(
             <CommunityLink
               community={target_community}
               myUserInfo={myUserInfo}
+              muted={false}
             />
           </>
         ),
@@ -450,6 +476,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
+                muted={false}
               />
             </span>
             {reason && (
@@ -482,6 +509,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
+                muted={false}
               />
             </span>
             {reason && (
@@ -506,6 +534,7 @@ export function processModlogEntry(
               <CommunityLink
                 community={target_community}
                 myUserInfo={myUserInfo}
+                muted={false}
               />
             </span>
             {reason && (
@@ -550,6 +579,7 @@ export function processModlogEntry(
               <CommunityLink
                 community={target_community}
                 myUserInfo={myUserInfo}
+                muted={false}
               />
             </span>
             <span> to </span>
@@ -558,6 +588,7 @@ export function processModlogEntry(
                 person={target_person}
                 myUserInfo={myUserInfo}
                 banned={false}
+                muted={false}
               />
             </span>
           </>
@@ -576,6 +607,7 @@ export function processModlogEntry(
               person={target_person}
               myUserInfo={myUserInfo}
               banned={false}
+              muted={false}
             />
             <span> about Comment </span>
             <Link to={`/comment/${target_comment?.id}`}>
@@ -601,6 +633,7 @@ export function processModlogEntry(
               person={target_person}
               myUserInfo={myUserInfo}
               banned={false}
+              muted={false}
             />
             <span> about Post </span>
             <Link to={`/post/${target_post?.id}`}>{target_post?.name}</Link>
@@ -812,6 +845,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
                   person={moderator}
                   myUserInfo={myUserInfo}
                   banned={false}
+                  muted={false}
                 />
               ) : (
                 <div>{this.modOrAdminText(moderator)}</div>
@@ -852,7 +886,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       modSearchOptions,
       communitySearchOptions,
     } = this.state;
-    const { actionType, modId, userId, communityId } = this.props;
+    const { actionType, modId, userId, communityId, bulkActionParentId } =
+      this.props;
 
     const communityState = this.state.communityRes.state;
     const communityResp =
@@ -943,6 +978,15 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               />
             </div>
           )}
+          {bulkActionParentId && (
+            <div className="col">
+              <FilterChipCheckbox
+                option="children_for_modlog_item"
+                isChecked={false}
+                onCheck={_ => handleClearBulkActionParentId(this)}
+              />
+            </div>
+          )}
         </div>
         {this.renderModlogTable()}
       </div>
@@ -993,7 +1037,14 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
   }
 
   updateUrl(props: Partial<ModlogProps>) {
-    const { actionType, modId, cursor, userId, communityId } = {
+    const {
+      actionType,
+      modId,
+      cursor,
+      userId,
+      communityId,
+      bulkActionParentId,
+    } = {
       ...this.props,
       ...props,
     };
@@ -1004,6 +1055,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       modId: modId?.toString(),
       userId: userId?.toString(),
       communityId: communityId?.toString(),
+      bulkActionParentId: bulkActionParentId?.toString(),
     };
 
     this.props.history.push(`/modlog${getQueryString(queryParams)}`);
@@ -1020,6 +1072,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       postId,
       commentId,
       communityId,
+      bulkActionParentId,
     } = props;
 
     this.setState({ res: LOADING_REQUEST });
@@ -1031,6 +1084,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       mod_person_id: modId,
       comment_id: commentId,
       post_id: postId,
+      bulk_action_parent_id: bulkActionParentId,
       page_cursor: cursor,
     });
 
@@ -1075,6 +1129,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       commentId,
       postId,
       communityId,
+      bulkActionParentId,
     },
   }: InitialFetchRequest<
     ModlogPathProps,
@@ -1093,6 +1148,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       other_person_id: userId,
       comment_id: commentId,
       post_id: postId,
+      bulk_action_parent_id: bulkActionParentId,
     };
 
     let communityResponse: RequestState<GetCommunityResponse> = EMPTY_REQUEST;
@@ -1227,3 +1283,7 @@ const handleSearchMods = debounce(async (i: Modlog, text: string) => {
     loadingModSearch: false,
   });
 });
+
+function handleClearBulkActionParentId(i: Modlog) {
+  i.updateUrl({ bulkActionParentId: undefined, cursor: undefined });
+}

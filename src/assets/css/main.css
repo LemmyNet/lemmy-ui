@@ -514,6 +514,7 @@ em-emoji-picker {
   -webkit-mask: var(--mask);
   mask: var(--mask);
   max-height: 100px;
+  overflow: clip;
 }
 
 .legal-info-box {

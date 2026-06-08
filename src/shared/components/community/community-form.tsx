@@ -75,7 +75,7 @@ export class CommunityForm extends Component<
           banner: cv.community.banner,
           posting_restricted_to_mods: cv.community.posting_restricted_to_mods,
           discussion_languages: this.props.communityLanguages,
-          visibilty: cv.community.visibility,
+          visibility: cv.community.visibility,
         }
       : {};
   }

@@ -236,7 +236,11 @@ function CommunitiesListing({
           <ul className="list-unstyled mb-0">
             {communityViews.map(({ community }) => (
               <li key={community.id}>
-                <CommunityLink community={community} myUserInfo={myUserInfo} />
+                <CommunityLink
+                  community={community}
+                  myUserInfo={myUserInfo}
+                  muted={false}
+                />
               </li>
             ))}
           </ul>
