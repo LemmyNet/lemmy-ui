@@ -1,4 +1,4 @@
-import { showAvatars } from "@utils/app";
+import { showAvatars, showMedia } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { numToSI } from "@utils/helpers";
 import {
@@ -123,9 +123,11 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             className="d-flex align-items-center navbar-brand me-md-3"
             onMouseUp={() => handleCollapseClick(this)}
           >
-            {siteView?.site.icon && showAvatars(this.props.myUserInfo) && (
-              <PictrsImage src={siteView.site.icon} type="icon" />
-            )}
+            {siteView?.site.icon &&
+              showAvatars(this.props.myUserInfo) &&
+              showMedia(this.props.myUserInfo) && (
+                <PictrsImage src={siteView.site.icon} type="icon" />
+              )}
             {siteView?.site.name}
           </NavLink>
           {person && (
@@ -373,6 +375,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         data-bs-toggle="dropdown"
                       >
                         {showAvatars(this.props.myUserInfo) &&
+                          showMedia(this.props.myUserInfo) &&
                           person.avatar && (
                             <PictrsImage src={person.avatar} type="icon" />
                           )}

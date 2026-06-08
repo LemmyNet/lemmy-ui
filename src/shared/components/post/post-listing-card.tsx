@@ -47,7 +47,7 @@ import { PostActionBar } from "./post-action-bar";
 import { PostThumbnail } from "./post-thumbnail";
 import classNames from "classnames";
 import { MetadataCard } from "./metadata-card";
-import { hideAnimatedImage, hideImages } from "@utils/app";
+import { hideAnimatedImage, showMedia } from "@utils/app";
 import { PictrsImage } from "@components/common/pictrs-image";
 
 type PostListingCardState = {
@@ -349,7 +349,8 @@ function PostImg({
   const thumbnail = post.thumbnail_url;
   const imageSrc = url && isImage(url) ? url : thumbnail;
 
-  return !hideImages(hideImage, myUserInfo) &&
+  return !hideImage &&
+    showMedia(myUserInfo) &&
     imageSrc &&
     !hideAnimatedImage(imageSrc, myUserInfo) ? (
     <div className="my-2">
