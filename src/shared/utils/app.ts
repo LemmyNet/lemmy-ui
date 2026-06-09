@@ -927,7 +927,8 @@ export function postIsInteractable(
 export function canViewCommunity(cv: CommunityView): boolean {
   return (
     cv.community.visibility !== "private" ||
-    cv.community_actions?.follow_state === "accepted"
+    cv.community_actions?.follow_state === "accepted" ||
+    cv.can_mod
   );
 }
 
