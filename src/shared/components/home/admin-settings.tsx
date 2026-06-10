@@ -59,7 +59,7 @@ import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { fetchLimit } from "@utils/config";
 import { UserBadges } from "@components/common/user-badges";
 import { MomentTime } from "@components/common/moment-time";
-import { TableHr } from "@components/common/tables";
+import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { InstanceList } from "./instances";
 import { InstanceAllowForm } from "./instance-allow-form";
@@ -462,8 +462,8 @@ export class AdminSettings extends Component<
   admins() {
     const admins = this.isoData.siteRes.admins;
 
-    const nameCols = "col-12 col-md-6";
-    const dataCols = "col-4 col-md-2";
+    const nameCols = "col-6 col-md-6";
+    const dataCols = "col-6 col-md-2";
 
     return (
       <>
@@ -471,24 +471,27 @@ export class AdminSettings extends Component<
           {capitalizeFirstLetter(I18NextService.i18n.t("admins"))}
         </h1>
         <div id="admins-table">
-          <div className="row">
-            <div className={`${nameCols} fw-bold`}>
-              {I18NextService.i18n.t("username")}
+          <div className="d-none d-md-block">
+            <div className="row">
+              <div className={`${nameCols} fw-bold`}>
+                {I18NextService.i18n.t("username")}
+              </div>
+              <div className={`${dataCols} fw-bold`}>
+                {I18NextService.i18n.t("registered_date_title")}
+              </div>
+              <div className={`${dataCols} fw-bold`}>
+                {I18NextService.i18n.t("posts")}
+              </div>
+              <div className={`${dataCols} fw-bold`}>
+                {I18NextService.i18n.t("comments")}
+              </div>
             </div>
-            <div className={`${dataCols} fw-bold`}>
-              {I18NextService.i18n.t("registered_date_title")}
-            </div>
-            <div className={`${dataCols} fw-bold`}>
-              {I18NextService.i18n.t("posts")}
-            </div>
-            <div className={`${dataCols} fw-bold`}>
-              {I18NextService.i18n.t("comments")}
-            </div>
+            <TableHr />
           </div>
-          <TableHr />
           {admins.map(admin => (
             <>
               <div className="row" key={admin.person.id}>
+                <ResponsiveTableRowHeader title={"username"} />
                 <div className={nameCols}>
                   <PersonListing
                     person={admin.person}
@@ -504,13 +507,16 @@ export class AdminSettings extends Component<
                     creator={admin.person}
                   />
                 </div>
+                <ResponsiveTableRowHeader title={"registered_date_title"} />
                 <div className={dataCols}>
                   <MomentTime published={admin.person.published_at} />
                 </div>
+                <ResponsiveTableRowHeader title={"posts"} />
                 <div className={dataCols}>{admin.person.post_count}</div>
+                <ResponsiveTableRowHeader title={"comments"} />
                 <div className={dataCols}>{admin.person.comment_count}</div>
-                <hr />
               </div>
+              <hr key={admin.person.id + "hr"} />
             </>
           ))}
         </div>
@@ -567,32 +573,35 @@ export class AdminSettings extends Component<
         );
       case "success": {
         const local_users = this.state.usersRes.data.items;
-        const nameCols = "col-12 col-md-3";
-        const dataCols = "col-4 col-md-2";
+        const nameCols = "col-6 col-md-3";
+        const dataCols = "col-6 col-md-2";
 
         return (
           <div id="users-table">
-            <div className="row">
-              <div className={`${nameCols} fw-bold`}>
-                {I18NextService.i18n.t("username")}
+            <div className="d-none d-md-block">
+              <div className="row">
+                <div className={`${nameCols} fw-bold`}>
+                  {I18NextService.i18n.t("username")}
+                </div>
+                <div className={`${nameCols} fw-bold`}>
+                  {I18NextService.i18n.t("email")}
+                </div>
+                <div className={`${dataCols} fw-bold`}>
+                  {I18NextService.i18n.t("registered_date_title")}
+                </div>
+                <div className={`${dataCols} fw-bold`}>
+                  {I18NextService.i18n.t("posts")}
+                </div>
+                <div className={`${dataCols} fw-bold`}>
+                  {I18NextService.i18n.t("comments")}
+                </div>
               </div>
-              <div className={`${nameCols} fw-bold`}>
-                {I18NextService.i18n.t("email")}
-              </div>
-              <div className={`${dataCols} fw-bold`}>
-                {I18NextService.i18n.t("registered_date_title")}
-              </div>
-              <div className={`${dataCols} fw-bold`}>
-                {I18NextService.i18n.t("posts")}
-              </div>
-              <div className={`${dataCols} fw-bold`}>
-                {I18NextService.i18n.t("comments")}
-              </div>
+              <TableHr />
             </div>
-            <TableHr />
             {local_users.map(local_user => (
               <>
                 <div className="row" key={local_user.person.id}>
+                  <ResponsiveTableRowHeader title={"username"} />
                   <div className={nameCols}>
                     <PersonListing
                       person={local_user.person}
@@ -608,16 +617,22 @@ export class AdminSettings extends Component<
                       creator={local_user.person}
                     />
                   </div>
-                  <div className={nameCols}>{local_user.local_user.email}</div>
+                  <ResponsiveTableRowHeader title={"email"} />
+                  <div className={classNames(nameCols, "text-break")}>
+                    {local_user.local_user.email}
+                  </div>
+                  <ResponsiveTableRowHeader title={"registered_date_title"} />
                   <div className={dataCols}>
                     <MomentTime published={local_user.person.published_at} />
                   </div>
+                  <ResponsiveTableRowHeader title={"posts"} />
                   <div className={dataCols}>{local_user.person.post_count}</div>
+                  <ResponsiveTableRowHeader title={"comments"} />
                   <div className={dataCols}>
                     {local_user.person.comment_count}
                   </div>
-                  <hr />
                 </div>
+                <hr key={local_user.person.id + "hr"} />
               </>
             ))}
             <PaginatorCursor

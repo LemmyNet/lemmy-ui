@@ -43,7 +43,7 @@ import { RouteComponentProps, RouterContext } from "inferno-router";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
-import { TableHr } from "@components/common/tables";
+import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { CreateCommunityButton } from "@components/common/content-actions/create-item-buttons";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
 
@@ -139,7 +139,7 @@ export class Communities extends Component<
   }
 
   renderListingsTable(): InfernoNode | void {
-    const nameCols = "col-12 col-md-7";
+    const nameCols = "col-6 col-md-7";
     const countCols = "col-6 col-md-1";
 
     switch (this.state.listCommunitiesResponse.state) {
@@ -152,28 +152,31 @@ export class Communities extends Component<
       case "success": {
         return (
           <div id="community_table">
-            <div className="row">
-              <div className={`${nameCols} fw-bold`}>
-                {I18NextService.i18n.t("name")}
+            <div className="d-none d-md-block">
+              <div className="row">
+                <div className={`${nameCols} fw-bold`}>
+                  {I18NextService.i18n.t("name")}
+                </div>
+                <div className={`${countCols} fw-bold`}>
+                  {I18NextService.i18n.t("community_visibility")}
+                </div>
+                <div className={`${countCols} fw-bold`}>
+                  {I18NextService.i18n.t("users")} /{" "}
+                  {I18NextService.i18n.t("month")}
+                </div>
+                <div className={`${countCols} fw-bold`}>
+                  {I18NextService.i18n.t("posts")}
+                </div>
+                <div className={`${countCols} fw-bold`}>
+                  {I18NextService.i18n.t("comments")}
+                </div>
               </div>
-              <div className={`${countCols} fw-bold`}>
-                {I18NextService.i18n.t("community_visibility")}
-              </div>
-              <div className={`${countCols} fw-bold`}>
-                {I18NextService.i18n.t("users")} /{" "}
-                {I18NextService.i18n.t("month")}
-              </div>
-              <div className={`${countCols} fw-bold`}>
-                {I18NextService.i18n.t("posts")}
-              </div>
-              <div className={`${countCols} fw-bold`}>
-                {I18NextService.i18n.t("comments")}
-              </div>
+              <TableHr />
             </div>
-            <TableHr />
             {this.state.listCommunitiesResponse.data.items.map(cv => (
               <>
                 <div className="row">
+                  <ResponsiveTableRowHeader title={"name"} />
                   <div className={nameCols}>
                     <CommunityLink
                       community={cv.community}
@@ -181,15 +184,19 @@ export class Communities extends Component<
                       muted={false}
                     />
                   </div>
+                  <ResponsiveTableRowHeader title={"community_visibility"} />
                   <div className={countCols}>
                     {I18NextService.i18n.t(
                       `community_visibility_${cv.community.visibility}`,
                     )}
                   </div>
+                  <ResponsiveTableRowHeader title={"users"} />
                   <div className={countCols}>
                     {numToSI(cv.community.users_active_month)}
                   </div>
+                  <ResponsiveTableRowHeader title={"posts"} />
                   <div className={countCols}>{numToSI(cv.community.posts)}</div>
+                  <ResponsiveTableRowHeader title={"comments"} />
                   <div className={countCols}>
                     {numToSI(cv.community.comments)}
                   </div>

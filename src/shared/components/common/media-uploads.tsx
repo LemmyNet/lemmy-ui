@@ -12,7 +12,7 @@ import { MomentTime } from "./moment-time";
 import { PictrsImage } from "./pictrs-image";
 import { httpBackendUrl } from "@utils/env";
 import { toast } from "@utils/app";
-import { TableHr } from "./tables";
+import { ResponsiveTableRowHeader, TableHr } from "./tables";
 
 interface Props {
   uploads: PagedResponse<LocalImageView>;
@@ -29,30 +29,36 @@ export class MediaUploads extends Component<Props, never> {
 
     return (
       <div className="media-uploads">
-        <div className="row">
-          {this.props.showUploader && (
+        <div className="d-none d-md-block">
+          <div className="row">
+            {this.props.showUploader && (
+              <div className={`${cols} fw-bold`}>
+                {I18NextService.i18n.t("uploader")}
+              </div>
+            )}
             <div className={`${cols} fw-bold`}>
-              {I18NextService.i18n.t("uploader")}
+              {I18NextService.i18n.t("time")}
             </div>
-          )}
-          <div className={`${cols} fw-bold`}>
-            {I18NextService.i18n.t("time")}
           </div>
+          <TableHr />
         </div>
-        <TableHr />
         {images.map(i => (
           <>
             <div className="row" key={i.local_image.pictrs_alias}>
               {this.props.showUploader && (
-                <div className={cols}>
-                  <PersonListing
-                    person={i.person}
-                    banned={false}
-                    myUserInfo={this.props.myUserInfo}
-                    muted={false}
-                  />
-                </div>
+                <>
+                  <ResponsiveTableRowHeader title={"uploader"} />
+                  <div className={cols}>
+                    <PersonListing
+                      person={i.person}
+                      banned={false}
+                      myUserInfo={this.props.myUserInfo}
+                      muted={false}
+                    />
+                  </div>
+                </>
               )}
+              <ResponsiveTableRowHeader title={"time"} />
               <div className={cols}>
                 <MomentTime published={i.local_image.published_at} />
               </div>

@@ -41,7 +41,7 @@ import { RouteComponentProps, RouterContext } from "inferno-router";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
-import { TableHr } from "@components/common/tables";
+import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { MultiCommunityLink } from "./multi-community-link";
 import { MultiCommunityListingTypeDropdown } from "@components/common/multi-community-listing-type-dropdown";
 import { CreateMultiCommunityButton } from "@components/common/content-actions/create-item-buttons";
@@ -136,9 +136,9 @@ export class MultiCommunities extends Component<RouteProps, State> {
   }
 
   renderListingsTable(): InfernoNode | void {
-    const nameCols = "col-12 col-md-9";
+    const nameCols = "col-6 col-md-9";
     // 3 of these: subscribers, communities, subscribe
-    const countCols = "col-4 col-md-1";
+    const countCols = "col-6 col-md-1";
 
     switch (this.state.listMultiCommunitiesRes.state) {
       case "loading":
@@ -150,30 +150,35 @@ export class MultiCommunities extends Component<RouteProps, State> {
       case "success": {
         return (
           <div id="community_table">
-            <div className="row">
-              <div className={`${nameCols} fw-bold`}>
-                {I18NextService.i18n.t("name")}
+            <div className="d-none d-md-block">
+              <div className="row">
+                <div className={`${nameCols} fw-bold`}>
+                  {I18NextService.i18n.t("name")}
+                </div>
+                <div className={`${countCols} fw-bold`}>
+                  {I18NextService.i18n.t("subscribers")}
+                </div>
+                <div className={`${countCols} fw-bold`}>
+                  {I18NextService.i18n.t("communities")}
+                </div>
               </div>
-              <div className={`${countCols} fw-bold`}>
-                {I18NextService.i18n.t("subscribers")}
-              </div>
-              <div className={`${countCols} fw-bold`}>
-                {I18NextService.i18n.t("communities")}
-              </div>
+              <TableHr />
             </div>
-            <TableHr />
             {this.state.listMultiCommunitiesRes.data.items.map(v => (
               <>
                 <div className="row">
+                  <ResponsiveTableRowHeader title={"name"} />
                   <div className={nameCols}>
                     <MultiCommunityLink
                       multiCommunity={v.multi}
                       myUserInfo={this.isoData.myUserInfo}
                     />
                   </div>
+                  <ResponsiveTableRowHeader title={"subscribers"} />
                   <div className={countCols}>
                     {numToSI(v.multi.subscribers)}
                   </div>
+                  <ResponsiveTableRowHeader title={"communities"} />
                   <div className={countCols}>
                     {numToSI(v.multi.communities)}
                   </div>

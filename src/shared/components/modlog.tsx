@@ -57,7 +57,7 @@ import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import { LoadingEllipses } from "./common/loading-ellipses";
 import { PaginatorCursor } from "./common/paginator-cursor";
-import { TableHr } from "./common/tables";
+import { ResponsiveTableRowHeader, TableHr } from "./common/tables";
 import { NoOptionI18nKeys } from "i18next";
 import { ModlogKindFilterDropdown } from "./common/modlog-kind-filter-dropdown";
 import { FilterChipSelect } from "./common/filter-chip-select";
@@ -65,7 +65,7 @@ import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
-const ACTION_COLS = "col-12 col-md-6";
+const ACTION_COLS = "col-6 col-md-6";
 
 type ModlogData = RouteDataResponse<{
   res: PagedResponse<ModlogView>;
@@ -836,9 +836,11 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       return (
         <>
           <div className="row">
+            <ResponsiveTableRowHeader title={"time"} />
             <div className={TIME_COLS}>
               <MomentTime published={published_at} />
             </div>
+            <ResponsiveTableRowHeader title={"mod"} />
             <div className={MOD_COLS}>
               {this.amAdminOrMod && moderator ? (
                 <PersonListing
@@ -851,6 +853,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
                 <div>{this.modOrAdminText(moderator)}</div>
               )}
             </div>
+            <ResponsiveTableRowHeader title={"action"} />
             <div className={ACTION_COLS}>{data}</div>
           </div>
           <hr />
@@ -1005,18 +1008,20 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
         return (
           <>
             <div id="modlog_table">
-              <div className="row">
-                <div className={`${TIME_COLS} fw-bold`}>
-                  {I18NextService.i18n.t("time")}
+              <div className="d-none d-md-block">
+                <div className="row">
+                  <div className={`${TIME_COLS} fw-bold`}>
+                    {I18NextService.i18n.t("time")}
+                  </div>
+                  <div className={`${MOD_COLS} fw-bold`}>
+                    {I18NextService.i18n.t("mod")}
+                  </div>
+                  <div className={`${ACTION_COLS} fw-bold`}>
+                    {I18NextService.i18n.t("action")}
+                  </div>
                 </div>
-                <div className={`${MOD_COLS} fw-bold`}>
-                  {I18NextService.i18n.t("mod")}
-                </div>
-                <div className={`${ACTION_COLS} fw-bold`}>
-                  {I18NextService.i18n.t("action")}
-                </div>
+                <TableHr />
               </div>
-              <TableHr />
               {this.combined}
             </div>
             <PaginatorCursor

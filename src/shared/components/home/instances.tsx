@@ -32,10 +32,11 @@ import {
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { formatRelativeDate, isWeekOld } from "@utils/date";
-import { TableHr } from "@components/common/tables";
+import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { Action } from "history";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
+import classNames from "classnames";
 
 function getKindFromQuery(kind?: string): GetFederatedInstancesKind {
   return kind ? (kind as GetFederatedInstancesKind) : "all";
@@ -261,30 +262,33 @@ export function InstanceList({
   onRemove,
   showRemove,
 }: InstanceListProps) {
-  const nameCols = "col-12 col-md-6";
-  const otherCols = "col-4 col-md-2";
+  const nameCols = "col-6 col-md-6";
+  const otherCols = "col-6 col-md-2";
 
   return instances.length > 0 ? (
     <div id="instances-table">
-      <div className="row">
-        <div className={`${nameCols} fw-bold`}>
-          {I18NextService.i18n.t("name")}
+      <div className="d-none d-md-block">
+        <div className="row">
+          <div className={`${nameCols} fw-bold`}>
+            {I18NextService.i18n.t("name")}
+          </div>
+          <div className={`${otherCols} fw-bold`}>
+            {I18NextService.i18n.t("software")}
+          </div>
+          <div className={`${otherCols} fw-bold`}>
+            {I18NextService.i18n.t("version")}
+          </div>
+          <div className={`${otherCols} fw-bold`}>
+            {I18NextService.i18n.t("last_updated")}
+          </div>
         </div>
-        <div className={`${otherCols} fw-bold`}>
-          {I18NextService.i18n.t("software")}
-        </div>
-        <div className={`${otherCols} fw-bold`}>
-          {I18NextService.i18n.t("version")}
-        </div>
-        <div className={`${otherCols} fw-bold`}>
-          {I18NextService.i18n.t("last_updated")}
-        </div>
+        <TableHr />
       </div>
-      <TableHr />
       {instances.map(i => (
         <>
           <div key={i.instance.domain} className="row">
-            <div className={nameCols}>
+            <ResponsiveTableRowHeader title={"name"} />
+            <div className={classNames(nameCols, "text-break")}>
               {!i.blocked ? (
                 <a href={`https://${i.instance.domain}`} rel={relTags}>
                   {i.instance.domain}{" "}
@@ -301,8 +305,11 @@ export function InstanceList({
                 </button>
               )}
             </div>
+            <ResponsiveTableRowHeader title={"software"} />
             <div className={otherCols}>{i.instance.software}</div>
+            <ResponsiveTableRowHeader title={"version"} />
             <div className={otherCols}>{i.instance.version}</div>
+            <ResponsiveTableRowHeader title={"last_updated"} />
             <div className={otherCols}>
               {formatRelativeDate(
                 i.instance.updated_at ?? i.instance.published_at,
@@ -311,8 +318,8 @@ export function InstanceList({
                 new Date(i.instance.updated_at ?? i.instance.published_at),
               ) && " 💀"}
             </div>
-            <hr />
           </div>
+          <hr key={i.instance.domain + "hr"} />
         </>
       ))}
     </div>
