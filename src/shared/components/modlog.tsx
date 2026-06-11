@@ -836,10 +836,8 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
       return (
         <>
           <div className="row">
-            <ResponsiveTableRowHeader title={"time"} />
-            <div className={TIME_COLS}>
-              <MomentTime published={published_at} />
-            </div>
+            <ResponsiveTableRowHeader title={"action"} />
+            <div className={ACTION_COLS}>{data}</div>
             <ResponsiveTableRowHeader title={"mod"} />
             <div className={MOD_COLS}>
               {this.amAdminOrMod && moderator ? (
@@ -853,8 +851,10 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
                 <div>{this.modOrAdminText(moderator)}</div>
               )}
             </div>
-            <ResponsiveTableRowHeader title={"action"} />
-            <div className={ACTION_COLS}>{data}</div>
+            <ResponsiveTableRowHeader title={"time"} />
+            <div className={TIME_COLS}>
+              <MomentTime published={published_at} />
+            </div>
           </div>
           <hr />
         </>
@@ -1010,14 +1010,14 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
             <div id="modlog_table">
               <div className="d-none d-md-block">
                 <div className="row">
-                  <div className={`${TIME_COLS} fw-bold`}>
-                    {I18NextService.i18n.t("time")}
+                  <div className={`${ACTION_COLS} fw-bold`}>
+                    {I18NextService.i18n.t("action")}
                   </div>
                   <div className={`${MOD_COLS} fw-bold`}>
                     {I18NextService.i18n.t("mod")}
                   </div>
-                  <div className={`${ACTION_COLS} fw-bold`}>
-                    {I18NextService.i18n.t("action")}
+                  <div className={`${TIME_COLS} fw-bold`}>
+                    {I18NextService.i18n.t("time")}
                   </div>
                 </div>
                 <TableHr />
