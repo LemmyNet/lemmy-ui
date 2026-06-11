@@ -13,6 +13,7 @@ import { PictrsImage } from "./pictrs-image";
 import { httpBackendUrl } from "@utils/env";
 import { toast } from "@utils/app";
 import { ResponsiveTableRowHeader, TableHr } from "./tables";
+import classNames from "classnames";
 
 interface Props {
   uploads: PagedResponse<LocalImageView>;
@@ -26,6 +27,7 @@ export class MediaUploads extends Component<Props, never> {
     const images = this.props.uploads.items;
 
     const cols = "col-6 col-md-3";
+    const imageCols = "col-12 col-md-3";
 
     return (
       <div className="media-uploads">
@@ -62,13 +64,15 @@ export class MediaUploads extends Component<Props, never> {
               <div className={cols}>
                 <MomentTime published={i.local_image.published_at} />
               </div>
-              <div className={cols}>
+              <div className={imageCols}>
                 <PictrsImage
                   src={buildImageUrl(i.local_image.pictrs_alias)}
                   type="large_thumbnail"
                 />
               </div>
-              <div className={cols}>{this.deleteImageBtn(i.local_image)}</div>
+              <div className={classNames(imageCols, "my-2 my-md-0")}>
+                {this.deleteImageBtn(i.local_image)}
+              </div>
               <hr />
             </div>
           </>
@@ -79,12 +83,14 @@ export class MediaUploads extends Component<Props, never> {
 
   deleteImageBtn(image: LocalImage) {
     return (
-      <button
-        onClick={() => this.handleDeleteImage(image)}
-        className="btn btn-danger"
-      >
-        {I18NextService.i18n.t("delete")}
-      </button>
+      <div className="d-grid gap-2 d-md-block">
+        <button
+          onClick={() => this.handleDeleteImage(image)}
+          className="btn btn-danger"
+        >
+          {I18NextService.i18n.t("delete")}
+        </button>
+      </div>
     );
   }
 
