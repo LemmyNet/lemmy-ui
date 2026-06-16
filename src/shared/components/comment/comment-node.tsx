@@ -369,11 +369,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                             inline
                             label={I18NextService.i18n.t("reply")}
                             noLoading
-                            disabled={
-                              this.commentView.comment.deleted ||
-                              this.commentView.comment.removed ||
-                              this.commentView.comment.locked
-                            }
+                            disabled={!this.enableCommentForm}
                           />
                         </div>
                         <div className="col">
