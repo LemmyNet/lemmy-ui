@@ -59,7 +59,7 @@ import classNames from "classnames";
 import { HtmlTags } from "@components/common/html-tags";
 import Tabs from "@components/common/tabs";
 import { CommunityForm } from "./community-form";
-import { TableHr } from "@components/common/tables";
+import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { PersonListing } from "@components/person/person-listing";
 import { MomentTime } from "@components/common/moment-time";
 import ConfirmationModal from "@components/common/modal/confirmation-modal";
@@ -358,8 +358,8 @@ export class CommunitySettings extends Component<RouteProps, State> {
 
     const myUserInfo = this.isoData.myUserInfo;
 
-    const nameCols = "col-12 col-md-6";
-    const dataCols = "col-4 col-md-2";
+    const nameCols = "col-6 col-md-6";
+    const dataCols = "col-6 col-md-2";
 
     return (
       <>
@@ -367,24 +367,27 @@ export class CommunitySettings extends Component<RouteProps, State> {
           {capitalizeFirstLetter(I18NextService.i18n.t("mods"))}
         </h1>
         <div id="mods-table">
-          <div className="row">
-            <div className={`${nameCols} fw-bold`}>
-              {I18NextService.i18n.t("username")}
+          <div className="d-none d-md-block">
+            <div className="row">
+              <div className={`${nameCols} fw-bold`}>
+                {I18NextService.i18n.t("username")}
+              </div>
+              <div className={`${dataCols} fw-bold`}>
+                {I18NextService.i18n.t("registered_date_title")}
+              </div>
+              <div className={`${dataCols} fw-bold`}>
+                {I18NextService.i18n.t("posts")}
+              </div>
+              <div className={`${dataCols} fw-bold`}>
+                {I18NextService.i18n.t("comments")}
+              </div>
             </div>
-            <div className={`${dataCols} fw-bold`}>
-              {I18NextService.i18n.t("registered_date_title")}
-            </div>
-            <div className={`${dataCols} fw-bold`}>
-              {I18NextService.i18n.t("posts")}
-            </div>
-            <div className={`${dataCols} fw-bold`}>
-              {I18NextService.i18n.t("comments")}
-            </div>
+            <TableHr />
           </div>
-          <TableHr />
           {res &&
             res.moderators.map(m => (
               <div className="row" key={m.moderator.id}>
+                <ResponsiveTableRowHeader title={"username"} />
                 <div className={nameCols}>
                   <PersonListing
                     person={m.moderator}
@@ -485,10 +488,13 @@ export class CommunitySettings extends Component<RouteProps, State> {
                     </>
                   )}
                 </div>
+                <ResponsiveTableRowHeader title={"registered_date_title"} />
                 <div className={dataCols}>
                   <MomentTime published={m.moderator.published_at} />
                 </div>
+                <ResponsiveTableRowHeader title={"posts"} />
                 <div className={dataCols}>{m.moderator.post_count}</div>
+                <ResponsiveTableRowHeader title={"comments"} />
                 <div className={dataCols}>{m.moderator.comment_count}</div>
               </div>
             ))}
