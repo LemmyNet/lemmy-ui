@@ -389,11 +389,15 @@ export class CreatePost extends Component<
   };
 
   sidebar(): InfernoNode | void {
+    const communityRes = this.isoData.routeData.communityResponse;
+    const moderators =
+      communityRes.state === "success" ? communityRes.data.moderators : [];
+
     if (this.state.selectedCommunity) {
       return (
         <CommunitySidebar
           communityView={this.state.selectedCommunity}
-          moderators={[]} // TODO: fetch GetCommunityResponse?
+          moderators={moderators}
           admins={this.isoData.siteRes.admins}
           enableNsfw={enableNsfw(this.isoData.siteRes)}
           showIcon
