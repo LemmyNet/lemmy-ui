@@ -149,7 +149,7 @@
     "typescript-language-server": "^5.0.0",
     "unlazy": "^2.0.0",
     "webpack-bundle-analyzer": "^5.0.0",
-    "webpack-dev-server": "5.2.4"
+    "webpack-dev-server": "5.2.5"
   },
   "packageManager": "pnpm@11.8.0",
   "engines": {
