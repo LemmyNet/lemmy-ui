@@ -208,10 +208,10 @@ importers:
         version: 1.11.7
       webpack:
         specifier: ^5.94.0
-        version: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+        version: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
       webpack-cli:
         specifier: ^7.0.0
-        version: 7.0.3(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.4)(webpack@5.107.2)
+        version: 7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.4)(webpack@5.107.2)
       webpack-node-externals:
         specifier: ^3.0.0
         version: 3.0.0
@@ -338,7 +338,7 @@ importers:
         version: 5.3.0
       webpack-dev-server:
         specifier: 5.2.4
-        version: 5.2.4(webpack-cli@7.0.3)(webpack@5.107.2)
+        version: 5.2.4(webpack-cli@7.1.0)(webpack@5.107.2)
 
 packages:
 
@@ -5086,15 +5086,24 @@ packages:
     engines: {node: '>= 20.9.0'}
     hasBin: true
 
-  webpack-cli@7.0.3:
-    resolution: {integrity: sha512-2E2C6A1e2El7791zQgTH7LPIuwLjRliow9OHS/qlJc9pwhZlCoL/uiwqd/1WSlXT83wJfmfDbkcqHXuXoPJZ3g==}
+  webpack-cli@7.1.0:
+    resolution: {integrity: sha512-pSJ5p5PkXRD88sfCq5Wo+coc42QykwRu5Md0DyESj0rT6PPPA2wTNabpHPKgqH8EMkfTDo3IWx3iiNXMu8XDBQ==}
     engines: {node: '>=20.9.0'}
     hasBin: true
     peerDependencies:
+      js-yaml: ^4.0.0 || ^5.0.0
+      json5: ^2.2.3
+      toml: ^3.0.0 || ^4.0.0
       webpack: ^5.101.0
       webpack-bundle-analyzer: ^4.0.0 || ^5.0.0
       webpack-dev-server: ^5.0.0
     peerDependenciesMeta:
+      js-yaml:
+        optional: true
+      json5:
+        optional: true
+      toml:
+        optional: true
       webpack-bundle-analyzer:
         optional: true
       webpack-dev-server:
@@ -7281,7 +7290,7 @@ snapshots:
       '@babel/core': 7.29.7
       find-up: 5.0.0
     optionalDependencies:
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
   babel-plugin-inferno@6.8.5(@babel/core@7.29.7):
     dependencies:
@@ -7495,7 +7504,7 @@ snapshots:
   clean-webpack-plugin@4.0.0(webpack@5.107.2):
     dependencies:
       del: 4.1.1
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
   cli-cursor@5.0.0:
     dependencies:
@@ -7584,7 +7593,7 @@ snapshots:
       normalize-path: 3.0.0
       schema-utils: 4.2.0
       serialize-javascript: 6.0.2
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
   copy-webpack-plugin@14.0.0(webpack@5.107.2):
     dependencies:
@@ -7593,7 +7602,7 @@ snapshots:
       schema-utils: 4.3.3
       serialize-javascript: 7.0.6
       tinyglobby: 0.2.15
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
   core-js-compat@3.49.0:
     dependencies:
@@ -7627,7 +7636,7 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.7.4
     optionalDependencies:
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
   cssesc@3.0.0: {}
 
@@ -9202,7 +9211,7 @@ snapshots:
     dependencies:
       schema-utils: 4.3.3
       tapable: 2.3.2
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
   minimalistic-assert@1.0.1: {}
 
@@ -9726,7 +9735,7 @@ snapshots:
 
   run-node-webpack-plugin@2.0.0(webpack@5.107.2):
     dependencies:
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
   run-parallel@1.2.0:
     dependencies:
@@ -9780,7 +9789,7 @@ snapshots:
   sass-loader@17.0.0(sass@1.101.0)(webpack@5.107.2):
     optionalDependencies:
       sass: 1.101.0
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
   sass@1.101.0:
     dependencies:
@@ -9903,7 +9912,7 @@ snapshots:
     dependencies:
       copy-webpack-plugin: 11.0.0(webpack@5.107.2)
       schema-utils: 4.2.0
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
       webpack-inject-entry-plugin: 0.0.4(webpack@5.107.2)
       workbox-build: 6.6.0
       workbox-webpack-plugin: 6.6.0(webpack@5.107.2)
@@ -10228,7 +10237,7 @@ snapshots:
 
   style-loader@4.0.0(webpack@5.107.2):
     dependencies:
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
   supports-color@7.2.0:
     dependencies:
@@ -10263,7 +10272,7 @@ snapshots:
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       terser: 5.48.0
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
     optionalDependencies:
       postcss: 8.5.6
 
@@ -10537,7 +10546,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  webpack-cli@7.0.3(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.4)(webpack@5.107.2):
+  webpack-cli@7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.4)(webpack@5.107.2):
     dependencies:
       '@discoveryjs/json-ext': 1.1.0
       commander: 14.0.3
@@ -10546,11 +10555,12 @@ snapshots:
       import-local: 3.2.0
       interpret: 3.1.1
       rechoir: 0.8.0
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
       webpack-merge: 6.0.1
     optionalDependencies:
+      json5: 2.2.3
       webpack-bundle-analyzer: 5.3.0
-      webpack-dev-server: 5.2.4(webpack-cli@7.0.3)(webpack@5.107.2)
+      webpack-dev-server: 5.2.4(webpack-cli@7.1.0)(webpack@5.107.2)
 
   webpack-dev-middleware@7.4.2(webpack@5.107.2):
     dependencies:
@@ -10561,9 +10571,9 @@ snapshots:
       range-parser: 1.2.1
       schema-utils: 4.3.3
     optionalDependencies:
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
-  webpack-dev-server@5.2.4(webpack-cli@7.0.3)(webpack@5.107.2):
+  webpack-dev-server@5.2.4(webpack-cli@7.1.0)(webpack@5.107.2):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -10594,8 +10604,8 @@ snapshots:
       webpack-dev-middleware: 7.4.2(webpack@5.107.2)
       ws: 8.20.0
     optionalDependencies:
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
-      webpack-cli: 7.0.3(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.4)(webpack@5.107.2)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
+      webpack-cli: 7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.4)(webpack@5.107.2)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -10605,7 +10615,7 @@ snapshots:
   webpack-inject-entry-plugin@0.0.4(webpack@5.107.2):
     dependencies:
       schema-utils: 4.2.0
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
 
   webpack-merge@6.0.1:
     dependencies:
@@ -10622,7 +10632,7 @@ snapshots:
 
   webpack-sources@3.5.0: {}
 
-  webpack@5.107.2(postcss@8.5.6)(webpack-cli@7.0.3):
+  webpack@5.107.2(postcss@8.5.6)(webpack-cli@7.1.0):
     dependencies:
       '@types/estree': 1.0.9
       '@types/json-schema': 7.0.15
@@ -10648,7 +10658,7 @@ snapshots:
       watchpack: 2.5.1
       webpack-sources: 3.5.0
     optionalDependencies:
-      webpack-cli: 7.0.3(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.4)(webpack@5.107.2)
+      webpack-cli: 7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.4)(webpack@5.107.2)
     transitivePeerDependencies:
       - '@minify-html/node'
       - '@swc/core'
@@ -10855,7 +10865,7 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       pretty-bytes: 5.6.0
       upath: 1.2.0
-      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.0.3)
+      webpack: 5.107.2(postcss@8.5.6)(webpack-cli@7.1.0)
       webpack-sources: 1.4.3
       workbox-build: 6.6.0
     transitivePeerDependencies:
