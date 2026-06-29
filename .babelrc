@@ -4,11 +4,10 @@
     [
       "@babel/preset-env",
       {
-        "loose": true,
         "browserslistEnv": "package.json" // matches webpack target config
       }
     ],
-    ["@babel/typescript", { "isTSX": true, "allExtensions": true }]
+    ["@babel/typescript", { "ignoreExtensions": true }]
   ],
   "plugins": [
     ["@babel/plugin-proposal-decorators", { "version": "legacy" }],
@@ -18,6 +17,24 @@
       { "version": "^7.24.3" }
     ],
     ["babel-plugin-inferno", { "imports": true }],
-    ["@babel/plugin-transform-class-properties", { "loose": true }]
-  ]
+    ["@babel/plugin-transform-class-properties"]
+  ],
+  "assumptions": {
+    "arrayLikeIsIterable": true,
+    "constantReexports": true,
+    "ignoreFunctionLength": true,
+    "ignoreToPrimitiveHint": true,
+    "mutableTemplateObject": true,
+    "noClassCalls": true,
+    "noDocumentAll": true,
+    "objectRestNoSymbols": true,
+    "privateFieldsAsProperties": true,
+    "pureGetters": true,
+    "setClassMethods": true,
+    "setComputedProperties": true,
+    "setPublicClassFields": true,
+    "setSpreadProperties": true,
+    "skipForOfIteratorClosing": true,
+    "superIsCallableConstructor": true
+  }
 }
