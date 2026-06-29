@@ -3,6 +3,7 @@ import { Post } from "lemmy-js-client";
 import sanitize from "sanitize-html";
 import { relTags } from "@utils/config";
 import { Icon } from "../common/icon";
+import { hostname } from "@utils/helpers";
 
 interface MetadataCardProps {
   post: Post;
@@ -31,7 +32,7 @@ export class MetadataCard extends Component<MetadataCardProps> {
                         href={post.url}
                         rel={relTags}
                       >
-                        {new URL(post.url).hostname}
+                        {hostname(post.url)}
                         <Icon icon="external-link" classes="ms-1" />
                       </a>
                     </span>

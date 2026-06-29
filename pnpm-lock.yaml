@@ -95,6 +95,9 @@ importers:
       i18next:
         specifier: ^23.14.0
         version: 23.16.8
+      idna-uts46-hx:
+        specifier: ^6.1.7
+        version: 6.1.7
       inferno:
         specifier: ^9.1.0
         version: 9.1.0
@@ -3115,6 +3118,10 @@ packages:
   idb@7.1.1:
     resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
 
+  idna-uts46-hx@6.1.7:
+    resolution: {integrity: sha512-CcYEtQLQA0qhGvdwuI7tPFdavsK2TjzMi7zmbY+8HDwP+hTU4qtiWwbfScrsgGCeh8LZ0G/uYv6XhmTb4h8+Tg==}
+    engines: {node: ^22.14.0 || >= 24.10.0}
+
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
@@ -4892,6 +4899,10 @@ packages:
 
   tr46@1.0.1:
     resolution: {integrity: sha512-dTpowEjclQ7Kgx5SdBkqRzVhERQXov8/l9Ft9dVM9fmg0W0KQSVaXX9T4i6twCPNtYiZM53lpSSUAwJbFPOHxA==}
+
+  tr46@6.0.0:
+    resolution: {integrity: sha512-bLVMLPtstlZ4iMQHpFHTR7GAGj2jxi8Dg0s2h2MafAE4uSWF98FC/3MomU51iQAMf8/qDUbKWf5GxuvvVcXEhw==}
+    engines: {node: '>=20'}
 
   tree-dump@1.0.2:
     resolution: {integrity: sha512-dpev9ABuLWdEubk+cIaI9cHwRNNDjkBBLXTwI4UCUFdQ5xXKqNXoK4FEciw/vxf+NQ7Cb7sGUyeUtORvHIdRXQ==}
@@ -8607,6 +8618,10 @@ snapshots:
 
   idb@7.1.1: {}
 
+  idna-uts46-hx@6.1.7:
+    dependencies:
+      tr46: 6.0.0
+
   ignore@5.3.2: {}
 
   ignore@7.0.5: {}
@@ -10349,6 +10364,10 @@ snapshots:
   totalist@3.0.1: {}
 
   tr46@1.0.1:
+    dependencies:
+      punycode: 2.3.1
+
+  tr46@6.0.0:
     dependencies:
       punycode: 2.3.1
 
