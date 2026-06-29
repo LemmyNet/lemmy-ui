@@ -846,7 +846,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return (
         <CommunitySidebar
           communityView={res.data.community_view}
-          moderators={[]} // TODO: fetch GetCommunityResponse?
+          moderators={res.data.moderators}
           admins={this.state.siteRes.admins}
           enableNsfw={enableNsfw(this.state.siteRes)}
           showIcon
@@ -1114,9 +1114,14 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  updateModerators(_: RequestState<AddModToCommunityResponse>) {
+  updateModerators(res: RequestState<AddModToCommunityResponse>) {
     // Update the moderators
-    // TODO: update GetCommunityResponse?
+    this.setState(s => {
+      if (s.postRes.state === "success" && res.state === "success") {
+        s.postRes.data.moderators = res.data.moderators;
+      }
+      return s;
+    });
   }
 }
 
