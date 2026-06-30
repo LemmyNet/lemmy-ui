@@ -2,6 +2,7 @@ import { RouteComponentProps } from "inferno-router";
 import { RequestState } from "@services/HttpService";
 import { PostView } from "lemmy-js-client";
 import { Action } from "history";
+import { toUnicode } from "idna-uts46-hx";
 
 // Intended to allow reloading all the data of the current page by clicking the
 // navigation link of the current page.
@@ -133,7 +134,9 @@ export function groupBy<T>(
 
 export function hostname(url: string): string {
   const cUrl = new URL(url);
-  return cUrl.port ? `${cUrl.hostname}:${cUrl.port}` : `${cUrl.hostname}`;
+  // Necessary to convert international hostnames to their unicode
+  const hostname: string = toUnicode(cUrl.hostname);
+  return cUrl.port ? `${hostname}:${cUrl.port}` : `${hostname}`;
 }
 
 export function hsl(num: number) {
