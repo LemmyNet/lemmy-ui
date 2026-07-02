@@ -7,7 +7,9 @@ export function canShare() {
 }
 
 export function clearAuthCookie() {
-  document.cookie = cookie.serialize(authCookieName, "", {
+  document.cookie = cookie.stringifySetCookie({
+    name: authCookieName,
+    value: "",
     maxAge: -1,
     sameSite: "lax",
     path: "/",
@@ -97,7 +99,9 @@ export function refreshTheme() {
 }
 
 export function setAuthCookie(jwt: string) {
-  document.cookie = cookie.serialize(authCookieName, jwt, {
+  document.cookie = cookie.stringifySetCookie({
+    name: authCookieName,
+    value: jwt,
     maxAge: 365 * 24 * 60 * 60 * 1000,
     secure: isHttps(),
     sameSite: "lax",
