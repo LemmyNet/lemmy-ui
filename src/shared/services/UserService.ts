@@ -82,7 +82,7 @@ export class UserService {
 
   #setAuthInfo() {
     if (isBrowser()) {
-      const auth = cookie.parse(document.cookie)[authCookieName];
+      const auth = cookie.parseCookie(document.cookie)[authCookieName];
 
       if (auth) {
         HttpService.client.setHeaders({
