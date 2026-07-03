@@ -49,9 +49,7 @@ interface ProviderTextFieldProps extends ProviderFieldProps {
 }
 
 type ProviderBooleanProperties =
-  | "enabled"
-  | "account_linking_enabled"
-  | "auto_verify_email";
+  "enabled" | "account_linking_enabled" | "auto_verify_email";
 
 interface ProviderCheckboxFieldProps extends ProviderFieldProps {
   checked?: boolean;

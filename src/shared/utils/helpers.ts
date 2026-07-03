@@ -47,11 +47,7 @@ export function debounce<T extends unknown[], R>(
 }
 
 type ImmutableListKey =
-  | "comment"
-  | "community"
-  | "multi"
-  | "post"
-  | "registration_application";
+  "comment" | "community" | "multi" | "post" | "registration_application";
 
 export function editListImmutable<
   T extends { [key in F]: { id: number } },

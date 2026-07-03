@@ -189,8 +189,7 @@ export class CreatePost extends Component<
       }
 
       const locationState = this.props.history.location.state as
-        | CrossPostParams
-        | undefined;
+        CrossPostParams | undefined;
       if (locationState) {
         await this.updateUrl({
           title: locationState.name,

@@ -428,10 +428,7 @@ export function getUncombinedPersonContent(
 }
 
 type ReportCombined =
-  | PostReport
-  | CommentReport
-  | PrivateMessageReport
-  | CommunityReport;
+  PostReport | CommentReport | PrivateMessageReport | CommunityReport;
 
 export function getUncombinedReport(
   report: ReportCombinedView,

@@ -27,12 +27,10 @@ export function ThemeDropdown({
     options.push(...instanceDefaults);
   }
 
-  const builtThemes = themeList.map(
-    (theme): FilterOption<string> => ({
-      value: theme,
-      noI18n: theme,
-    }),
-  );
+  const builtThemes = themeList.map((theme): FilterOption<string> => ({
+    value: theme,
+    noI18n: theme,
+  }));
 
   options.push(...builtThemes);
 

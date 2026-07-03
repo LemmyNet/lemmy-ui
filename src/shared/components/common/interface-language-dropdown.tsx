@@ -5,12 +5,10 @@ const options: FilterOption<string>[] = [
   { value: "browser", i18n: "language_browser_default" },
   ...allLanguages
     .sort((a, b) => a.code.localeCompare(b.code))
-    .map(
-      (lang): FilterOption<string> => ({
-        value: lang.code,
-        noI18n: lang.name,
-      }),
-    ),
+    .map((lang): FilterOption<string> => ({
+      value: lang.code,
+      noI18n: lang.name,
+    })),
 ];
 
 type InterfaceLanguageDropdownProps = {
