@@ -318,14 +318,18 @@ export class Communities extends Component<
   }
 
   updateUrl(props: Partial<CommunitiesProps>) {
-    const { listingType, sort } = { ...this.props, ...props };
+    const { listingType, sort, cursor } = { ...this.props, ...props };
 
     const queryParams: QueryParams<CommunitiesProps> = {
       listingType: listingType,
-      sort: sort,
+      sort,
+      cursor,
     };
 
-    this.props.history.push(`/communities${getQueryString(queryParams)}`);
+    this.props.history.push({
+      pathname: "/communities",
+      search: getQueryString(queryParams),
+    });
   }
 
   static fetchInitialData = async ({
