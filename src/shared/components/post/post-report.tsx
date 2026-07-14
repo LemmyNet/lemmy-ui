@@ -36,21 +36,46 @@ interface PostReportProps {
 
 interface PostReportState {
   showRemovePostDialog: boolean;
+  showResolveReportDialog: boolean;
+  resolveReason: string;
 }
 
 @tippyMixin
 export class PostReport extends Component<PostReportProps, PostReportState> {
   state: PostReportState = {
     showRemovePostDialog: false,
+    showResolveReportDialog: false,
+    resolveReason: "",
+  };
+
+  handleResolveReasonChange = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    this.setState({ resolveReason: target.value });
+  };
+
+  handleResolveSubmit = () => {
+    const resolved = this.props.report.post_report.resolved;
+    const reason = resolved
+      ? "Unresolved by moderator"
+      : this.state.resolveReason || "Resolved by moderator";
+
+    this.props.onResolveReport({
+      report_id: this.props.report.post_report.id,
+      resolved: !resolved,
+      resolve_reason: reason,
+    });
+    this.setState({ showResolveReportDialog: false, resolveReason: "" });
+  };
+
+  handleResolveCancel = () => {
+    this.setState({ showResolveReportDialog: false, resolveReason: "" });
   };
 
   render() {
     const r = this.props.report;
     const resolver = r.resolver;
     const post = r.post;
-    const tippyContent = I18NextService.i18n.t(
-      r.post_report.resolved ? "unresolve_report" : "resolve_report",
-    );
+    const resolved = r.post_report.resolved;
 
     // Set the original post data ( a troll could change it )
     post.name = r.post_report.original_post_name;
@@ -140,7 +165,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         </div>
         {resolver && (
           <div>
-            {r.post_report.resolved ? (
+            {resolved ? (
               <T i18nKey="resolved_by">
                 #
                 <PersonListing
@@ -166,12 +191,14 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         <div className="row row-cols-auto align-items-center gx-3 my-2">
           <div className="col">
             <ActionButton
-              label={tippyContent}
-              icon={r.post_report.resolved ? "check" : "x"}
+              label={I18NextService.i18n.t(
+                resolved ? "unresolve_report" : "resolve_report",
+              )}
+              icon={resolved ? "check" : "x"}
               loading={this.props.loading}
               inlineWithText
-              onClick={() => handleResolveReport(this)}
-              iconClass={`text-${r.post_report.resolved ? "success" : "danger"}`}
+              onClick={() => this.setState({ showResolveReportDialog: true })}
+              iconClass={`text-${resolved ? "success" : "danger"}`}
             />
           </div>
           <div className="col">
@@ -226,16 +253,79 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             loading={false}
           />
         )}
+        {this.state.showResolveReportDialog && (
+          <div
+            className="modal show d-block"
+            style={{ "background-color": "rgba(0,0,0,0.5)" }}
+          >
+            <div className="modal-dialog">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">
+                    {I18NextService.i18n.t(
+                      resolved ? "unresolve_report" : "resolve_report",
+                    )}
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={this.handleResolveCancel}
+                    aria-label="Close"
+                  />
+                </div>
+                <div className="modal-body">
+                  {!resolved && (
+                    <div className="mb-3">
+                      <label htmlFor="resolveReason" className="form-label">
+                        {I18NextService.i18n.t("resolve_reason_optional")}
+                      </label>
+                      <textarea
+                        id="resolveReason"
+                        className="form-control"
+                        rows={3}
+                        value={this.state.resolveReason}
+                        onInput={this.handleResolveReasonChange}
+                        placeholder={I18NextService.i18n.t(
+                          "enter_resolve_reason_optional",
+                        )}
+                      />
+                    </div>
+                  )}
+                  {resolved && (
+                    <p>
+                      {I18NextService.i18n.t("unresolve_report_confirmation")}
+                    </p>
+                  )}
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={this.handleResolveCancel}
+                  >
+                    {I18NextService.i18n.t("cancel")}
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn ${resolved ? "btn-warning" : "btn-primary"}`}
+                    onClick={this.handleResolveSubmit}
+                    disabled={this.props.loading}
+                  >
+                    {this.props.loading ? (
+                      <span className="spinner-border spinner-border-sm me-1" />
+                    ) : null}
+                    {I18NextService.i18n.t(
+                      resolved ? "unresolve_report" : "resolve_report",
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
-}
-
-function handleResolveReport(i: PostReport) {
-  i.props.onResolveReport({
-    report_id: i.props.report.post_report.id,
-    resolved: !i.props.report.post_report.resolved,
-  });
 }
 
 function handleRemovePost(i: PostReport, reason: string) {
