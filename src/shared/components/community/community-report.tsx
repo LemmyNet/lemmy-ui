@@ -12,12 +12,17 @@ import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { CommunityHeader } from "./community-header";
 import ActionButton from "@components/common/content-actions/action-button";
+import ResolveReportModal from "@components/common/modal/resolve-report-modal";
 
 interface Props {
   report: CommunityReportView;
   myUserInfo: MyUserInfo | undefined;
   loading: boolean;
   onResolveReport: (form: ResolveCommunityReport) => void;
+}
+
+interface State {
+  showResolveReportDialog: boolean;
 }
 
 const reportElements = [
@@ -30,13 +35,28 @@ const reportElements = [
 ] as const;
 
 @tippyMixin
-export class CommunityReport extends Component<Props, object> {
+export class CommunityReport extends Component<Props, State> {
+  state: State = {
+    showResolveReportDialog: false,
+  };
+
+  handleResolveReport = (form: {
+    reason: string;
+    action: "resolve" | "unresolve";
+  }) => {
+    const cr = this.props.report.community_report;
+    this.props.onResolveReport({
+      report_id: cr.id,
+      resolved: !cr.resolved,
+      resolve_reason: form.reason,
+    });
+    this.setState({ showResolveReportDialog: false });
+  };
+
   render() {
     const r = this.props.report;
     const cr = r.community_report;
-    const tippyContent = I18NextService.i18n.t(
-      r.community_report.resolved ? "unresolve_report" : "resolve_report",
-    );
+    const resolved = cr.resolved;
 
     const mergedCommunity: Community = { ...r.community };
     reportElements.forEach(key => {
@@ -74,7 +94,7 @@ export class CommunityReport extends Component<Props, object> {
         </div>
         {r.resolver && (
           <div>
-            {cr.resolved ? (
+            {resolved ? (
               <T i18nKey="resolved_by">
                 #
                 <PersonListing
@@ -99,23 +119,26 @@ export class CommunityReport extends Component<Props, object> {
         )}
         <div className="mt-2">
           <ActionButton
-            label={tippyContent}
-            icon={r.community_report.resolved ? "check" : "x"}
+            label={I18NextService.i18n.t(
+              resolved ? "unresolve_report" : "resolve_report",
+            )}
+            icon={resolved ? "check" : "x"}
             loading={this.props.loading}
             inlineWithText
-            onClick={() => handleResolveReport(this)}
-            iconClass={`text-${r.community_report.resolved ? "success" : "danger"}`}
+            onClick={() => this.setState({ showResolveReportDialog: true })}
+            iconClass={`text-${resolved ? "success" : "danger"}`}
           />
         </div>
+        {this.state.showResolveReportDialog && (
+          <ResolveReportModal
+            isResolved={resolved}
+            onSubmit={this.handleResolveReport}
+            onCancel={() => this.setState({ showResolveReportDialog: false })}
+            show
+            loading={this.props.loading}
+          />
+        )}
       </div>
     );
   }
-}
-
-function handleResolveReport(i: CommunityReport) {
-  const cr = i.props.report.community_report;
-  i.props.onResolveReport({
-    report_id: cr.id,
-    resolved: !cr.resolved,
-  });
 }
