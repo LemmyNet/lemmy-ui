@@ -19,6 +19,7 @@ import {
   BanFromSiteData,
 } from "@components/person/reports";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
+import ResolveReportModal from "@components/common/modal/resolve-report-modal";
 
 interface PostReportProps {
   report: PostReportView;
@@ -37,7 +38,6 @@ interface PostReportProps {
 interface PostReportState {
   showRemovePostDialog: boolean;
   showResolveReportDialog: boolean;
-  resolveReason: string;
 }
 
 @tippyMixin
@@ -45,30 +45,20 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
   state: PostReportState = {
     showRemovePostDialog: false,
     showResolveReportDialog: false,
-    resolveReason: "",
   };
 
-  handleResolveReasonChange = (e: Event) => {
-    const target = e.target as HTMLInputElement;
-    this.setState({ resolveReason: target.value });
-  };
-
-  handleResolveSubmit = () => {
+  handleResolveReport = (form: {
+    reason: string;
+    action: "resolve" | "unresolve";
+  }) => {
     const resolved = this.props.report.post_report.resolved;
-    const reason = resolved
-      ? "Unresolved by moderator"
-      : this.state.resolveReason || "Resolved by moderator";
 
     this.props.onResolveReport({
       report_id: this.props.report.post_report.id,
       resolved: !resolved,
-      resolve_reason: reason,
+      resolve_reason: form.reason,
     });
-    this.setState({ showResolveReportDialog: false, resolveReason: "" });
-  };
-
-  handleResolveCancel = () => {
-    this.setState({ showResolveReportDialog: false, resolveReason: "" });
+    this.setState({ showResolveReportDialog: false });
   };
 
   render() {
@@ -254,74 +244,13 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           />
         )}
         {this.state.showResolveReportDialog && (
-          <div
-            className="modal show d-block"
-            style={{ "background-color": "rgba(0,0,0,0.5)" }}
-          >
-            <div className="modal-dialog">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title">
-                    {I18NextService.i18n.t(
-                      resolved ? "unresolve_report" : "resolve_report",
-                    )}
-                  </h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={this.handleResolveCancel}
-                    aria-label="Close"
-                  />
-                </div>
-                <div className="modal-body">
-                  {!resolved && (
-                    <div className="mb-3">
-                      <label htmlFor="resolveReason" className="form-label">
-                        {I18NextService.i18n.t("resolve_reason_optional")}
-                      </label>
-                      <textarea
-                        id="resolveReason"
-                        className="form-control"
-                        rows={3}
-                        value={this.state.resolveReason}
-                        onInput={this.handleResolveReasonChange}
-                        placeholder={I18NextService.i18n.t(
-                          "enter_resolve_reason_optional",
-                        )}
-                      />
-                    </div>
-                  )}
-                  {resolved && (
-                    <p>
-                      {I18NextService.i18n.t("unresolve_report_confirmation")}
-                    </p>
-                  )}
-                </div>
-                <div className="modal-footer">
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    onClick={this.handleResolveCancel}
-                  >
-                    {I18NextService.i18n.t("cancel")}
-                  </button>
-                  <button
-                    type="button"
-                    className={`btn ${resolved ? "btn-warning" : "btn-primary"}`}
-                    onClick={this.handleResolveSubmit}
-                    disabled={this.props.loading}
-                  >
-                    {this.props.loading ? (
-                      <span className="spinner-border spinner-border-sm me-1" />
-                    ) : null}
-                    {I18NextService.i18n.t(
-                      resolved ? "unresolve_report" : "resolve_report",
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ResolveReportModal
+            isResolved={resolved}
+            onSubmit={this.handleResolveReport}
+            onCancel={() => this.setState({ showResolveReportDialog: false })}
+            show
+            loading={this.props.loading}
+          />
         )}
       </div>
     );
