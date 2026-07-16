@@ -29,19 +29,6 @@ export class PrivateMessageReport extends Component<Props, State> {
     showResolveReportDialog: false,
   };
 
-  handleResolveReport = (form: {
-    reason?: string;
-    action: "resolve" | "unresolve";
-  }) => {
-    const pmr = this.props.report.private_message_report;
-    this.props.onResolveReport({
-      report_id: pmr.id,
-      resolved: !pmr.resolved,
-      resolve_reason: form.reason,
-    });
-    this.setState({ showResolveReportDialog: false });
-  };
-
   render() {
     const r = this.props.report;
     const pmr = r.private_message_report;
@@ -109,11 +96,6 @@ export class PrivateMessageReport extends Component<Props, State> {
                 {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
               </div>
             )}
-            {!resolved && resolveReason && (
-              <div>
-                {I18NextService.i18n.t("unresolve_reason")}: {resolveReason}
-              </div>
-            )}
           </div>
         )}
         <div className="mt-2">
@@ -131,7 +113,7 @@ export class PrivateMessageReport extends Component<Props, State> {
         {this.state.showResolveReportDialog && (
           <ResolveReportModal
             isResolved={resolved}
-            onSubmit={this.handleResolveReport}
+            onSubmit={reason => handleResolveReport(this, reason)}
             onCancel={() => this.setState({ showResolveReportDialog: false })}
             show
             loading={this.props.loading}
@@ -140,4 +122,14 @@ export class PrivateMessageReport extends Component<Props, State> {
       </div>
     );
   }
+}
+
+function handleResolveReport(i: PrivateMessageReport, reason?: string) {
+  const pmr = i.props.report.private_message_report;
+  i.props.onResolveReport({
+    report_id: pmr.id,
+    resolved: !pmr.resolved,
+    resolve_reason: reason,
+  });
+  i.setState({ showResolveReportDialog: false });
 }

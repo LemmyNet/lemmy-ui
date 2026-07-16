@@ -47,20 +47,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     showResolveReportDialog: false,
   };
 
-  handleResolveReport = (form: {
-    reason?: string;
-    action: "resolve" | "unresolve";
-  }) => {
-    const resolved = this.props.report.post_report.resolved;
-
-    this.props.onResolveReport({
-      report_id: this.props.report.post_report.id,
-      resolved: !resolved,
-      resolve_reason: form.reason,
-    });
-    this.setState({ showResolveReportDialog: false });
-  };
-
   render() {
     const r = this.props.report;
     const resolver = r.resolver;
@@ -184,11 +170,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
           </div>
         )}
-        {!resolved && resolveReason && (
-          <div>
-            {I18NextService.i18n.t("unresolve_reason")}: {resolveReason}
-          </div>
-        )}
         <div className="row row-cols-auto align-items-center gx-3 my-2">
           <div className="col">
             <ActionButton
@@ -257,7 +238,8 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         {this.state.showResolveReportDialog && (
           <ResolveReportModal
             isResolved={resolved}
-            onSubmit={this.handleResolveReport}
+            resolveReason={resolveReason}
+            onSubmit={reason => handleResolveReport(this, reason)}
             onCancel={() => this.setState({ showResolveReportDialog: false })}
             show
             loading={this.props.loading}
@@ -290,4 +272,15 @@ function handleAdminBan(i: PostReport) {
     person: i.props.report.post_creator,
     ban: !i.props.report.creator_banned,
   });
+}
+
+function handleResolveReport(i: PostReport, reason?: string) {
+  const resolved = i.props.report.post_report.resolved;
+
+  i.props.onResolveReport({
+    report_id: i.props.report.post_report.id,
+    resolved: !resolved,
+    resolve_reason: reason,
+  });
+  i.setState({ showResolveReportDialog: false });
 }

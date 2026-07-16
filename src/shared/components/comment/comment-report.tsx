@@ -49,19 +49,6 @@ export class CommentReport extends Component<
     showResolveReportDialog: false,
   };
 
-  handleResolveReport = (form: {
-    reason?: string;
-    action: "resolve" | "unresolve";
-  }) => {
-    const cr = this.props.report.comment_report;
-    this.props.onResolveReport({
-      report_id: cr.id,
-      resolved: !cr.resolved,
-      resolve_reason: form.reason,
-    });
-    this.setState({ showResolveReportDialog: false });
-  };
-
   render() {
     const r = this.props.report;
     const comment = r.comment;
@@ -176,11 +163,6 @@ export class CommentReport extends Component<
                 {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
               </div>
             )}
-            {!resolved && resolveReason && (
-              <div>
-                {I18NextService.i18n.t("unresolve_reason")}: {resolveReason}
-              </div>
-            )}
           </div>
         )}
         <div className="row row-cols-auto align-items-center gx-3 my-2">
@@ -254,7 +236,7 @@ export class CommentReport extends Component<
         {this.state.showResolveReportDialog && (
           <ResolveReportModal
             isResolved={resolved}
-            onSubmit={this.handleResolveReport}
+            onSubmit={reason => handleResolveReport(this, reason)}
             onCancel={() => this.setState({ showResolveReportDialog: false })}
             show
             loading={this.props.loading}
@@ -287,4 +269,14 @@ function handleAdminBan(i: CommentReport) {
     person: i.props.report.comment_creator,
     ban: !i.props.report.creator_banned,
   });
+}
+
+function handleResolveReport(i: CommentReport, reason?: string) {
+  const cr = i.props.report.comment_report;
+  i.props.onResolveReport({
+    report_id: cr.id,
+    resolved: !cr.resolved,
+    resolve_reason: reason,
+  });
+  i.setState({ showResolveReportDialog: false });
 }

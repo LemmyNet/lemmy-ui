@@ -5,21 +5,18 @@ import { randomStr } from "@utils/helpers";
 import type { Modal } from "bootstrap";
 import classNames from "classnames";
 import { modalMixin } from "../../mixins/modal-mixin";
-import { LoadingEllipses } from "../loading-ellipses";
 
 interface ResolveReportModalProps {
   isResolved: boolean;
-  onSubmit: (form: {
-    reason?: string;
-    action: "resolve" | "unresolve";
-  }) => void;
+  resolveReason?: string;
+  onSubmit: (reason?: string) => void;
   onCancel: () => void;
   show: boolean;
   loading: boolean;
 }
 
 interface ResolveReportModalState {
-  reason: string;
+  reason?: string;
 }
 
 @modalMixin
@@ -31,7 +28,7 @@ export default class ResolveReportModal extends Component<
   private reasonRef: RefObject<HTMLInputElement>;
   modal?: Modal;
   state: ResolveReportModalState = {
-    reason: "",
+    reason: this.props.resolveReason ?? undefined,
   };
 
   constructor(props: ResolveReportModalProps, context: object) {
@@ -39,28 +36,6 @@ export default class ResolveReportModal extends Component<
     this.modalDivRef = createRef();
     this.reasonRef = createRef();
   }
-
-  handleReasonChange = (event: FormEvent<HTMLInputElement>) => {
-    this.setState({ reason: event.currentTarget.value });
-  };
-
-  handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const action = this.props.isResolved ? "unresolve" : "resolve";
-    const trimmedReason = this.state.reason.trim();
-
-    // Only include reason if provided, otherwise undefined
-    const reason = trimmedReason || undefined;
-
-    this.props.onSubmit({ reason, action });
-    this.setState({ reason: "" });
-  };
-
-  handleCancel = () => {
-    this.props.onCancel();
-    this.setState({ reason: "" });
-  };
 
   render() {
     const { reason } = this.state;
@@ -95,33 +70,32 @@ export default class ResolveReportModal extends Component<
               {loading ? (
                 <>
                   <Spinner large />
-                  <div>
-                    <LoadingEllipses />
-                  </div>
                 </>
               ) : (
                 <form
-                  onSubmit={this.handleSubmit}
+                  onSubmit={event => handleSubmit(this, event)}
                   className="p-3 w-100 container"
                   id={formId}
                 >
-                  <div className="row mb-3">
-                    <div className="col-12">
-                      <label className="visually-hidden" htmlFor={reasonId}>
-                        {I18NextService.i18n.t("reason")}
-                      </label>
-                      <input
-                        type="text"
-                        id={reasonId}
-                        className="form-control my-2 my-lg-0"
-                        placeholder={I18NextService.i18n.t("reason")}
-                        required={false}
-                        value={reason}
-                        onInput={this.handleReasonChange}
-                        ref={this.reasonRef}
-                      />
+                  {!isResolved && (
+                    <div className="row mb-3">
+                      <div className="col-12">
+                        <label className="visually-hidden" htmlFor={reasonId}>
+                          {I18NextService.i18n.t("reason")}
+                        </label>
+                        <input
+                          type="text"
+                          id={reasonId}
+                          className="form-control my-2 my-lg-0"
+                          placeholder={I18NextService.i18n.t("reason")}
+                          required={false}
+                          value={reason}
+                          onInput={event => handleReasonChange(this, event)}
+                          ref={this.reasonRef}
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </form>
               )}
             </div>
@@ -143,7 +117,7 @@ export default class ResolveReportModal extends Component<
               <button
                 type="button"
                 className="btn btn-light"
-                onClick={this.handleCancel}
+                onClick={() => handleCancel(this)}
                 disabled={loading}
               >
                 {I18NextService.i18n.t("cancel")}
@@ -156,11 +130,33 @@ export default class ResolveReportModal extends Component<
   }
 
   handleShow() {
-    if (this.reasonRef && this.reasonRef.current) {
-      // Small delay to ensure the modal is fully rendered
-      setTimeout(() => {
-        this.reasonRef.current?.focus();
-      }, 100);
-    }
+    this.reasonRef.current?.focus();
   }
+}
+
+function handleReasonChange(
+  i: ResolveReportModal,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.setState({ reason: event.currentTarget.value });
+}
+
+function handleSubmit(
+  i: ResolveReportModal,
+  event: FormEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+
+  const trimmedReason = i.state.reason?.trim();
+  const resolved = i.props.isResolved;
+
+  // Only pass reason if resolving and a reason was provided
+  const reason = !resolved && trimmedReason ? trimmedReason : undefined;
+
+  i.props.onSubmit(reason);
+}
+
+function handleCancel(i: ResolveReportModal) {
+  i.props.onCancel();
+  i.setState({ reason: i.props.resolveReason ?? undefined });
 }

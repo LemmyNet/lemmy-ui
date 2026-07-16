@@ -40,19 +40,6 @@ export class CommunityReport extends Component<Props, State> {
     showResolveReportDialog: false,
   };
 
-  handleResolveReport = (form: {
-    reason?: string;
-    action: "resolve" | "unresolve";
-  }) => {
-    const cr = this.props.report.community_report;
-    this.props.onResolveReport({
-      report_id: cr.id,
-      resolved: !cr.resolved,
-      resolve_reason: form.reason,
-    });
-    this.setState({ showResolveReportDialog: false });
-  };
-
   render() {
     const r = this.props.report;
     const cr = r.community_report;
@@ -121,11 +108,6 @@ export class CommunityReport extends Component<Props, State> {
                 {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
               </div>
             )}
-            {!resolved && resolveReason && (
-              <div>
-                {I18NextService.i18n.t("unresolve_reason")}: {resolveReason}
-              </div>
-            )}
           </div>
         )}
         <div className="mt-2">
@@ -143,7 +125,7 @@ export class CommunityReport extends Component<Props, State> {
         {this.state.showResolveReportDialog && (
           <ResolveReportModal
             isResolved={resolved}
-            onSubmit={this.handleResolveReport}
+            onSubmit={reason => handleResolveReport(this, reason)}
             onCancel={() => this.setState({ showResolveReportDialog: false })}
             show
             loading={this.props.loading}
@@ -152,4 +134,14 @@ export class CommunityReport extends Component<Props, State> {
       </div>
     );
   }
+}
+
+function handleResolveReport(i: CommunityReport, reason?: string) {
+  const cr = i.props.report.community_report;
+  i.props.onResolveReport({
+    report_id: cr.id,
+    resolved: !cr.resolved,
+    resolve_reason: reason,
+  });
+  i.setState({ showResolveReportDialog: false });
 }
