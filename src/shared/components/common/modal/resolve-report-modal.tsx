@@ -9,7 +9,10 @@ import { LoadingEllipses } from "../loading-ellipses";
 
 interface ResolveReportModalProps {
   isResolved: boolean;
-  onSubmit: (form: { reason: string; action: "resolve" | "unresolve" }) => void;
+  onSubmit: (form: {
+    reason?: string;
+    action: "resolve" | "unresolve";
+  }) => void;
   onCancel: () => void;
   show: boolean;
   loading: boolean;
@@ -45,15 +48,10 @@ export default class ResolveReportModal extends Component<
     event.preventDefault();
 
     const action = this.props.isResolved ? "unresolve" : "resolve";
-    let reason = this.state.reason.trim();
+    const trimmedReason = this.state.reason.trim();
 
-    // Only set default if no reason provided
-    if (!reason) {
-      reason =
-        action === "resolve"
-          ? "Resolved by moderator"
-          : "Unresolved by moderator";
-    }
+    // Only include reason if provided, otherwise undefined
+    const reason = trimmedReason || undefined;
 
     this.props.onSubmit({ reason, action });
     this.setState({ reason: "" });
@@ -98,9 +96,6 @@ export default class ResolveReportModal extends Component<
                 <>
                   <Spinner large />
                   <div>
-                    {I18NextService.i18n.t(
-                      isResolved ? "unresolving_report" : "resolving_report",
-                    )}
                     <LoadingEllipses />
                   </div>
                 </>
@@ -119,51 +114,14 @@ export default class ResolveReportModal extends Component<
                         type="text"
                         id={reasonId}
                         className="form-control my-2 my-lg-0"
-                        placeholder={I18NextService.i18n.t(
-                          isResolved
-                            ? "unresolve_reason_optional"
-                            : "resolve_reason_optional",
-                        )}
+                        placeholder={I18NextService.i18n.t("reason")}
                         required={false}
                         value={reason}
                         onInput={this.handleReasonChange}
                         ref={this.reasonRef}
                       />
-                      {isResolved && (
-                        <small className="text-muted">
-                          {I18NextService.i18n.t(
-                            "unresolve_will_set_default_reason",
-                          )}
-                        </small>
-                      )}
                     </div>
                   </div>
-                  {!isResolved && (
-                    <div className="row">
-                      <div className="col-12">
-                        <div className="alert alert-info">
-                          <small>
-                            {I18NextService.i18n.t(
-                              "resolve_report_confirmation",
-                            )}
-                          </small>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  {isResolved && (
-                    <div className="row">
-                      <div className="col-12">
-                        <div className="alert alert-warning">
-                          <small>
-                            {I18NextService.i18n.t(
-                              "unresolve_report_confirmation",
-                            )}
-                          </small>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </form>
               )}
             </div>
@@ -178,7 +136,9 @@ export default class ResolveReportModal extends Component<
                 form={formId}
                 disabled={loading}
               >
-                {I18NextService.i18n.t(isResolved ? "unresolve" : "resolve")}
+                {I18NextService.i18n.t(
+                  isResolved ? "unresolve_report" : "resolve_report",
+                )}
               </button>
               <button
                 type="button"

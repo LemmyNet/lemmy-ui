@@ -41,7 +41,7 @@ export class CommunityReport extends Component<Props, State> {
   };
 
   handleResolveReport = (form: {
-    reason: string;
+    reason?: string;
     action: "resolve" | "unresolve";
   }) => {
     const cr = this.props.report.community_report;
@@ -57,6 +57,7 @@ export class CommunityReport extends Component<Props, State> {
     const r = this.props.report;
     const cr = r.community_report;
     const resolved = cr.resolved;
+    const resolveReason = r.community_report.resolve_reason;
 
     const mergedCommunity: Community = { ...r.community };
     reportElements.forEach(key => {
@@ -114,6 +115,16 @@ export class CommunityReport extends Component<Props, State> {
                   muted={false}
                 />
               </T>
+            )}
+            {resolved && resolveReason && (
+              <div>
+                {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
+              </div>
+            )}
+            {!resolved && resolveReason && (
+              <div>
+                {I18NextService.i18n.t("unresolve_reason")}: {resolveReason}
+              </div>
             )}
           </div>
         )}

@@ -48,7 +48,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
   };
 
   handleResolveReport = (form: {
-    reason: string;
+    reason?: string;
     action: "resolve" | "unresolve";
   }) => {
     const resolved = this.props.report.post_report.resolved;
@@ -66,6 +66,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     const resolver = r.resolver;
     const post = r.post;
     const resolved = r.post_report.resolved;
+    const resolveReason = r.post_report.resolve_reason;
 
     // Set the original post data ( a troll could change it )
     post.name = r.post_report.original_post_name;
@@ -176,6 +177,16 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
                 />
               </T>
             )}
+          </div>
+        )}
+        {resolved && resolveReason && (
+          <div>
+            {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
+          </div>
+        )}
+        {!resolved && resolveReason && (
+          <div>
+            {I18NextService.i18n.t("unresolve_reason")}: {resolveReason}
           </div>
         )}
         <div className="row row-cols-auto align-items-center gx-3 my-2">

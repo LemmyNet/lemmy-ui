@@ -50,7 +50,7 @@ export class CommentReport extends Component<
   };
 
   handleResolveReport = (form: {
-    reason: string;
+    reason?: string;
     action: "resolve" | "unresolve";
   }) => {
     const cr = this.props.report.comment_report;
@@ -66,6 +66,7 @@ export class CommentReport extends Component<
     const r = this.props.report;
     const comment = r.comment;
     const resolved = r.comment_report.resolved;
+    const resolveReason = r.comment_report.resolve_reason;
 
     // Set the original post data ( a troll could change it )
     comment.content = r.comment_report.original_comment_text;
@@ -169,6 +170,16 @@ export class CommentReport extends Component<
                   muted={false}
                 />
               </T>
+            )}
+            {resolved && resolveReason && (
+              <div>
+                {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
+              </div>
+            )}
+            {!resolved && resolveReason && (
+              <div>
+                {I18NextService.i18n.t("unresolve_reason")}: {resolveReason}
+              </div>
             )}
           </div>
         )}

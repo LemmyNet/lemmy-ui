@@ -30,7 +30,7 @@ export class PrivateMessageReport extends Component<Props, State> {
   };
 
   handleResolveReport = (form: {
-    reason: string;
+    reason?: string;
     action: "resolve" | "unresolve";
   }) => {
     const pmr = this.props.report.private_message_report;
@@ -46,6 +46,7 @@ export class PrivateMessageReport extends Component<Props, State> {
     const r = this.props.report;
     const pmr = r.private_message_report;
     const resolved = pmr.resolved;
+    const resolveReason = r.private_message_report.resolve_reason;
 
     return (
       <div className="private-message-report">
@@ -102,6 +103,16 @@ export class PrivateMessageReport extends Component<Props, State> {
                   muted={false}
                 />
               </T>
+            )}
+            {resolved && resolveReason && (
+              <div>
+                {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
+              </div>
+            )}
+            {!resolved && resolveReason && (
+              <div>
+                {I18NextService.i18n.t("unresolve_reason")}: {resolveReason}
+              </div>
             )}
           </div>
         )}
