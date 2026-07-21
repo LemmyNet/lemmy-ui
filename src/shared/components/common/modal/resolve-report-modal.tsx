@@ -19,9 +19,6 @@ interface ResolveReportModalState {
   reason?: string;
 }
 
-// Delimiter to separate resolve and unresolve reasons
-const REASON_DELIMITER = "|";
-
 @modalMixin
 export default class ResolveReportModal extends Component<
   ResolveReportModalProps,
@@ -31,7 +28,7 @@ export default class ResolveReportModal extends Component<
   private reasonRef: RefObject<HTMLInputElement>;
   modal?: Modal;
   state: ResolveReportModalState = {
-    reason: getCurrentReasonFromProps(this.props),
+    reason: this.props.resolveReason ?? undefined,
   };
 
   constructor(props: ResolveReportModalProps, context: object) {
@@ -45,11 +42,6 @@ export default class ResolveReportModal extends Component<
     const { isResolved, loading } = this.props;
     const reasonId = `resolve-reason-${randomStr()}`;
     const formId = `resolve-form-${randomStr()}`;
-
-    // Determine placeholder text based on current action
-    const placeholderText = I18NextService.i18n.t(
-      isResolved ? "unresolve_reason" : "resolve_reason",
-    );
 
     return (
       <div
@@ -94,7 +86,7 @@ export default class ResolveReportModal extends Component<
                         type="text"
                         id={reasonId}
                         className="form-control my-2 my-lg-0"
-                        placeholder={placeholderText}
+                        placeholder={I18NextService.i18n.t("reason")}
                         required={false}
                         value={reason || ""}
                         onInput={e => handleReasonChange(this, e)}
@@ -140,53 +132,6 @@ export default class ResolveReportModal extends Component<
   }
 }
 
-function getCurrentReasonFromProps(
-  props: ResolveReportModalProps,
-): string | undefined {
-  const { resolveReason, isResolved } = props;
-  if (!resolveReason) return undefined;
-
-  const parts = resolveReason.split(REASON_DELIMITER);
-  // Format: "resolve_reason|unresolve_reason"
-  if (parts.length === 2) {
-    return !isResolved ? parts[0] : parts[1];
-  }
-  return resolveReason;
-}
-
-function combineReasons(
-  props: ResolveReportModalProps,
-  newReason?: string,
-): string | undefined {
-  const { resolveReason, isResolved } = props;
-  const trimmedNewReason = newReason?.trim();
-
-  // Get existing parts
-  let resolveReasonPart = "";
-  let unresolveReasonPart = "";
-
-  if (resolveReason && resolveReason.includes(REASON_DELIMITER)) {
-    const parts = resolveReason.split(REASON_DELIMITER);
-    resolveReasonPart = parts[0] || "";
-    unresolveReasonPart = parts[1] || "";
-  }
-
-  // Update the appropriate part based on current action
-  if (!isResolved) {
-    // We're resolving, update resolve reason
-    resolveReasonPart = trimmedNewReason || "";
-  } else {
-    // We're unresolving, update unresolve reason
-    unresolveReasonPart = trimmedNewReason || "";
-  }
-
-  // Return with delimiter if either side has a value
-  if (resolveReasonPart || unresolveReasonPart) {
-    return `${resolveReasonPart}${REASON_DELIMITER}${unresolveReasonPart}`;
-  }
-  return undefined;
-}
-
 function handleReasonChange(
   i: ResolveReportModal,
   e: FormEvent<HTMLInputElement>,
@@ -198,15 +143,15 @@ function handleSubmit(i: ResolveReportModal, e: FormEvent<HTMLFormElement>) {
   e.preventDefault();
 
   const trimmedReason = i.state.reason?.trim();
+  const resolved = i.props.isResolved;
 
-  // Combine resolve and unresolve reasons with delimiter
-  const combinedReason = combineReasons(i.props, trimmedReason);
+  // Only pass reason if resolving and a reason was provided
+  const reason = !resolved && trimmedReason ? trimmedReason : undefined;
 
-  i.props.onSubmit(combinedReason);
+  i.props.onSubmit(reason);
 }
 
 function handleCancel(i: ResolveReportModal) {
   i.props.onCancel();
-  // Reset reason to the current value from props
-  i.setState({ reason: getCurrentReasonFromProps(i.props) });
+  i.setState({ reason: i.props.resolveReason ?? undefined });
 }
