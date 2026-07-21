@@ -81,7 +81,7 @@ export default class ResolveReportModal extends Component<
                 </>
               ) : (
                 <form
-                  onSubmit={event => handleSubmit(this, event)}
+                  onSubmit={e => handleSubmit(this, e)}
                   className="p-3 w-100 container"
                   id={formId}
                 >
@@ -97,7 +97,7 @@ export default class ResolveReportModal extends Component<
                         placeholder={placeholderText}
                         required={false}
                         value={reason || ""}
-                        onInput={event => handleReasonChange(this, event)}
+                        onInput={e => handleReasonChange(this, e)}
                         ref={this.reasonRef}
                       />
                     </div>
@@ -189,16 +189,13 @@ function combineReasons(
 
 function handleReasonChange(
   i: ResolveReportModal,
-  event: FormEvent<HTMLInputElement>,
+  e: FormEvent<HTMLInputElement>,
 ) {
-  i.setState({ reason: event.currentTarget.value });
+  i.setState({ reason: e.currentTarget.value });
 }
 
-function handleSubmit(
-  i: ResolveReportModal,
-  event: FormEvent<HTMLFormElement>,
-) {
-  event.preventDefault();
+function handleSubmit(i: ResolveReportModal, e: FormEvent<HTMLFormElement>) {
+  e.preventDefault();
 
   const trimmedReason = i.state.reason?.trim();
 
