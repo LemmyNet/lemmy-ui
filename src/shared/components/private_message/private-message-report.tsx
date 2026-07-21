@@ -23,8 +23,6 @@ interface State {
   showResolveReportDialog: boolean;
 }
 
-const REASON_DELIMITER = "|";
-
 @tippyMixin
 export class PrivateMessageReport extends Component<Props, State> {
   state: State = {
@@ -36,7 +34,6 @@ export class PrivateMessageReport extends Component<Props, State> {
     const pmr = r.private_message_report;
     const resolved = pmr.resolved;
     const resolveReason = r.private_message_report.resolve_reason;
-    const displayReason = getDisplayReason(resolveReason, resolved);
 
     return (
       <div className="private-message-report">
@@ -94,12 +91,9 @@ export class PrivateMessageReport extends Component<Props, State> {
                 />
               </T>
             )}
-            {displayReason && (
+            {resolved && resolveReason && (
               <div>
-                {I18NextService.i18n.t(
-                  resolved ? "resolve_reason" : "unresolve_reason",
-                )}
-                : {displayReason}
+                {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
               </div>
             )}
           </div>
@@ -119,7 +113,6 @@ export class PrivateMessageReport extends Component<Props, State> {
         {this.state.showResolveReportDialog && (
           <ResolveReportModal
             isResolved={resolved}
-            resolveReason={resolveReason}
             onSubmit={reason => handleResolveReport(this, reason)}
             onCancel={() => this.setState({ showResolveReportDialog: false })}
             show
@@ -129,20 +122,6 @@ export class PrivateMessageReport extends Component<Props, State> {
       </div>
     );
   }
-}
-
-function getDisplayReason(
-  resolveReason?: string,
-  isResolved: boolean = true,
-): string | undefined {
-  if (!resolveReason) return undefined;
-
-  const parts = resolveReason.split(REASON_DELIMITER);
-  if (parts.length === 2) {
-    // Return the appropriate part based on resolution state
-    return isResolved ? parts[0] : parts[1];
-  }
-  return resolveReason;
 }
 
 function handleResolveReport(i: PrivateMessageReport, reason?: string) {

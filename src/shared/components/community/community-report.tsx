@@ -34,8 +34,6 @@ const reportElements = [
   "banner",
 ] as const;
 
-const REASON_DELIMITER = "|";
-
 @tippyMixin
 export class CommunityReport extends Component<Props, State> {
   state: State = {
@@ -47,7 +45,6 @@ export class CommunityReport extends Component<Props, State> {
     const cr = r.community_report;
     const resolved = cr.resolved;
     const resolveReason = r.community_report.resolve_reason;
-    const displayReason = getDisplayReason(resolveReason, resolved);
 
     const mergedCommunity: Community = { ...r.community };
     reportElements.forEach(key => {
@@ -106,12 +103,9 @@ export class CommunityReport extends Component<Props, State> {
                 />
               </T>
             )}
-            {displayReason && (
+            {resolved && resolveReason && (
               <div>
-                {I18NextService.i18n.t(
-                  resolved ? "resolve_reason" : "unresolve_reason",
-                )}
-                : {displayReason}
+                {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
               </div>
             )}
           </div>
@@ -131,7 +125,6 @@ export class CommunityReport extends Component<Props, State> {
         {this.state.showResolveReportDialog && (
           <ResolveReportModal
             isResolved={resolved}
-            resolveReason={resolveReason}
             onSubmit={reason => handleResolveReport(this, reason)}
             onCancel={() => this.setState({ showResolveReportDialog: false })}
             show
@@ -141,20 +134,6 @@ export class CommunityReport extends Component<Props, State> {
       </div>
     );
   }
-}
-
-function getDisplayReason(
-  resolveReason?: string,
-  isResolved: boolean = true,
-): string | undefined {
-  if (!resolveReason) return undefined;
-
-  const parts = resolveReason.split(REASON_DELIMITER);
-  if (parts.length === 2) {
-    // Return the appropriate part based on resolution state
-    return isResolved ? parts[0] : parts[1];
-  }
-  return resolveReason;
 }
 
 function handleResolveReport(i: CommunityReport, reason?: string) {
