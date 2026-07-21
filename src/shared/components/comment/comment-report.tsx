@@ -158,9 +158,12 @@ export class CommentReport extends Component<
                 />
               </T>
             )}
-            {resolved && resolveReason && (
+            {resolveReason && (
               <div>
-                {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
+                {I18NextService.i18n.t(
+                  resolved ? "resolve_reason" : "unresolve_reason",
+                )}
+                : {resolveReason}
               </div>
             )}
           </div>

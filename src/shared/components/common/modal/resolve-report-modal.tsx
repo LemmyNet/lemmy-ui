@@ -141,14 +141,8 @@ function handleReasonChange(
 
 function handleSubmit(i: ResolveReportModal, e: FormEvent<HTMLFormElement>) {
   e.preventDefault();
-
   const trimmedReason = i.state.reason?.trim();
-  const resolved = i.props.isResolved;
-
-  // Only pass reason if resolving and a reason was provided
-  const reason = !resolved && trimmedReason ? trimmedReason : undefined;
-
-  i.props.onSubmit(reason);
+  i.props.onSubmit(trimmedReason);
 }
 
 function handleCancel(i: ResolveReportModal) {
