@@ -39,6 +39,8 @@ interface CommentReportState {
   showResolveReportDialog: boolean;
 }
 
+const REASON_DELIMITER = "|";
+
 @tippyMixin
 export class CommentReport extends Component<
   CommentReportProps,
@@ -54,6 +56,7 @@ export class CommentReport extends Component<
     const comment = r.comment;
     const resolved = r.comment_report.resolved;
     const resolveReason = r.comment_report.resolve_reason;
+    const displayReason = getDisplayReason(resolveReason, resolved);
 
     // Set the original post data ( a troll could change it )
     comment.content = r.comment_report.original_comment_text;
@@ -158,9 +161,12 @@ export class CommentReport extends Component<
                 />
               </T>
             )}
-            {resolved && resolveReason && (
+            {displayReason && (
               <div>
-                {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
+                {I18NextService.i18n.t(
+                  resolved ? "resolve_reason" : "unresolve_reason",
+                )}
+                : {displayReason}
               </div>
             )}
           </div>
@@ -236,6 +242,7 @@ export class CommentReport extends Component<
         {this.state.showResolveReportDialog && (
           <ResolveReportModal
             isResolved={resolved}
+            resolveReason={resolveReason}
             onSubmit={reason => handleResolveReport(this, reason)}
             onCancel={() => this.setState({ showResolveReportDialog: false })}
             show
@@ -269,6 +276,20 @@ function handleAdminBan(i: CommentReport) {
     person: i.props.report.comment_creator,
     ban: !i.props.report.creator_banned,
   });
+}
+
+function getDisplayReason(
+  resolveReason?: string,
+  isResolved: boolean = true,
+): string | undefined {
+  if (!resolveReason) return undefined;
+
+  const parts = resolveReason.split(REASON_DELIMITER);
+  if (parts.length === 2) {
+    // Return the appropriate part based on resolution state
+    return isResolved ? parts[0] : parts[1];
+  }
+  return resolveReason;
 }
 
 function handleResolveReport(i: CommentReport, reason?: string) {

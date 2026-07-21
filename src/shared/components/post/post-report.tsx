@@ -256,20 +256,6 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
   }
 }
 
-function getDisplayReason(
-  resolveReason?: string,
-  isResolved: boolean = true,
-): string | undefined {
-  if (!resolveReason) return undefined;
-
-  const parts = resolveReason.split(REASON_DELIMITER);
-  if (parts.length === 2) {
-    // Return the appropriate part based on resolution state
-    return isResolved ? parts[0] : parts[1];
-  }
-  return resolveReason;
-}
-
 function handleRemovePost(i: PostReport, reason: string) {
   i.props.onRemovePost({
     post_id: i.props.report.post.id,
@@ -292,6 +278,20 @@ function handleAdminBan(i: PostReport) {
     person: i.props.report.post_creator,
     ban: !i.props.report.creator_banned,
   });
+}
+
+function getDisplayReason(
+  resolveReason?: string,
+  isResolved: boolean = true,
+): string | undefined {
+  if (!resolveReason) return undefined;
+
+  const parts = resolveReason.split(REASON_DELIMITER);
+  if (parts.length === 2) {
+    // Return the appropriate part based on resolution state
+    return isResolved ? parts[0] : parts[1];
+  }
+  return resolveReason;
 }
 
 function handleResolveReport(i: PostReport, reason?: string) {
