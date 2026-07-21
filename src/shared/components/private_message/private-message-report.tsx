@@ -113,15 +113,14 @@ export class PrivateMessageReport extends Component<Props, State> {
             iconClass={`text-${resolved ? "success" : "danger"}`}
           />
         </div>
-        {this.state.showResolveReportDialog && (
-          <ResolveReportModal
-            isResolved={resolved}
-            onSubmit={reason => handleResolveReport(this, reason)}
-            onCancel={() => this.setState({ showResolveReportDialog: false })}
-            show
-            loading={this.props.loading}
-          />
-        )}
+        <ResolveReportModal
+          isResolved={resolved}
+          resolveReason={resolveReason}
+          onSubmit={reason => handleResolveReport(this, reason)}
+          onCancel={() => this.setState({ showResolveReportDialog: false })}
+          show={this.state.showResolveReportDialog}
+          loading={this.props.loading}
+        />
       </div>
     );
   }

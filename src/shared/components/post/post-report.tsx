@@ -238,16 +238,14 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             loading={false}
           />
         )}
-        {this.state.showResolveReportDialog && (
-          <ResolveReportModal
-            isResolved={resolved}
-            resolveReason={resolveReason}
-            onSubmit={reason => handleResolveReport(this, reason)}
-            onCancel={() => this.setState({ showResolveReportDialog: false })}
-            show
-            loading={this.props.loading}
-          />
-        )}
+        <ResolveReportModal
+          isResolved={resolved}
+          resolveReason={resolveReason}
+          onSubmit={reason => handleResolveReport(this, reason)}
+          onCancel={() => this.setState({ showResolveReportDialog: false })}
+          show={this.state.showResolveReportDialog}
+          loading={this.props.loading}
+        />
       </div>
     );
   }
