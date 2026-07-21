@@ -40,6 +40,8 @@ interface PostReportState {
   showResolveReportDialog: boolean;
 }
 
+const REASON_DELIMITER = "|";
+
 @tippyMixin
 export class PostReport extends Component<PostReportProps, PostReportState> {
   state: PostReportState = {
@@ -53,6 +55,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     const post = r.post;
     const resolved = r.post_report.resolved;
     const resolveReason = r.post_report.resolve_reason;
+    const displayReason = getDisplayReason(resolveReason, resolved);
 
     // Set the original post data ( a troll could change it )
     post.name = r.post_report.original_post_name;
@@ -165,9 +168,12 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             )}
           </div>
         )}
-        {resolved && resolveReason && (
+        {displayReason && (
           <div>
-            {I18NextService.i18n.t("resolve_reason")}: {resolveReason}
+            {I18NextService.i18n.t(
+              resolved ? "resolve_reason" : "unresolve_reason",
+            )}
+            : {displayReason}
           </div>
         )}
         <div className="row row-cols-auto align-items-center gx-3 my-2">
@@ -248,6 +254,20 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
       </div>
     );
   }
+}
+
+function getDisplayReason(
+  resolveReason?: string,
+  isResolved: boolean = true,
+): string | undefined {
+  if (!resolveReason) return undefined;
+
+  const parts = resolveReason.split(REASON_DELIMITER);
+  if (parts.length === 2) {
+    // Return the appropriate part based on resolution state
+    return isResolved ? parts[0] : parts[1];
+  }
+  return resolveReason;
 }
 
 function handleRemovePost(i: PostReport, reason: string) {
