@@ -79,14 +79,13 @@ export default class ResolveReportModal extends Component<
                 >
                   <div className="row mb-3">
                     <div className="col-12">
-                      <label className="visually-hidden" htmlFor={reasonId}>
+                      <label htmlFor={reasonId}>
                         {I18NextService.i18n.t("reason")}
                       </label>
                       <input
                         type="text"
                         id={reasonId}
                         className="form-control my-2 my-lg-0"
-                        placeholder={I18NextService.i18n.t("reason")}
                         required={false}
                         value={reason || ""}
                         onInput={e => handleReasonChange(this, e)}
