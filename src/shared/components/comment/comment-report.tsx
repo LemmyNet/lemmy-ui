@@ -53,7 +53,7 @@ export class CommentReport extends Component<
     const r = this.props.report;
     const comment = r.comment;
     const resolved = r.comment_report.resolved;
-    const resolveReason = r.comment_report.resolve_reason;
+    const resolveReason = r.comment_report.conclusion;
 
     // Set the original post data ( a troll could change it )
     comment.content = r.comment_report.original_comment_text;
@@ -278,7 +278,7 @@ function handleResolveReport(i: CommentReport, reason?: string) {
   i.props.onResolveReport({
     report_id: cr.id,
     resolved: !cr.resolved,
-    resolve_reason: reason,
+    conclusion: reason,
   });
   i.setState({ showResolveReportDialog: false });
 }

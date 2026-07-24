@@ -44,7 +44,7 @@ export class CommunityReport extends Component<Props, State> {
     const r = this.props.report;
     const cr = r.community_report;
     const resolved = cr.resolved;
-    const resolveReason = r.community_report.resolve_reason;
+    const resolveReason = r.community_report.conclusion;
 
     const mergedCommunity: Community = { ...r.community };
     reportElements.forEach(key => {
@@ -143,7 +143,7 @@ function handleResolveReport(i: CommunityReport, reason?: string) {
   i.props.onResolveReport({
     report_id: cr.id,
     resolved: !cr.resolved,
-    resolve_reason: reason,
+    conclusion: reason,
   });
   i.setState({ showResolveReportDialog: false });
 }

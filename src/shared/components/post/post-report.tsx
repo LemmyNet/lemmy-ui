@@ -52,7 +52,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     const resolver = r.resolver;
     const post = r.post;
     const resolved = r.post_report.resolved;
-    const resolveReason = r.post_report.resolve_reason;
+    const resolveReason = r.post_report.conclusion;
 
     // Set the original post data ( a troll could change it )
     post.name = r.post_report.original_post_name;
@@ -281,7 +281,7 @@ function handleResolveReport(i: PostReport, reason?: string) {
   i.props.onResolveReport({
     report_id: i.props.report.post_report.id,
     resolved: !resolved,
-    resolve_reason: reason,
+    conclusion: reason,
   });
   i.setState({ showResolveReportDialog: false });
 }

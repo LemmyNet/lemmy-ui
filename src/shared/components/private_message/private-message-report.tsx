@@ -33,7 +33,7 @@ export class PrivateMessageReport extends Component<Props, State> {
     const r = this.props.report;
     const pmr = r.private_message_report;
     const resolved = pmr.resolved;
-    const resolveReason = r.private_message_report.resolve_reason;
+    const resolveReason = r.private_message_report.conclusion;
 
     return (
       <div className="private-message-report">
@@ -131,7 +131,7 @@ function handleResolveReport(i: PrivateMessageReport, reason?: string) {
   i.props.onResolveReport({
     report_id: pmr.id,
     resolved: !pmr.resolved,
-    resolve_reason: reason,
+    conclusion: reason,
   });
   i.setState({ showResolveReportDialog: false });
 }
