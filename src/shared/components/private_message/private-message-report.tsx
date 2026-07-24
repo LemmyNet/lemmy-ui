@@ -10,7 +10,7 @@ import { I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import ActionButton from "@components/common/content-actions/action-button";
-import ResolveReportModal from "@components/common/modal/resolve-report-modal";
+import ConcludeReportModal from "@components/common/modal/conclude-report-modal";
 
 interface Props {
   report: PrivateMessageReportView;
@@ -33,7 +33,7 @@ export class PrivateMessageReport extends Component<Props, State> {
     const r = this.props.report;
     const pmr = r.private_message_report;
     const resolved = pmr.resolved;
-    const resolveReason = r.private_message_report.conclusion;
+    const conclusion = r.private_message_report.conclusion;
 
     return (
       <div className="private-message-report">
@@ -91,12 +91,12 @@ export class PrivateMessageReport extends Component<Props, State> {
                 />
               </T>
             )}
-            {resolveReason && (
+            {conclusion && (
               <div>
                 {I18NextService.i18n.t(
                   resolved ? "resolve_reason" : "unresolve_reason",
                 )}
-                : {resolveReason}
+                : {conclusion}
               </div>
             )}
           </div>
@@ -113,9 +113,9 @@ export class PrivateMessageReport extends Component<Props, State> {
             iconClass={`text-${resolved ? "success" : "danger"}`}
           />
         </div>
-        <ResolveReportModal
+        <ConcludeReportModal
           isResolved={resolved}
-          resolveReason={resolveReason}
+          conclusion={conclusion}
           onSubmit={reason => handleResolveReport(this, reason)}
           onCancel={() => this.setState({ showResolveReportDialog: false })}
           show={this.state.showResolveReportDialog}

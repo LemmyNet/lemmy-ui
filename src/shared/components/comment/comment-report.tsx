@@ -19,7 +19,7 @@ import {
   BanFromSiteData,
 } from "@components/person/reports";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
-import ResolveReportModal from "@components/common/modal/resolve-report-modal";
+import ConcludeReportModal from "@components/common/modal/conclude-report-modal";
 import { commentToFlatNode } from "@utils/app";
 
 interface CommentReportProps {
@@ -53,7 +53,7 @@ export class CommentReport extends Component<
     const r = this.props.report;
     const comment = r.comment;
     const resolved = r.comment_report.resolved;
-    const resolveReason = r.comment_report.conclusion;
+    const conclusion = r.comment_report.conclusion;
 
     // Set the original post data ( a troll could change it )
     comment.content = r.comment_report.original_comment_text;
@@ -158,12 +158,12 @@ export class CommentReport extends Component<
                 />
               </T>
             )}
-            {resolveReason && (
+            {conclusion && (
               <div>
                 {I18NextService.i18n.t(
                   resolved ? "resolve_reason" : "unresolve_reason",
                 )}
-                : {resolveReason}
+                : {conclusion}
               </div>
             )}
           </div>
@@ -236,9 +236,9 @@ export class CommentReport extends Component<
             loading={false}
           />
         )}
-        <ResolveReportModal
+        <ConcludeReportModal
           isResolved={resolved}
-          resolveReason={resolveReason}
+          conclusion={conclusion}
           onSubmit={reason => handleResolveReport(this, reason)}
           onCancel={() => this.setState({ showResolveReportDialog: false })}
           show={this.state.showResolveReportDialog}

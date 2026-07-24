@@ -12,7 +12,7 @@ import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { CommunityHeader } from "./community-header";
 import ActionButton from "@components/common/content-actions/action-button";
-import ResolveReportModal from "@components/common/modal/resolve-report-modal";
+import ConcludeReportModal from "@components/common/modal/conclude-report-modal";
 
 interface Props {
   report: CommunityReportView;
@@ -44,7 +44,7 @@ export class CommunityReport extends Component<Props, State> {
     const r = this.props.report;
     const cr = r.community_report;
     const resolved = cr.resolved;
-    const resolveReason = r.community_report.conclusion;
+    const conclusion = r.community_report.conclusion;
 
     const mergedCommunity: Community = { ...r.community };
     reportElements.forEach(key => {
@@ -103,12 +103,12 @@ export class CommunityReport extends Component<Props, State> {
                 />
               </T>
             )}
-            {resolveReason && (
+            {conclusion && (
               <div>
                 {I18NextService.i18n.t(
                   resolved ? "resolve_reason" : "unresolve_reason",
                 )}
-                : {resolveReason}
+                : {conclusion}
               </div>
             )}
           </div>
@@ -125,9 +125,9 @@ export class CommunityReport extends Component<Props, State> {
             iconClass={`text-${resolved ? "success" : "danger"}`}
           />
         </div>
-        <ResolveReportModal
+        <ConcludeReportModal
           isResolved={resolved}
-          resolveReason={resolveReason}
+          conclusion={conclusion}
           onSubmit={reason => handleResolveReport(this, reason)}
           onCancel={() => this.setState({ showResolveReportDialog: false })}
           show={this.state.showResolveReportDialog}

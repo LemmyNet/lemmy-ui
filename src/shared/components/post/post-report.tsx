@@ -19,7 +19,7 @@ import {
   BanFromSiteData,
 } from "@components/person/reports";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
-import ResolveReportModal from "@components/common/modal/resolve-report-modal";
+import ConcludeReportModal from "@components/common/modal/conclude-report-modal";
 
 interface PostReportProps {
   report: PostReportView;
@@ -52,7 +52,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
     const resolver = r.resolver;
     const post = r.post;
     const resolved = r.post_report.resolved;
-    const resolveReason = r.post_report.conclusion;
+    const conclusion = r.post_report.conclusion;
 
     // Set the original post data ( a troll could change it )
     post.name = r.post_report.original_post_name;
@@ -165,12 +165,12 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             )}
           </div>
         )}
-        {resolveReason && (
+        {conclusion && (
           <div>
             {I18NextService.i18n.t(
               resolved ? "resolve_reason" : "unresolve_reason",
             )}
-            : {resolveReason}
+            : {conclusion}
           </div>
         )}
         <div className="row row-cols-auto align-items-center gx-3 my-2">
@@ -238,9 +238,9 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             loading={false}
           />
         )}
-        <ResolveReportModal
+        <ConcludeReportModal
           isResolved={resolved}
-          resolveReason={resolveReason}
+          conclusion={conclusion}
           onSubmit={reason => handleResolveReport(this, reason)}
           onCancel={() => this.setState({ showResolveReportDialog: false })}
           show={this.state.showResolveReportDialog}
