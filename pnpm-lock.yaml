@@ -123,8 +123,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-resolve-reason.0
-        version: 1.0.0-resolve-reason.0
+        specifier: 1.0.0-resolve-reason.1
+        version: 1.0.0-resolve-reason.1
       markdown-it:
         specifier: ^14.1.0
         version: 14.2.0
@@ -1002,8 +1002,8 @@ packages:
   '@hapi/file@3.0.0':
     resolution: {integrity: sha512-w+lKW+yRrLhJu620jT3y+5g2mHqnKfepreykvdOcl9/6up8GrQQn+l3FRTsjHTKbkbfQFkuksHpdv2EcpKcJ4Q==}
 
-  '@hapi/hapi@21.4.9':
-    resolution: {integrity: sha512-YnecZOVx2AD08VvPl0ZaFS0MjEHqg+InGRmBRli731ct+VwI++dpu3BIYA1Z4SMr6HUAnpyvbQ1aq5woe3fBWg==}
+  '@hapi/hapi@21.4.10':
+    resolution: {integrity: sha512-G0l7tch1/85Gkyasmmjvjam2IWbx/9zCp4AQx4nZ/nn/rrrmVmRvFejj2ZGe5j3wFZVCLt2+Zeg95ImFFom+7w==}
     engines: {node: '>=14.15.0'}
 
   '@hapi/heavy@8.0.1':
@@ -3593,8 +3593,8 @@ packages:
   leac@0.7.0:
     resolution: {integrity: sha512-qMrZeyEekgdRQ9o6a4NAB2EQZrv827GJdn1vnapwSJ90hWRB4TzUSunvacPkxQ2TnNqHNI1/zSt0hlo0crG8Jw==}
 
-  lemmy-js-client@1.0.0-resolve-reason.0:
-    resolution: {integrity: sha512-KvUGicg5+V66rP4VOzbdhwFtLNsHbiF8Nv0jrw3izkpzdXBHdE2EjQZ5NUx+HliCzU5jHT07xjKOhXdm2e82RA==}
+  lemmy-js-client@1.0.0-resolve-reason.1:
+    resolution: {integrity: sha512-GpE+BKEWa1BZAAFzGwtDRnsOW48c48jIMcQ3xkJg5mG8PIvaTr3ap+F/QT/gjqNJYvpPFgznCN7QBduROnpgxg==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -6172,7 +6172,7 @@ snapshots:
 
   '@hapi/file@3.0.0': {}
 
-  '@hapi/hapi@21.4.9':
+  '@hapi/hapi@21.4.10':
     dependencies:
       '@hapi/accept': 6.0.3
       '@hapi/ammo': 6.0.1
@@ -6765,7 +6765,7 @@ snapshots:
   '@tsoa/runtime@6.6.0':
     dependencies:
       '@hapi/boom': 10.0.1
-      '@hapi/hapi': 21.4.9
+      '@hapi/hapi': 21.4.10
       '@types/koa': 2.15.2
       '@types/multer': 1.4.13
       express: 4.22.1
@@ -9099,7 +9099,7 @@ snapshots:
 
   leac@0.7.0: {}
 
-  lemmy-js-client@1.0.0-resolve-reason.0:
+  lemmy-js-client@1.0.0-resolve-reason.1:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:
