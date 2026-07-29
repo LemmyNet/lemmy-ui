@@ -93,10 +93,7 @@ export class PrivateMessageReport extends Component<Props, State> {
             )}
             {conclusion && (
               <div>
-                {I18NextService.i18n.t(
-                  resolved ? "resolve_reason" : "unresolve_reason",
-                )}
-                : {conclusion}
+                {I18NextService.i18n.t("conclusion")}: {conclusion}
               </div>
             )}
           </div>
@@ -116,7 +113,7 @@ export class PrivateMessageReport extends Component<Props, State> {
         <ConcludeReportModal
           isResolved={resolved}
           conclusion={conclusion}
-          onSubmit={reason => handleResolveReport(this, reason)}
+          onSubmit={conclusion => handleResolveReport(this, conclusion)}
           onCancel={() => this.setState({ showResolveReportDialog: false })}
           show={this.state.showResolveReportDialog}
           loading={this.props.loading}
@@ -126,12 +123,12 @@ export class PrivateMessageReport extends Component<Props, State> {
   }
 }
 
-function handleResolveReport(i: PrivateMessageReport, reason?: string) {
+function handleResolveReport(i: PrivateMessageReport, conclusion?: string) {
   const pmr = i.props.report.private_message_report;
   i.props.onResolveReport({
     report_id: pmr.id,
     resolved: !pmr.resolved,
-    conclusion: reason,
+    conclusion: conclusion,
   });
   i.setState({ showResolveReportDialog: false });
 }

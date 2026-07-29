@@ -9,14 +9,14 @@ import { modalMixin } from "../../mixins/modal-mixin";
 interface ConcludeReportModalProps {
   isResolved: boolean;
   conclusion?: string;
-  onSubmit: (reason?: string) => void;
+  onSubmit: (conclusion?: string) => void;
   onCancel: () => void;
   show: boolean;
   loading: boolean;
 }
 
 interface ConcludeReportModalState {
-  reason?: string;
+  conclusion?: string;
 }
 
 @modalMixin
@@ -25,20 +25,20 @@ export default class ConcludeReportModal extends Component<
   ConcludeReportModalState
 > {
   modalDivRef: RefObject<HTMLDivElement>;
-  private reasonRef: RefObject<HTMLInputElement>;
+  private conclusionRef: RefObject<HTMLInputElement>;
   modal?: Modal;
   state: ConcludeReportModalState = {
-    reason: this.props.conclusion ?? undefined,
+    conclusion: this.props.conclusion ?? undefined,
   };
 
   constructor(props: ConcludeReportModalProps, context: object) {
     super(props, context);
     this.modalDivRef = createRef();
-    this.reasonRef = createRef();
+    this.conclusionRef = createRef();
   }
 
   render() {
-    const { reason } = this.state;
+    const { conclusion } = this.state;
     const { isResolved, loading } = this.props;
     const conclusionId = `conclusion-${randomStr()}`;
     const formId = `conclusion-form-${randomStr()}`;
@@ -80,16 +80,16 @@ export default class ConcludeReportModal extends Component<
                   <div className="row mb-3">
                     <div className="col-12">
                       <label htmlFor={conclusionId}>
-                        {I18NextService.i18n.t("reason")}
+                        {I18NextService.i18n.t("conclusion")}
                       </label>
                       <input
                         type="text"
                         id={conclusionId}
                         className="form-control my-2 my-lg-0"
                         required={false}
-                        value={reason}
-                        onInput={e => handleReasonChange(this, e)}
-                        ref={this.reasonRef}
+                        value={conclusion}
+                        onInput={e => handleConclusionChange(this, e)}
+                        ref={this.conclusionRef}
                       />
                     </div>
                   </div>
@@ -127,26 +127,26 @@ export default class ConcludeReportModal extends Component<
   }
 
   handleShow() {
-    this.reasonRef.current?.focus();
+    this.conclusionRef.current?.focus();
   }
 }
 
-function handleReasonChange(
+function handleConclusionChange(
   i: ConcludeReportModal,
   e: FormEvent<HTMLInputElement>,
 ) {
-  i.setState({ reason: e.currentTarget.value });
+  i.setState({ conclusion: e.currentTarget.value });
 }
 
 function handleSubmit(i: ConcludeReportModal, e: FormEvent<HTMLFormElement>) {
   e.preventDefault();
-  const trimmedReason = i.state.reason?.trim();
+  const trimmedConclusion = i.state.conclusion?.trim();
   // This will still send an empty string instead of None to the backend
   // so that it overrides the value, this is intended
-  i.props.onSubmit(trimmedReason);
+  i.props.onSubmit(trimmedConclusion);
 }
 
 function handleCancel(i: ConcludeReportModal) {
   i.props.onCancel();
-  i.setState({ reason: i.props.conclusion ?? undefined });
+  i.setState({ conclusion: i.props.conclusion ?? undefined });
 }

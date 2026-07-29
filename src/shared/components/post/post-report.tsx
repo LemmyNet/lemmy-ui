@@ -167,10 +167,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         )}
         {conclusion && (
           <div>
-            {I18NextService.i18n.t(
-              resolved ? "resolve_reason" : "unresolve_reason",
-            )}
-            : {conclusion}
+            {I18NextService.i18n.t("conclusion")}: {conclusion}
           </div>
         )}
         <div className="row row-cols-auto align-items-center gx-3 my-2">
@@ -241,7 +238,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         <ConcludeReportModal
           isResolved={resolved}
           conclusion={conclusion}
-          onSubmit={reason => handleResolveReport(this, reason)}
+          onSubmit={conclusion => handleResolveReport(this, conclusion)}
           onCancel={() => this.setState({ showResolveReportDialog: false })}
           show={this.state.showResolveReportDialog}
           loading={this.props.loading}
@@ -275,13 +272,13 @@ function handleAdminBan(i: PostReport) {
   });
 }
 
-function handleResolveReport(i: PostReport, reason?: string) {
+function handleResolveReport(i: PostReport, conclusion?: string) {
   const resolved = i.props.report.post_report.resolved;
 
   i.props.onResolveReport({
     report_id: i.props.report.post_report.id,
     resolved: !resolved,
-    conclusion: reason,
+    conclusion: conclusion,
   });
   i.setState({ showResolveReportDialog: false });
 }
