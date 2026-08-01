@@ -214,7 +214,7 @@ importers:
         version: 5.108.1(postcss@8.5.6)(webpack-cli@7.1.0)
       webpack-cli:
         specifier: ^7.0.0
-        version: 7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.5)(webpack@5.108.1)
+        version: 7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.1)(webpack-dev-server@5.2.5)(webpack@5.108.1)
       webpack-node-externals:
         specifier: ^3.0.0
         version: 3.0.0
@@ -338,7 +338,7 @@ importers:
         version: 2.0.1
       webpack-bundle-analyzer:
         specifier: ^5.0.0
-        version: 5.3.0
+        version: 5.3.1
       webpack-dev-server:
         specifier: 5.2.5
         version: 5.2.5(webpack-cli@7.1.0)(webpack@5.108.1)
@@ -1924,6 +1924,11 @@ packages:
 
   acorn@8.17.0:
     resolution: {integrity: sha512-xRQbDb9BnwDafYNn6Vwl839DYVjqXYb1XVGtWAZ1kcDc6iwAL4hg3B1dZlRiuENFeO2H53gFG3in621AdERVAg==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
+  acorn@8.18.0:
+    resolution: {integrity: sha512-lGq+9yr1/GuAWaVYIHRjvvySG5/4VfKIvC8EWxStPdcDh/Ka7FG3twP6v4d5BkravUilhIAsG4Qj83t02LWUPQ==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -5136,8 +5141,8 @@ packages:
   webidl-conversions@4.0.2:
     resolution: {integrity: sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==}
 
-  webpack-bundle-analyzer@5.3.0:
-    resolution: {integrity: sha512-PEhAoqiJ+47d0uLMx/+zo5XOvaU+Vk6N2ZLht7H3n09QLy/fhyvqGNwjdRUHJDgMN8crBR2ZwVHkIswT3Xuawg==}
+  webpack-bundle-analyzer@5.3.1:
+    resolution: {integrity: sha512-wP2EusncRGL1tZyMHC/umLkjPdYMkTL9nPEKh8G8dkYCJ9TyF6xnXFqjhdqmv5J900irN/g0P5jMvLT22krEXQ==}
     engines: {node: '>= 20.9.0'}
     hasBin: true
 
@@ -5332,6 +5337,18 @@ packages:
 
   ws@8.20.0:
     resolution: {integrity: sha512-sAt8BhgNbzCtgGbt2OxmpuryO63ZoDk/sqaB/znQm94T4fCEsy/yV+7CdC1kJhOU9lboAEU7R3kquuycDoibVA==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.21.1:
+    resolution: {integrity: sha512-+0NTnW77fFN/DjQi6k/Sq/Yvk4Sgajw7urW8V+asjXnRgDs9gyGkdb7EzgfhA4goXsRIZKE28fzIXBHEzhuiWw==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -7181,17 +7198,19 @@ snapshots:
     dependencies:
       acorn: 8.17.0
 
-  acorn-jsx@5.3.2(acorn@8.17.0):
+  acorn-jsx@5.3.2(acorn@8.18.0):
     dependencies:
-      acorn: 8.17.0
+      acorn: 8.18.0
 
   acorn-walk@8.3.5:
     dependencies:
-      acorn: 8.16.0
+      acorn: 8.18.0
 
   acorn@8.16.0: {}
 
   acorn@8.17.0: {}
+
+  acorn@8.18.0: {}
 
   ajv-formats@2.1.1(ajv@8.20.0):
     optionalDependencies:
@@ -8185,8 +8204,8 @@ snapshots:
 
   espree@11.2.0:
     dependencies:
-      acorn: 8.17.0
-      acorn-jsx: 5.3.2(acorn@8.17.0)
+      acorn: 8.18.0
+      acorn-jsx: 5.3.2(acorn@8.18.0)
       eslint-visitor-keys: 5.0.1
 
   esprima@4.0.1: {}
@@ -10638,10 +10657,10 @@ snapshots:
 
   webidl-conversions@4.0.2: {}
 
-  webpack-bundle-analyzer@5.3.0:
+  webpack-bundle-analyzer@5.3.1:
     dependencies:
       '@discoveryjs/json-ext': 0.6.3
-      acorn: 8.16.0
+      acorn: 8.18.0
       acorn-walk: 8.3.5
       commander: 14.0.3
       escape-string-regexp: 5.0.0
@@ -10649,12 +10668,12 @@ snapshots:
       opener: 1.5.2
       picocolors: 1.1.1
       sirv: 3.0.2
-      ws: 8.20.0
+      ws: 8.21.1
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  webpack-cli@7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.5)(webpack@5.108.1):
+  webpack-cli@7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.1)(webpack-dev-server@5.2.5)(webpack@5.108.1):
     dependencies:
       '@discoveryjs/json-ext': 1.1.0
       commander: 14.0.3
@@ -10667,7 +10686,7 @@ snapshots:
       webpack-merge: 6.0.1
     optionalDependencies:
       json5: 2.2.3
-      webpack-bundle-analyzer: 5.3.0
+      webpack-bundle-analyzer: 5.3.1
       webpack-dev-server: 5.2.5(webpack-cli@7.1.0)(webpack@5.108.1)
 
   webpack-dev-middleware@7.4.2(webpack@5.108.1):
@@ -10713,7 +10732,7 @@ snapshots:
       ws: 8.20.0
     optionalDependencies:
       webpack: 5.108.1(postcss@8.5.6)(webpack-cli@7.1.0)
-      webpack-cli: 7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.5)(webpack@5.108.1)
+      webpack-cli: 7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.1)(webpack-dev-server@5.2.5)(webpack@5.108.1)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -10765,7 +10784,7 @@ snapshots:
       watchpack: 2.5.2
       webpack-sources: 3.5.0
     optionalDependencies:
-      webpack-cli: 7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.0)(webpack-dev-server@5.2.5)(webpack@5.108.1)
+      webpack-cli: 7.1.0(json5@2.2.3)(webpack-bundle-analyzer@5.3.1)(webpack-dev-server@5.2.5)(webpack@5.108.1)
     transitivePeerDependencies:
       - '@minify-html/node'
       - '@swc/core'
@@ -10999,6 +11018,8 @@ snapshots:
   wrappy@1.0.2: {}
 
   ws@8.20.0: {}
+
+  ws@8.21.1: {}
 
   yallist@3.1.1: {}
 
