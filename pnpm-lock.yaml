@@ -208,7 +208,7 @@ importers:
         version: 14.0.1
       viewerjs:
         specifier: ^1.11.7
-        version: 1.11.7
+        version: 1.11.8
       webpack:
         specifier: ^5.94.0
         version: 5.108.1(postcss@8.5.6)(webpack-cli@7.1.0)
@@ -5105,8 +5105,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  viewerjs@1.11.7:
-    resolution: {integrity: sha512-0JuVqOmL5v1jmEAlG5EBDR3XquxY8DWFQbFMprOXgaBB0F7Q/X9xWdEaQc59D8xzwkdUgXEMSSknTpriq95igg==}
+  viewerjs@1.11.8:
+    resolution: {integrity: sha512-PLO477UwNThzMek7EQhr7+YONfbgFKj+E6J/+Vr+USzY6cN1WNGQcft0mlIepQXATquvDmH1dOx7aokNyOx/vw==}
 
   void-elements@2.0.1:
     resolution: {integrity: sha512-qZKX4RnBzH2ugr8Lxa7x+0V6XD9Sb/ouARtiasEQCHB1EVU4NXtmHsDDrx1dO4ne5fc3J6EW05BP1Dl0z0iung==}
@@ -10613,7 +10613,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  viewerjs@1.11.7: {}
+  viewerjs@1.11.8: {}
 
   void-elements@2.0.1: {}
 
