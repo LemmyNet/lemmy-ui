@@ -61,7 +61,7 @@ importers:
         version: 1.8.1
       cookie:
         specifier: ^2.0.0
-        version: 2.0.0
+        version: 2.0.1
       cookie-parser:
         specifier: ^1.4.6
         version: 1.4.7
@@ -2331,8 +2331,8 @@ packages:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
     engines: {node: '>= 0.6'}
 
-  cookie@2.0.0:
-    resolution: {integrity: sha512-hRSFuKJ6SYHrFVNltQdagQFMk7e0Q/VrORTGqZGyUAmmhA3EwPeldHCTg0HqUaDodQOfQDe7qXuOtpf4lwCsaA==}
+  cookie@2.0.1:
+    resolution: {integrity: sha512-yuToqVvRrj6pfDXREyQAAv8SkAEk/8GS3jQRTiUMm66TVtBYmqQeoEjL2Lmq8Rpo6271vH76InTChTitEAm65w==}
     engines: {node: '>=22'}
 
   copy-webpack-plugin@11.0.0:
@@ -7623,7 +7623,7 @@ snapshots:
 
   cookie@0.7.2: {}
 
-  cookie@2.0.0: {}
+  cookie@2.0.1: {}
 
   copy-webpack-plugin@11.0.0(webpack@5.108.1):
     dependencies:
