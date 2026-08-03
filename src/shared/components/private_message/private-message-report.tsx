@@ -10,6 +10,7 @@ import { I18NextService } from "../../services";
 import { PersonListing } from "../person/person-listing";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import ActionButton from "@components/common/content-actions/action-button";
+import ConcludeReportModal from "@components/common/modal/conclude-report-modal";
 
 interface Props {
   report: PrivateMessageReportView;
@@ -18,14 +19,21 @@ interface Props {
   onResolveReport: (form: ResolvePrivateMessageReport) => void;
 }
 
+interface State {
+  showResolveReportDialog: boolean;
+}
+
 @tippyMixin
-export class PrivateMessageReport extends Component<Props, object> {
+export class PrivateMessageReport extends Component<Props, State> {
+  state: State = {
+    showResolveReportDialog: false,
+  };
+
   render() {
     const r = this.props.report;
     const pmr = r.private_message_report;
-    const tippyContent = I18NextService.i18n.t(
-      r.private_message_report.resolved ? "unresolve_report" : "resolve_report",
-    );
+    const resolved = pmr.resolved;
+    const conclusion = r.private_message_report.conclusion;
 
     return (
       <div className="private-message-report">
@@ -62,7 +70,7 @@ export class PrivateMessageReport extends Component<Props, object> {
         </div>
         {r.resolver && (
           <div>
-            {pmr.resolved ? (
+            {resolved ? (
               <T i18nKey="resolved_by">
                 #
                 <PersonListing
@@ -83,28 +91,44 @@ export class PrivateMessageReport extends Component<Props, object> {
                 />
               </T>
             )}
+            {conclusion && (
+              <div>
+                {I18NextService.i18n.t("conclusion")}: {conclusion}
+              </div>
+            )}
           </div>
         )}
         <div className="mt-2">
           <ActionButton
-            label={tippyContent}
-            icon={pmr.resolved ? "check" : "x"}
+            label={I18NextService.i18n.t(
+              resolved ? "unresolve_report" : "resolve_report",
+            )}
+            icon={resolved ? "check" : "x"}
             loading={this.props.loading}
             inlineWithText
-            onClick={() => handleResolveReport(this)}
-            iconClass={`text-${pmr.resolved ? "success" : "danger"}`}
+            onClick={() => this.setState({ showResolveReportDialog: true })}
+            iconClass={`text-${resolved ? "success" : "danger"}`}
           />
         </div>
+        <ConcludeReportModal
+          isResolved={resolved}
+          conclusion={conclusion}
+          onSubmit={conclusion => handleResolveReport(this, conclusion)}
+          onCancel={() => this.setState({ showResolveReportDialog: false })}
+          show={this.state.showResolveReportDialog}
+          loading={this.props.loading}
+        />
       </div>
     );
   }
 }
 
-function handleResolveReport(i: PrivateMessageReport) {
-  i.setState({ loading: true });
+function handleResolveReport(i: PrivateMessageReport, conclusion?: string) {
   const pmr = i.props.report.private_message_report;
   i.props.onResolveReport({
     report_id: pmr.id,
     resolved: !pmr.resolved,
+    conclusion: conclusion,
   });
+  i.setState({ showResolveReportDialog: false });
 }

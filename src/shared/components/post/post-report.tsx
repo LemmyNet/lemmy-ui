@@ -19,6 +19,7 @@ import {
   BanFromSiteData,
 } from "@components/person/reports";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
+import ConcludeReportModal from "@components/common/modal/conclude-report-modal";
 
 interface PostReportProps {
   report: PostReportView;
@@ -36,21 +37,22 @@ interface PostReportProps {
 
 interface PostReportState {
   showRemovePostDialog: boolean;
+  showResolveReportDialog: boolean;
 }
 
 @tippyMixin
 export class PostReport extends Component<PostReportProps, PostReportState> {
   state: PostReportState = {
     showRemovePostDialog: false,
+    showResolveReportDialog: false,
   };
 
   render() {
     const r = this.props.report;
     const resolver = r.resolver;
     const post = r.post;
-    const tippyContent = I18NextService.i18n.t(
-      r.post_report.resolved ? "unresolve_report" : "resolve_report",
-    );
+    const resolved = r.post_report.resolved;
+    const conclusion = r.post_report.conclusion;
 
     // Set the original post data ( a troll could change it )
     post.name = r.post_report.original_post_name;
@@ -140,7 +142,7 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
         </div>
         {resolver && (
           <div>
-            {r.post_report.resolved ? (
+            {resolved ? (
               <T i18nKey="resolved_by">
                 #
                 <PersonListing
@@ -163,15 +165,22 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             )}
           </div>
         )}
+        {conclusion && (
+          <div>
+            {I18NextService.i18n.t("conclusion")}: {conclusion}
+          </div>
+        )}
         <div className="row row-cols-auto align-items-center gx-3 my-2">
           <div className="col">
             <ActionButton
-              label={tippyContent}
-              icon={r.post_report.resolved ? "check" : "x"}
+              label={I18NextService.i18n.t(
+                resolved ? "unresolve_report" : "resolve_report",
+              )}
+              icon={resolved ? "check" : "x"}
               loading={this.props.loading}
               inlineWithText
-              onClick={() => handleResolveReport(this)}
-              iconClass={`text-${r.post_report.resolved ? "success" : "danger"}`}
+              onClick={() => this.setState({ showResolveReportDialog: true })}
+              iconClass={`text-${resolved ? "success" : "danger"}`}
             />
           </div>
           <div className="col">
@@ -226,16 +235,17 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
             loading={false}
           />
         )}
+        <ConcludeReportModal
+          isResolved={resolved}
+          conclusion={conclusion}
+          onSubmit={conclusion => handleResolveReport(this, conclusion)}
+          onCancel={() => this.setState({ showResolveReportDialog: false })}
+          show={this.state.showResolveReportDialog}
+          loading={this.props.loading}
+        />
       </div>
     );
   }
-}
-
-function handleResolveReport(i: PostReport) {
-  i.props.onResolveReport({
-    report_id: i.props.report.post_report.id,
-    resolved: !i.props.report.post_report.resolved,
-  });
 }
 
 function handleRemovePost(i: PostReport, reason: string) {
@@ -260,4 +270,15 @@ function handleAdminBan(i: PostReport) {
     person: i.props.report.post_creator,
     ban: !i.props.report.creator_banned,
   });
+}
+
+function handleResolveReport(i: PostReport, conclusion?: string) {
+  const resolved = i.props.report.post_report.resolved;
+
+  i.props.onResolveReport({
+    report_id: i.props.report.post_report.id,
+    resolved: !resolved,
+    conclusion: conclusion,
+  });
+  i.setState({ showResolveReportDialog: false });
 }

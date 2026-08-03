@@ -19,6 +19,7 @@ import {
   BanFromSiteData,
 } from "@components/person/reports";
 import ModActionFormModal from "@components/common/modal/mod-action-form-modal";
+import ConcludeReportModal from "@components/common/modal/conclude-report-modal";
 import { commentToFlatNode } from "@utils/app";
 
 interface CommentReportProps {
@@ -35,6 +36,7 @@ interface CommentReportProps {
 
 interface CommentReportState {
   showRemoveCommentDialog: boolean;
+  showResolveReportDialog: boolean;
 }
 
 @tippyMixin
@@ -44,14 +46,14 @@ export class CommentReport extends Component<
 > {
   state: CommentReportState = {
     showRemoveCommentDialog: false,
+    showResolveReportDialog: false,
   };
 
   render() {
     const r = this.props.report;
     const comment = r.comment;
-    const tippyContent = I18NextService.i18n.t(
-      r.comment_report.resolved ? "unresolve_report" : "resolve_report",
-    );
+    const resolved = r.comment_report.resolved;
+    const conclusion = r.comment_report.conclusion;
 
     // Set the original post data ( a troll could change it )
     comment.content = r.comment_report.original_comment_text;
@@ -135,7 +137,7 @@ export class CommentReport extends Component<
         </div>
         {r.resolver && (
           <div>
-            {r.comment_report.resolved ? (
+            {resolved ? (
               <T i18nKey="resolved_by">
                 #
                 <PersonListing
@@ -156,17 +158,24 @@ export class CommentReport extends Component<
                 />
               </T>
             )}
+            {conclusion && (
+              <div>
+                {I18NextService.i18n.t("conclusion")}: {conclusion}
+              </div>
+            )}
           </div>
         )}
         <div className="row row-cols-auto align-items-center gx-3 my-2">
           <div className="col">
             <ActionButton
-              label={tippyContent}
+              label={I18NextService.i18n.t(
+                resolved ? "unresolve_report" : "resolve_report",
+              )}
               inlineWithText
-              icon={r.comment_report.resolved ? "check" : "x"}
+              icon={resolved ? "check" : "x"}
               loading={this.props.loading}
-              onClick={() => handleResolveReport(this)}
-              iconClass={`text-${r.comment_report.resolved ? "success" : "danger"}`}
+              onClick={() => this.setState({ showResolveReportDialog: true })}
+              iconClass={`text-${resolved ? "success" : "danger"}`}
             />
           </div>
           <div className="col">
@@ -224,16 +233,17 @@ export class CommentReport extends Component<
             loading={false}
           />
         )}
+        <ConcludeReportModal
+          isResolved={resolved}
+          conclusion={conclusion}
+          onSubmit={conclusion => handleResolveReport(this, conclusion)}
+          onCancel={() => this.setState({ showResolveReportDialog: false })}
+          show={this.state.showResolveReportDialog}
+          loading={this.props.loading}
+        />
       </div>
     );
   }
-}
-
-function handleResolveReport(i: CommentReport) {
-  i.props.onResolveReport({
-    report_id: i.props.report.comment_report.id,
-    resolved: !i.props.report.comment_report.resolved,
-  });
 }
 
 function handleRemoveComment(i: CommentReport, reason: string) {
@@ -258,4 +268,14 @@ function handleAdminBan(i: CommentReport) {
     person: i.props.report.comment_creator,
     ban: !i.props.report.creator_banned,
   });
+}
+
+function handleResolveReport(i: CommentReport, conclusion?: string) {
+  const cr = i.props.report.comment_report;
+  i.props.onResolveReport({
+    report_id: cr.id,
+    resolved: !cr.resolved,
+    conclusion: conclusion,
+  });
+  i.setState({ showResolveReportDialog: false });
 }
