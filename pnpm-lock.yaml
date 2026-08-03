@@ -6931,7 +6931,7 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/keygrip': 1.0.6
       '@types/koa-compose': 3.2.9
-      '@types/node': 24.13.2
+      '@types/node': 24.13.3
 
   '@types/linkify-it@5.0.0': {}
 
