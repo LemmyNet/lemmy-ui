@@ -662,12 +662,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
   componentDidUpdate(
     prevProps: Readonly<{ children?: InfernoNode } & SiteFormProps>,
   ) {
-    if (
-      !(
-        deepEqual(prevProps.allowedInstances, this.props.allowedInstances) ||
-        deepEqual(prevProps.blockedInstances, this.props.blockedInstances)
-      )
-    ) {
+    if (!(
+      deepEqual(prevProps.allowedInstances, this.props.allowedInstances) ||
+      deepEqual(prevProps.blockedInstances, this.props.blockedInstances)
+    )) {
       this.setState({ siteForm: this.initSiteForm() });
     }
   }

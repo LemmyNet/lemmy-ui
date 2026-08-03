@@ -645,9 +645,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     });
 
     const form:
-      | ListCommentReports
-      | ListPostReports
-      | ListPrivateMessageReports = {
+      ListCommentReports | ListPostReports | ListPrivateMessageReports = {
       unresolved_only,
       page,
       limit,

@@ -1475,7 +1475,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   handleShowBotAccounts(i: Settings, event: any) {
     i.setState(
       s => (
-        (s.saveUserSettingsForm.show_bot_accounts = event.target.checked), s
+        (s.saveUserSettingsForm.show_bot_accounts = event.target.checked),
+        s
       ),
     );
   }
@@ -1489,7 +1490,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   handleOpenInNewTab(i: Settings, event: any) {
     i.setState(
       s => (
-        (s.saveUserSettingsForm.open_links_in_new_tab = event.target.checked), s
+        (s.saveUserSettingsForm.open_links_in_new_tab = event.target.checked),
+        s
       ),
     );
   }
@@ -1578,7 +1580,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
     i.setState(
       s => (
-        (s.saveUserSettingsForm.interface_language = event.target.value), s
+        (s.saveUserSettingsForm.interface_language = event.target.value),
+        s
       ),
     );
   }
