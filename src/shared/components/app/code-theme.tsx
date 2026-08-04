@@ -1,4 +1,5 @@
 import { dataBsTheme } from "@utils/browser";
+import { getStaticDir } from "@utils/env";
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
 
@@ -17,13 +18,13 @@ export class CodeTheme extends Component<CodeThemeProps, never> {
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/code-themes/atom-one-light.css`}
+            href={`${getStaticDir()}/css/code-themes/atom-one-light.css`}
             media="(prefers-color-scheme: light)"
           />
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/code-themes/atom-one-dark.css`}
+            href={`${getStaticDir()}/css/code-themes/atom-one-dark.css`}
             media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
           />
         </Helmet>
@@ -36,13 +37,13 @@ export class CodeTheme extends Component<CodeThemeProps, never> {
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/code-themes/atom-one-dark.css`}
+            href={`${getStaticDir()}/css/code-themes/atom-one-dark.css`}
           />
         ) : (
           <link
             rel="stylesheet"
             type="text/css"
-            href={`/css/code-themes/atom-one-light.css`}
+            href={`${getStaticDir()}/css/code-themes/atom-one-light.css`}
           />
         )}
       </Helmet>

@@ -1,6 +1,7 @@
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
 import { dataBsTheme, isBrowser } from "@utils/browser";
+import { getStaticDir } from "@utils/env";
 import { CodeTheme } from "./code-theme";
 import { MyUserInfo } from "lemmy-js-client";
 
@@ -97,7 +98,7 @@ export class Theme extends Component<Props, State> {
             <link
               rel="stylesheet"
               type="text/css"
-              href={`/css/themes/${theme}.css`}
+              href={`${getStaticDir()}/css/themes/${theme}.css`}
             />
           </Helmet>
           <CodeTheme theme={theme} />
@@ -118,7 +119,7 @@ export class Theme extends Component<Props, State> {
             <link
               rel="stylesheet"
               type="text/css"
-              href={`/css/themes/${this.props.defaultTheme}.css`}
+              href={`${getStaticDir()}/css/themes/${this.props.defaultTheme}.css`}
             />
           </Helmet>
           <CodeTheme theme={this.props.defaultTheme} />
@@ -134,14 +135,14 @@ export class Theme extends Component<Props, State> {
             <link
               rel="stylesheet"
               type="text/css"
-              href="/css/themes/litely-compact.css"
+              href={`${getStaticDir()}/css/themes/litely-compact.css`}
               id="default-light"
               media="(prefers-color-scheme: light)"
             />
             <link
               rel="stylesheet"
               type="text/css"
-              href="/css/themes/darkly-compact.css"
+              href={`${getStaticDir()}/css/themes/darkly-compact.css`}
               id="default-dark"
               media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
             />
@@ -156,14 +157,14 @@ export class Theme extends Component<Props, State> {
             <link
               rel="stylesheet"
               type="text/css"
-              href="/css/themes/litely.css"
+              href={`${getStaticDir()}/css/themes/litely.css`}
               id="default-light"
               media="(prefers-color-scheme: light)"
             />
             <link
               rel="stylesheet"
               type="text/css"
-              href="/css/themes/darkly.css"
+              href={`${getStaticDir()}/css/themes/darkly.css`}
               id="default-dark"
               media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
             />

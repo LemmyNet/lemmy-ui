@@ -40,7 +40,7 @@ export async function createSsrHtml(
     embeddedScript = readEmbeddedScript();
   }
 
-  const fallbackTheme = `<link rel="stylesheet" type="text/css" href="/css/themes/${
+  const fallbackTheme = `<link rel="stylesheet" type="text/css" href="${getStaticDir()}/css/themes/${
     (await buildThemeList())[0]
   }.css" />`;
 

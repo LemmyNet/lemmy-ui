@@ -65,7 +65,7 @@ import {
 import { isBrowser } from "@utils/browser";
 import Toastify from "toastify-js";
 import { isAnimatedImage } from "./media";
-import { httpBackendUrl } from "./env";
+import { getStaticDir, httpBackendUrl } from "./env";
 import { RequestState } from "@services/HttpService";
 import { NoOptionI18nKeys } from "i18next";
 import { StaticRouter } from "inferno-router";
@@ -361,7 +361,7 @@ export async function searchMultiCommunities(search_term: string) {
 }
 
 export async function fetchThemeList(): Promise<string[]> {
-  return fetch("/css/themelist")
+  return fetch(`${getStaticDir()}/css/themelist`)
     .then(res => res.json())
     .then(json => json as string[]);
 }

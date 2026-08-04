@@ -43,12 +43,9 @@ export function setCacheControl(
 
   // Only allow caching for success responses
   if (res.statusCode >= 200 && res.statusCode < 400) {
-    if (
-      req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/) ||
-      req.path.includes("/css/themelist")
-    ) {
-      // Static content gets cached publicly for a day
-      caching = "public, max-age=86400";
+    if (req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/)) {
+      // Static content is cache-busted by commit hash, so cache immutably for a year
+      caching = "public, max-age=31536000, immutable";
     } else {
       res.set("Vary", "Cookie, Accept, Accept-Language");
       if (getJwtCookie(req.headers)) {

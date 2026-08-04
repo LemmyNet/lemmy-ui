@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { existsSync } from "fs";
 import path from "path";
 import { serveCssMaps } from "../utils/dev-env";
+import { immutableCacheOptions } from "../utils/cache-options";
 
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
@@ -26,15 +27,18 @@ export default (req: Request, res: Response) => {
   const customTheme = path.resolve(extraThemesFolder, theme);
 
   if (existsSync(customTheme)) {
-    res.sendFile(customTheme);
+    res.sendFile(customTheme, immutableCacheOptions);
   } else {
     const internalTheme = path.resolve(`./dist/assets/css/themes/${theme}`);
 
     // If the theme doesn't exist, just send litely
     if (existsSync(internalTheme)) {
-      res.sendFile(internalTheme);
+      res.sendFile(internalTheme, immutableCacheOptions);
     } else {
-      res.sendFile(path.resolve("./dist/assets/css/themes/litely.css"));
+      res.sendFile(
+        path.resolve("./dist/assets/css/themes/litely.css"),
+        immutableCacheOptions,
+      );
     }
   }
 };

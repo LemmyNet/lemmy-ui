@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { existsSync } from "fs";
 import path from "path";
+import { immutableCacheOptions } from "../utils/cache-options";
 
 const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
@@ -18,7 +19,7 @@ export default (req: Request, res: Response) => {
   const customTheme = path.resolve(extraThemesFolder, theme);
 
   if (existsSync(customTheme)) {
-    res.sendFile(customTheme);
+    res.sendFile(customTheme, immutableCacheOptions);
   } else {
     const internalTheme = path.resolve(
       `./dist/assets/css/code-themes/${theme}`,
@@ -26,10 +27,11 @@ export default (req: Request, res: Response) => {
 
     // If the theme doesn't exist, just send atom-one-light
     if (existsSync(internalTheme)) {
-      res.sendFile(internalTheme);
+      res.sendFile(internalTheme, immutableCacheOptions);
     } else {
       res.sendFile(
         path.resolve("./dist/assets/css/code-themes/atom-one-light.css"),
+        immutableCacheOptions,
       );
     }
   }
