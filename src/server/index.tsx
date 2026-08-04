@@ -3,6 +3,7 @@
 import { getStaticDir } from "@utils/env";
 import { VERSION } from "../shared/version";
 import express from "express";
+import morgan from "morgan";
 import path from "path";
 import process from "process";
 import CatchAllHandler from "./handlers/catch-all-handler";
@@ -27,6 +28,14 @@ import {
 } from "./handlers/feed-handler";
 
 const server = express();
+// Log requests, skipping static asset paths to avoid log noise
+const logFormat =
+  process.env["NODE_ENV"] === "development" ? "dev" : "combined";
+server.use(
+  morgan(logFormat, {
+    skip: req => req.originalUrl.startsWith("/static/"),
+  }),
+);
 server.use(cookieParser());
 
 // Split given host into hostname and port on the last `:` character, so that it
