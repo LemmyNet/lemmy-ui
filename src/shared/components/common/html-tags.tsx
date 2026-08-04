@@ -2,7 +2,7 @@ import { httpFrontendUrl } from "@utils/env";
 import { htmlToText } from "html-to-text";
 import { Component } from "inferno";
 import { Helmet } from "inferno-helmet";
-import { md } from "@utils/markdown";
+import { md, stripSpoilers } from "@utils/markdown";
 import { I18NextService } from "../../services";
 import { setIsoData } from "@utils/app";
 import { RouterContext } from "inferno-router";
@@ -52,7 +52,11 @@ export class HtmlTags extends Component<HtmlTagsProps, never> {
               <meta
                 key={n}
                 name={n}
-                content={htmlToText(md.renderInline(desc))}
+                content={htmlToText(
+                  md.renderInline(
+                    stripSpoilers(desc, I18NextService.i18n.t("spoiler")),
+                  ),
+                )}
               />
             ),
         )}
