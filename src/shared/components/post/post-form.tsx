@@ -156,7 +156,8 @@ function copySuggestedTitle({
   if (suggestedTitle) {
     i.setState(
       s => (
-        (s.form.name = suggestedTitle?.substring(0, MAX_POST_TITLE_LENGTH)), s
+        (s.form.name = suggestedTitle?.substring(0, MAX_POST_TITLE_LENGTH)),
+        s
       ),
     );
     i.setState({ suggestedPostsRes: EMPTY_REQUEST });
