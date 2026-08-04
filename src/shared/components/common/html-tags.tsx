@@ -52,7 +52,14 @@ export class HtmlTags extends Component<HtmlTagsProps, never> {
               <meta
                 key={n}
                 name={n}
-                content={htmlToText(md.renderInline(desc))}
+                content={htmlToText(
+                  md.renderInline(
+                    desc.replace(
+                      /::: spoiler [^]*?:::/g,
+                      I18NextService.i18n.t("spoiler"),
+                    ),
+                  ),
+                )}
               />
             ),
         )}
