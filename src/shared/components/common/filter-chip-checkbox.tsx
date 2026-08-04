@@ -11,6 +11,7 @@ type ChipCheckboxProps = {
   expander: boolean;
   className?: string;
   disabled?: boolean;
+  description?: string;
 };
 
 function ChipCheckbox({
@@ -20,6 +21,7 @@ function ChipCheckbox({
   expander,
   className,
   disabled,
+  description,
 }: ChipCheckboxProps) {
   const id = randomStr();
   const icon = isChecked
@@ -49,6 +51,9 @@ function ChipCheckbox({
         <Icon icon={icon} classes="icon-inline me-1" />
         {I18NextService.i18n.t(option)}
       </label>
+      {description && (
+        <div className="form-text text-muted mb-1">{description}</div>
+      )}
     </>
   );
 }
@@ -59,6 +64,7 @@ type FilterChipCheckboxProps = {
   onCheck: (checked: boolean) => void;
   className?: string;
   disabled?: boolean;
+  description?: string;
 };
 
 export function FilterChipCheckbox({
@@ -67,6 +73,7 @@ export function FilterChipCheckbox({
   className,
   onCheck,
   disabled,
+  description,
 }: FilterChipCheckboxProps) {
   return (
     <ChipCheckbox
@@ -76,6 +83,7 @@ export function FilterChipCheckbox({
       expander={false}
       disabled={disabled}
       className={className}
+      description={description}
     />
   );
 }
