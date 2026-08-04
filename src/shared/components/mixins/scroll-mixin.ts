@@ -2,17 +2,32 @@ import { isBrowser, nextUserAction, snapToTop } from "../../utils/browser";
 import { Component, InfernoNode } from "inferno";
 import { Location, History, Action } from "history";
 
-function restoreScrollPosition(props: {
-  location: Location;
-}): number | undefined {
+function restoreScrollPosition(props: { location: Location }) {
   const key: string = props.location.key;
-  const y = sessionStorage.getItem(`scrollPosition_${key}`);
+  const scrollPosition = sessionStorage.getItem(`scrollPosition_${key}`);
 
-  if (y !== null) {
-    window.scrollTo({ left: 0, top: Number(y), behavior: "instant" });
-    return Number(y);
+  if (scrollPosition !== null) {
+    const y = Number(scrollPosition);
+    window.scrollTo({ left: 0, top: y, behavior: "instant" });
+    if (y > 0) {
+      // Browsers restore the scroll position they stored for the history
+      // entry shortly after a traversal. This happens asynchronously and can
+      // override the position restored above, e.g. by jumping back to the top.
+      // Re-apply the position if that happens.
+      const onScroll = () => {
+        if (window.scrollY === 0) {
+          window.scrollTo({ left: 0, top: y, behavior: "instant" });
+          cleanup();
+        }
+      };
+      const cleanup = () => {
+        window.removeEventListener("scroll", onScroll);
+        window.clearTimeout(timeoutId);
+      };
+      const timeoutId = window.setTimeout(cleanup, 500);
+      window.addEventListener("scroll", onScroll);
+    }
   }
-  return undefined;
 }
 
 function saveScrollPosition(props: { location: Location }) {
@@ -119,27 +134,8 @@ export function scrollMixin<
     }
 
     restore() {
-      const target = restoreScrollPosition(this.props);
+      restoreScrollPosition(this.props);
       this.preventRestore();
-
-      if (target !== undefined && target > 0) {
-        // Browsers restore the scroll position they stored for the history
-        // entry shortly after a traversal. This happens asynchronously and can
-        // override the position restored above, e.g. by jumping back to the top.
-        // Re-apply the position if that happens.
-        const onScroll = () => {
-          if (window.scrollY === 0) {
-            window.scrollTo({ left: 0, top: target, behavior: "instant" });
-            cleanup();
-          }
-        };
-        const cleanup = () => {
-          window.removeEventListener("scroll", onScroll);
-          window.clearTimeout(timeoutId);
-        };
-        const timeoutId = window.setTimeout(cleanup, 500);
-        window.addEventListener("scroll", onScroll);
-      }
     }
 
     restoreIfLoaded() {
