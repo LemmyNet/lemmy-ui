@@ -36,9 +36,12 @@ import {
   linkTarget,
   mark_as_read_i18n,
   postIsInteractable,
+  setIsoData,
+  toast,
   userNotLoggedInOrBanned,
 } from "@utils/app";
 import { canShare } from "@utils/browser";
+import { httpFrontendUrl } from "@utils/env";
 
 // TODO there is no reason to try to combine these. It should be completely split into simple PostActionsDropdown, and CommentActionDropdowns, pushing up the simple forms.
 interface ContentActionDropdownPropsBase {
@@ -153,6 +156,17 @@ export default class ContentActionDropdown extends Component<
     renderLockDialog: false,
     renderWarnDialog: false,
     dropdownOpenedOnce: false,
+  };
+
+  handleCopyEmbed = async () => {
+    if (this.props.type !== "post") return;
+    const embedUrl = httpFrontendUrl(
+      `/embed/post/${this.props.postView.post.id}`,
+      setIsoData(this.context),
+    );
+    const iframeCode = `<iframe src="${embedUrl}" style="border: none; width: 100%; max-width: 640px;" height="400" loading="lazy"></iframe>`;
+    await navigator.clipboard.writeText(iframeCode);
+    toast(I18NextService.i18n.t("copy_embed_link") + " ✓");
   };
 
   render() {
@@ -292,6 +306,13 @@ export default class ContentActionDropdown extends Component<
                     icon="share"
                     label={I18NextService.i18n.t("share_post")}
                     onClick={this.props.onSharePost}
+                  />
+                )}
+                {type === "post" && (
+                  <ActionButton
+                    icon="code"
+                    label={I18NextService.i18n.t("copy_embed_link")}
+                    onClick={this.handleCopyEmbed}
                   />
                 )}
                 {this.props.myUserInfo && (

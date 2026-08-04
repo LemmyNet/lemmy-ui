@@ -14,6 +14,7 @@ import ThemeHandler from "./handlers/theme-handler";
 import ThemesListHandler from "./handlers/themes-list-handler";
 import { setCacheControl, setDefaultCsp } from "./middleware";
 import CodeThemeHandler from "./handlers/code-theme-handler";
+import EmbedHandler from "./handlers/embed-handler";
 import { verifyDynamicImports } from "@utils/dynamic-imports";
 import cookieParser from "cookie-parser";
 import { setupMarkdown } from "@utils/markdown";
@@ -73,6 +74,9 @@ if (process.env["NODE_ENV"] === "development") {
   );
   server.use(setCacheControl);
 }
+
+// Embed pages have their own CSP and must be registered before the global CSP middleware
+server.get("/embed/post/:post_id", EmbedHandler);
 
 // Only set the CSP if not in debug mode
 if (
