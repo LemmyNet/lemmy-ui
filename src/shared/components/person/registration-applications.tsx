@@ -33,6 +33,7 @@ import {
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import { NoResultsIndicator } from "../common/no-results-indicator";
 import { RegistrationApplication } from "../common/registration-application";
 import { getHttpBaseInternal } from "../../utils/env";
 import { isBrowser } from "@utils/browser";
@@ -216,22 +217,29 @@ export class RegistrationApplications extends Component<
     }
     return (
       <div>
-        {apps.map(ra => (
-          <>
-            <hr />
-            <RegistrationApplication
-              application={ra}
-              onApproveApplication={form =>
-                handleApproveApplication(this, form)
-              }
-              loading={
-                itemLoading(this.state.approveRes) ===
-                ra.registration_application.id
-              }
-              myUserInfo={this.isoData.myUserInfo}
-            />
-          </>
-        ))}
+        {apps.length === 0 ? (
+          <NoResultsIndicator
+            icon="clipboard"
+            translationKey="no_applications"
+          />
+        ) : (
+          apps.map(ra => (
+            <>
+              <hr />
+              <RegistrationApplication
+                application={ra}
+                onApproveApplication={form =>
+                  handleApproveApplication(this, form)
+                }
+                loading={
+                  itemLoading(this.state.approveRes) ===
+                  ra.registration_application.id
+                }
+                myUserInfo={this.isoData.myUserInfo}
+              />
+            </>
+          ))
+        )}
       </div>
     );
   }

@@ -46,6 +46,7 @@ import {
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
+import { NoResultsIndicator } from "../common/no-results-indicator";
 import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
 import { UnreadCounterService } from "../../services";
@@ -371,12 +372,19 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
       case "success":
         return (
           <div>
-            {this.state.reportsRes.data.items.map(i => (
-              <>
-                <hr />
-                {this.renderItemType(i)}
-              </>
-            ))}
+            {this.state.reportsRes.data.items.length === 0 ? (
+              <NoResultsIndicator
+                icon="alert-triangle"
+                translationKey="no_reports"
+              />
+            ) : (
+              this.state.reportsRes.data.items.map(i => (
+                <>
+                  <hr />
+                  {this.renderItemType(i)}
+                </>
+              ))
+            )}
           </div>
         );
     }
