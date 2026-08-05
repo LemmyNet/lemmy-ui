@@ -33,7 +33,7 @@ import {
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
-import { EmptyState } from "../common/empty-state";
+import { NoResultsIndicator } from "../common/no-results-indicator";
 import { RegistrationApplication } from "../common/registration-application";
 import { getHttpBaseInternal } from "../../utils/env";
 import { isBrowser } from "@utils/browser";
@@ -218,7 +218,10 @@ export class RegistrationApplications extends Component<
     return (
       <div>
         {apps.length === 0 ? (
-          <EmptyState icon="clipboard" translationKey="no_applications" />
+          <NoResultsIndicator
+            icon="clipboard"
+            translationKey="no_applications"
+          />
         ) : (
           apps.map(ra => (
             <>

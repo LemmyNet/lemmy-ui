@@ -70,7 +70,7 @@ import {
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { EmptyState } from "../common/empty-state";
+import { NoResultsIndicator } from "../common/no-results-indicator";
 import { PrivateMessage } from "../private_message/private-message";
 import { getHttpBaseInternal } from "@utils/env";
 import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
@@ -453,7 +453,7 @@ export class Notifications extends Component<
         <div>
           {notifsRes.state === "success" &&
             (notifsRes.data.items.length === 0 ? (
-              <EmptyState
+              <NoResultsIndicator
                 icon="bell"
                 translationKey="no_notifications_unread"
               />
