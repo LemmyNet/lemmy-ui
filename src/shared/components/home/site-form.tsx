@@ -436,6 +436,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               option={"private_instance"}
               isChecked={this.state.siteForm.private_instance ?? false}
               onCheck={val => handleSitePrivateInstance(this, val)}
+              description="private_instance_description"
             />
           </div>
         </div>
