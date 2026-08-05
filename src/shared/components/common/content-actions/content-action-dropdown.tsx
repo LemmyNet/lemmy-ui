@@ -158,17 +158,6 @@ export default class ContentActionDropdown extends Component<
     dropdownOpenedOnce: false,
   };
 
-  handleCopyEmbed = async () => {
-    if (this.props.type !== "post") return;
-    const embedUrl = httpFrontendUrl(
-      `/embed/post/${this.props.postView.post.id}`,
-      setIsoData(this.context),
-    );
-    const iframeCode = `<iframe src="${embedUrl}" style="border: none; width: 100%; max-width: 640px;" height="400" loading="lazy"></iframe>`;
-    await navigator.clipboard.writeText(iframeCode);
-    toast(I18NextService.i18n.t("copy_embed_link") + " ✓");
-  };
-
   render() {
     // Possible enhancement: Priority+ pattern instead of just hard coding which get hidden behind the show more button.
     const { onSave, type, onDelete, onBlockPerson, onEdit, moderators } =
@@ -312,7 +301,11 @@ export default class ContentActionDropdown extends Component<
                   <ActionButton
                     icon="code"
                     label={I18NextService.i18n.t("copy_embed_link")}
-                    onClick={this.handleCopyEmbed}
+                    onClick={() =>
+                      handleCopyEmbedLink(
+                        (this.props as ContentPostProps).postView,
+                      )
+                    }
                   />
                 )}
                 {this.props.myUserInfo && (
@@ -1064,6 +1057,16 @@ export default class ContentActionDropdown extends Component<
     const { creator } = this.contentInfo;
     return canAdmin(creator.id, this.props.admins, this.props.myUserInfo, true);
   }
+}
+
+async function handleCopyEmbedLink(postView: PostView) {
+  const embedUrl = httpFrontendUrl(
+    `/embed/post/${postView.post.id}`,
+    setIsoData(window),
+  );
+  const iframeCode = `<iframe src="${embedUrl}" style="border: none; width: 100%; max-width: 640px;" height="400" loading="lazy"></iframe>`;
+  await navigator.clipboard.writeText(iframeCode);
+  toast(I18NextService.i18n.t("embed_link_copied"));
 }
 
 function handleDropdownToggleClick(i: ContentActionDropdown) {
