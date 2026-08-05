@@ -70,6 +70,7 @@ import {
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
+import { EmptyState } from "../common/empty-state";
 import { PrivateMessage } from "../private_message/private-message";
 import { getHttpBaseInternal } from "@utils/env";
 import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
@@ -451,15 +452,14 @@ export class Notifications extends Component<
       return (
         <div>
           {notifsRes.state === "success" &&
-          notifsRes.data.items.length === 0 ? (
-            <div className="text-center text-muted mt-4 mb-4">
-              <Icon icon="bell" classes="icon-inline mb-2 fs-1" />
-              <div>{I18NextService.i18n.t("no_notifications")}</div>
-            </div>
-          ) : (
-            notifsRes.state === "success" &&
-            notifsRes.data.items.map(r => this.renderItemType(r))
-          )}
+            (notifsRes.data.items.length === 0 ? (
+              <EmptyState
+                icon="bell"
+                translationKey="no_notifications_unread"
+              />
+            ) : (
+              notifsRes.data.items.map(r => this.renderItemType(r))
+            ))}
         </div>
       );
     }

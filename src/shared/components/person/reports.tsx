@@ -45,7 +45,8 @@ import {
 } from "../../services/HttpService";
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
-import { Icon, Spinner } from "../common/icon";
+import { Spinner } from "../common/icon";
+import { EmptyState } from "../common/empty-state";
 import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
 import { UnreadCounterService } from "../../services";
@@ -372,10 +373,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         return (
           <div>
             {this.state.reportsRes.data.items.length === 0 ? (
-              <div className="text-center text-muted mt-4 mb-4">
-                <Icon icon="flag" classes="icon-inline mb-2 fs-1" />
-                <div>{I18NextService.i18n.t("no_reports")}</div>
-              </div>
+              <EmptyState icon="alert-triangle" translationKey="no_reports" />
             ) : (
               this.state.reportsRes.data.items.map(i => (
                 <>

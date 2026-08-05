@@ -32,7 +32,8 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
-import { Icon, Spinner } from "../common/icon";
+import { Spinner } from "../common/icon";
+import { EmptyState } from "../common/empty-state";
 import { RegistrationApplication } from "../common/registration-application";
 import { getHttpBaseInternal } from "../../utils/env";
 import { isBrowser } from "@utils/browser";
@@ -217,10 +218,7 @@ export class RegistrationApplications extends Component<
     return (
       <div>
         {apps.length === 0 ? (
-          <div className="text-center text-muted mt-4 mb-4">
-            <Icon icon="clipboard" classes="icon-inline mb-2 fs-1" />
-            <div>{I18NextService.i18n.t("no_applications")}</div>
-          </div>
+          <EmptyState icon="clipboard" translationKey="no_applications" />
         ) : (
           apps.map(ra => (
             <>
