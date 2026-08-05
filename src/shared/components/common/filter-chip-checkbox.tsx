@@ -11,7 +11,7 @@ type ChipCheckboxProps = {
   expander: boolean;
   className?: string;
   disabled?: boolean;
-  description?: string;
+  description?: NoOptionI18nKeys;
 };
 
 function ChipCheckbox({
@@ -52,7 +52,9 @@ function ChipCheckbox({
         {I18NextService.i18n.t(option)}
       </label>
       {description && (
-        <div className="form-text text-muted mb-1">{description}</div>
+        <div className="form-text text-muted mb-1">
+          {I18NextService.i18n.t(description)}
+        </div>
       )}
     </>
   );
@@ -64,7 +66,7 @@ type FilterChipCheckboxProps = {
   onCheck: (checked: boolean) => void;
   className?: string;
   disabled?: boolean;
-  description?: string;
+  description?: NoOptionI18nKeys;
 };
 
 export function FilterChipCheckbox({

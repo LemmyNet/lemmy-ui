@@ -436,7 +436,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               option={"private_instance"}
               isChecked={this.state.siteForm.private_instance ?? false}
               onCheck={val => handleSitePrivateInstance(this, val)}
-              description="Only allow logged-in users to browse the site. Helpful to stop web crawlers. Note that content is still accessible over federation (use community visibility settings to prevent this)."
+              description="private_instance_description"
             />
           </div>
         </div>
