@@ -30,7 +30,7 @@ export function SubscribeButton({
 }: SubscribeButtonProps) {
   const buttonClass = classNames("btn", {
     "btn-link p-0": isLink,
-    [`btn-light border-light-subtle d-block mb-2 w-100 btn-${followState === "pending" ? "warning" : "secondary"}`]:
+    [`btn-${followState === "pending" ? "warning" : "secondary"} border-light-subtle d-block w-100`]:
       !isLink,
   });
 
