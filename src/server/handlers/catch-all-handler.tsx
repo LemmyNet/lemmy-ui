@@ -5,6 +5,7 @@ import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { Match } from "inferno-router/dist/Route";
 import { renderToString } from "inferno-server";
+import { Helmet } from "inferno-helmet";
 import { GetSiteResponse, LemmyHttp } from "lemmy-js-client";
 import App from "../../shared/components/app/app";
 import {
@@ -156,10 +157,12 @@ export default async (req: Request, res: Response) => {
     LanguageService.updateLanguages(languages);
 
     const root = renderToString(wrapper);
+    const helmet = Helmet.renderStatic();
 
     res.send(
       await createSsrHtml(
         root,
+        helmet,
         isoData,
         res.locals.cspNonce,
         LanguageService.userLanguages,
