@@ -1,5 +1,4 @@
 import { getStaticDir } from "@utils/env";
-import { Helmet } from "inferno-helmet";
 import { renderToString } from "inferno-server";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
@@ -16,6 +15,7 @@ let appleTouchIcon: string | undefined = undefined;
 
 export async function createSsrHtml(
   root: string,
+  helmet: any,
   isoData: IsoDataOptionalSite,
   cspNonce: string,
   userLanguages: readonly string[],
@@ -70,8 +70,6 @@ export async function createSsrHtml(
           </>,
         )
       : "";
-
-  const helmet = Helmet.renderStatic();
 
   const lazyScripts = [
     ...findTranslationChunkNames(userLanguages),
