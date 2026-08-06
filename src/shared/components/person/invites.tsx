@@ -38,8 +38,8 @@ export class Invites extends Component<InvitesProps, InvitesState> {
     createRes: EMPTY_REQUEST,
     revokeRes: EMPTY_REQUEST,
     form: {
-      max_uses: 1,
-      expires_at: 24,
+      max_uses: undefined,
+      expires_at: undefined,
     },
   };
 
@@ -92,25 +92,34 @@ export class Invites extends Component<InvitesProps, InvitesState> {
             <select
               id="invite-max-uses"
               className="form-select"
-              value={this.state.form.max_uses ?? "unlimited"}
-              onChange={e =>
+              value={this.state.form.max_uses?.toString() ?? "unlimited"}
+              onChange={e => {
+                const val = e.target.value;
                 this.setState(s => ({
                   ...s,
                   form: {
                     ...s.form,
-                    max_uses:
-                      e.target.value === "unlimited"
-                        ? undefined
-                        : Number(e.target.value),
+                    max_uses: val === "unlimited" ? undefined : Number(val),
                   },
-                }))
-              }
+                }));
+              }}
             >
-              <option value="1">1 use</option>
-              <option value="5">5 uses</option>
-              <option value="10">10 uses</option>
-              <option value="25">25 uses</option>
-              <option value="unlimited">
+              <option value="1" selected={this.state.form.max_uses === 1}>
+                1 {I18NextService.i18n.t("uses")}
+              </option>
+              <option value="5" selected={this.state.form.max_uses === 5}>
+                5 {I18NextService.i18n.t("uses")}
+              </option>
+              <option value="10" selected={this.state.form.max_uses === 10}>
+                10 {I18NextService.i18n.t("uses")}
+              </option>
+              <option value="25" selected={this.state.form.max_uses === 25}>
+                25 {I18NextService.i18n.t("uses")}
+              </option>
+              <option
+                value="unlimited"
+                selected={this.state.form.max_uses === undefined}
+              >
                 {I18NextService.i18n.t("unlimited")}
               </option>
             </select>
@@ -126,25 +135,48 @@ export class Invites extends Component<InvitesProps, InvitesState> {
             <select
               id="invite-expires"
               className="form-select"
-              value={this.state.form.expires_at ?? "never"}
-              onChange={e =>
+              value={this.state.form.expires_at?.toString() ?? "never"}
+              onChange={e => {
+                const val = e.target.value;
                 this.setState(s => ({
                   ...s,
                   form: {
                     ...s.form,
-                    expires_at:
-                      e.target.value === "never"
-                        ? undefined
-                        : Number(e.target.value),
+                    expires_at: val === "never" ? undefined : Number(val),
                   },
-                }))
-              }
+                }));
+              }}
             >
-              <option value="0.5">30 minutes</option>
-              <option value="1">1 hour</option>
-              <option value="6">6 hours</option>
-              <option value="24">1 day (24 hours)</option>
-              <option value="168">7 days</option>
+              <option value="0.5">
+                {I18NextService.i18n.t("n_minutes", {
+                  count: 30,
+                  formattedCount: 30,
+                })}
+              </option>
+              <option value="1">
+                {I18NextService.i18n.t("n_hours", {
+                  count: 1,
+                  formattedCount: 1,
+                })}
+              </option>
+              <option value="6">
+                {I18NextService.i18n.t("n_hours", {
+                  count: 6,
+                  formattedCount: 6,
+                })}
+              </option>
+              <option value="24">
+                {I18NextService.i18n.t("n_days", {
+                  count: 1,
+                  formattedCount: 1,
+                })}
+              </option>
+              <option value="168">
+                {I18NextService.i18n.t("n_days", {
+                  count: 7,
+                  formattedCount: 7,
+                })}
+              </option>
               <option value="never">{I18NextService.i18n.t("never")}</option>
             </select>
           </div>
@@ -315,7 +347,7 @@ export class Invites extends Component<InvitesProps, InvitesState> {
         toast(I18NextService.i18n.t("invite_created"));
         this.setState({
           createRes: EMPTY_REQUEST,
-          form: { max_uses: 1, expires_at: 24 },
+          form: { max_uses: undefined, expires_at: undefined },
         });
         await this.fetchInvites();
         break;

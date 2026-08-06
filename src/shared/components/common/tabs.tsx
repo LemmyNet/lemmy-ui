@@ -40,15 +40,14 @@ export default class Tabs extends Component<TabsProps, TabsState> {
                   active: this.state?.currentTab === key,
                 })}
                 onClick={() => {
-                  window.history.replaceState(null, "", `#${key}`);
+                  if (isBrowser()) {
+                    window.history.replaceState(null, "", `#${key}`);
+                  }
                   this.setState({ currentTab: key });
                 }}
                 aria-controls={`${key}-tab-pane`}
                 {...(this.state?.currentTab === key && {
-                  ...{
-                    "aria-current": "page",
-                    "aria-selected": "true",
-                  },
+                  "aria-current": "page",
                 })}
               >
                 {label}
