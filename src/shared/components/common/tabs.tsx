@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { Component, InfernoNode } from "inferno";
+import { isBrowser } from "@utils/browser";
 
 interface TabItem {
   key: string;
@@ -15,16 +16,15 @@ interface TabsState {
   currentTab: string;
 }
 
-function handleSwitchTab({ ctx, tab }: { ctx: Tabs; tab: string }) {
-  ctx.setState({ currentTab: tab });
-}
-
 export default class Tabs extends Component<TabsProps, TabsState> {
   constructor(props: TabsProps, context: object) {
     super(props, context);
 
+    const hashTab = isBrowser() ? window.location.hash.slice(1) : "";
+    const validTab = props.tabs.find(t => t.key === hashTab)?.key;
+
     this.state = {
-      currentTab: props.tabs.length > 0 ? props.tabs[0].key : "",
+      currentTab: validTab ?? (props.tabs.length > 0 ? props.tabs[0].key : ""),
     };
   }
 
@@ -39,7 +39,10 @@ export default class Tabs extends Component<TabsProps, TabsState> {
                 className={classNames("nav-link", {
                   active: this.state?.currentTab === key,
                 })}
-                onClick={() => handleSwitchTab({ ctx: this, tab: key })}
+                onClick={() => {
+                  window.history.replaceState(null, "", `#${key}`);
+                  this.setState({ currentTab: key });
+                }}
                 aria-controls={`${key}-tab-pane`}
                 {...(this.state?.currentTab === key && {
                   ...{
