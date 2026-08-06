@@ -53,7 +53,6 @@ export function handleLoginWithProvider(
       `scope=${encodeURIComponent(oauth_provider.scopes)}`,
       `redirect_uri=${encodeURIComponent(redirectUri)}`,
       `state=${state}`,
-      `answer = ${answer}`,
     ].join("&");
 
   const oauth_state: LocalOauthState = {
