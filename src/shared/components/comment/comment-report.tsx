@@ -195,15 +195,17 @@ export class CommentReport extends Component<
           <div className="col">
             <ActionButton
               label={I18NextService.i18n.t(
-                comment_view.creator_banned
+                comment_view.creator_banned_from_community
                   ? "unban_from_community"
                   : "ban_from_community",
               )}
               inlineWithText
-              icon={comment_view.creator_banned ? "unban" : "ban"}
+              icon={
+                comment_view.creator_banned_from_community ? "unban" : "ban"
+              }
               noLoading
               onClick={() => handleModBanFromCommunity(this)}
-              iconClass={`text-${comment_view.creator_banned ? "success" : "danger"}`}
+              iconClass={`text-${comment_view.creator_banned_from_community ? "success" : "danger"}`}
             />
           </div>
           {this.props.myUserInfo?.local_user_view.local_user.admin && (
@@ -259,7 +261,7 @@ function handleModBanFromCommunity(i: CommentReport) {
   i.props.onModBanFromCommunity({
     person: i.props.report.comment_creator,
     community: i.props.report.community,
-    ban: !i.props.report.creator_banned,
+    ban: !i.props.report.creator_banned_from_community,
   });
 }
 

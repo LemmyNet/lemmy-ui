@@ -278,11 +278,12 @@ export class MultiCommunities extends Component<RouteProps, State> {
   }
 
   updateUrl(props: Partial<Props>) {
-    const { listingType, sort } = { ...this.props, ...props };
+    const { listingType, sort, cursor } = { ...this.props, ...props };
 
     const queryParams: QueryParams<Props> = {
       listingType: listingType,
       sort: sort,
+      cursor,
     };
 
     this.props.history.push(`/multi_communities${getQueryString(queryParams)}`);

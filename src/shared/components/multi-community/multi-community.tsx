@@ -89,6 +89,7 @@ import {
   ALL_TIME_INTERVAL,
   Interval,
   intervalFromQuery,
+  intervalToQuery,
   intervalToSeconds,
   secondsToLargestInterval,
   TimeIntervalFilter,
@@ -589,6 +590,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     const {
       cursor,
       sort,
+      time,
       showHidden,
       match: {
         params: { name },
@@ -601,6 +603,7 @@ export class MultiCommunity extends Component<RouteProps, State> {
     const queryParams: QueryParams<Props> = {
       cursor,
       sort,
+      time: intervalToQuery(time),
       showHidden: showHidden?.toString(),
     };
 

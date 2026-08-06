@@ -178,9 +178,7 @@ export class CreatePost extends Component<
         initialCommunitiesRes,
       });
 
-      if (
-        communityId?.toString() !== this.state.selectedCommunity?.community.id
-      ) {
+      if (communityId !== this.state.selectedCommunity?.community.id) {
         await this.fetchCommunity({ communityId });
       } else if (!communityId) {
         this.setState({
