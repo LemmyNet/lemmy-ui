@@ -33,7 +33,7 @@ import {
 } from "../../services/HttpService";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
-import { NoResultsIndicator } from "../common/no-results-indicator";
+import { ListView } from "../common/list-view";
 import { RegistrationApplication } from "../common/registration-application";
 import { getHttpBaseInternal } from "../../utils/env";
 import { isBrowser } from "@utils/browser";
@@ -159,8 +159,8 @@ export class RegistrationApplications extends Component<
     const apps = appsState === "success" && this.state.appsRes.data.items;
 
     return (
-      <div className="row">
-        <div className="col-12">
+      <div className="row fl-1">
+        <div className="col-12 d-flex flex-column fl-1">
           <HtmlTags
             title={this.documentTitle}
             context={this.context as RouterContext}
@@ -192,7 +192,7 @@ export class RegistrationApplications extends Component<
 
   render() {
     return (
-      <div className="registration-applications container-lg">
+      <div className="registration-applications container-lg d-flex flex-column fl-1">
         {this.renderApps()}
       </div>
     );
@@ -216,31 +216,27 @@ export class RegistrationApplications extends Component<
       apps = apps.filter(ra => !ra.creator_local_user.accepted_application);
     }
     return (
-      <div>
-        {apps.length === 0 ? (
-          <NoResultsIndicator
-            icon="clipboard"
-            translationKey="no_applications"
-          />
-        ) : (
-          apps.map(ra => (
-            <>
-              <hr />
-              <RegistrationApplication
-                application={ra}
-                onApproveApplication={form =>
-                  handleApproveApplication(this, form)
-                }
-                loading={
-                  itemLoading(this.state.approveRes) ===
-                  ra.registration_application.id
-                }
-                myUserInfo={this.isoData.myUserInfo}
-              />
-            </>
-          ))
+      <ListView
+        items={apps}
+        renderItem={ra => (
+          <>
+            <hr />
+            <RegistrationApplication
+              application={ra}
+              onApproveApplication={form =>
+                handleApproveApplication(this, form)
+              }
+              loading={
+                itemLoading(this.state.approveRes) ===
+                ra.registration_application.id
+              }
+              myUserInfo={this.isoData.myUserInfo}
+            />
+          </>
         )}
-      </div>
+        emptyIcon="clipboard"
+        emptyTranslationKey="no_applications"
+      />
     );
   }
 

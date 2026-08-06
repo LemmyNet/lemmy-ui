@@ -46,7 +46,7 @@ import {
 import { CommentReport } from "../comment/comment-report";
 import { HtmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
-import { NoResultsIndicator } from "../common/no-results-indicator";
+import { ListView } from "../common/list-view";
 import { PostReport } from "../post/post-report";
 import { PrivateMessageReport } from "../private_message/private-message-report";
 import { UnreadCounterService } from "../../services";
@@ -177,7 +177,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     const banFromCommunityForm = this.state.banFromCommunityForm;
     const adminBanForm = this.state.adminBanForm;
     return (
-      <div className="person-reports container-lg">
+      <div className="person-reports container-lg d-flex flex-column fl-1">
         {banFromCommunityForm && (
           <ModActionFormModal
             onSubmit={form => handleSubmitBanFromCommunity(this, form)}
@@ -201,8 +201,8 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
             loading={false}
           />
         )}
-        <div className="row">
-          <div className="col-12">
+        <div className="row fl-1">
+          <div className="col-12 d-flex flex-column fl-1">
             <HtmlTags
               title={this.documentTitle}
               context={this.context as RouterContext}
@@ -361,33 +361,29 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     }
   }
 
-  all(): InfernoNode | void {
-    switch (this.state.reportsRes.state) {
-      case "loading":
-        return (
+  all(): InfernoNode {
+    const { reportsRes } = this.state;
+    return (
+      <ListView
+        items={
+          reportsRes.state === "success" ? reportsRes.data.items : undefined
+        }
+        renderItem={i => (
+          <>
+            <hr />
+            {this.renderItemType(i)}
+          </>
+        )}
+        emptyIcon="alert-triangle"
+        emptyTranslationKey="no_reports"
+        loading={reportsRes.state === "loading"}
+        loadingNode={
           <h5>
             <Spinner large />
           </h5>
-        );
-      case "success":
-        return (
-          <div>
-            {this.state.reportsRes.data.items.length === 0 ? (
-              <NoResultsIndicator
-                icon="alert-triangle"
-                translationKey="no_reports"
-              />
-            ) : (
-              this.state.reportsRes.data.items.map(i => (
-                <>
-                  <hr />
-                  {this.renderItemType(i)}
-                </>
-              ))
-            )}
-          </div>
-        );
-    }
+        }
+      />
+    );
   }
 
   commentReports(): InfernoNode | void {

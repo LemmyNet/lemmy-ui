@@ -70,7 +70,7 @@ import {
 import { toast } from "@utils/app";
 import { HtmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { NoResultsIndicator } from "../common/no-results-indicator";
+import { ListView } from "../common/list-view";
 import { PrivateMessage } from "../private_message/private-message";
 import { getHttpBaseInternal } from "@utils/env";
 import { CommentsLoadingSkeleton } from "../common/loading-skeleton";
@@ -205,9 +205,9 @@ export class Notifications extends Component<
     const auth = myAuth();
     const notifsRss = auth ? notificationsRSSUrl(auth) : undefined;
     return (
-      <div className="notifications container-lg">
-        <div className="row">
-          <div className="col-12">
+      <div className="notifications container-lg d-flex flex-column fl-1">
+        <div className="row fl-1">
+          <div className="col-12 d-flex flex-column fl-1">
             <HtmlTags
               title={this.documentTitle}
               context={this.context as RouterContext}
@@ -446,23 +446,16 @@ export class Notifications extends Component<
 
   all(): InfernoNode {
     const { notifsRes } = this.state;
-    if (notifsRes.state === "loading") {
-      return <CommentsLoadingSkeleton />;
-    } else {
-      return (
-        <div>
-          {notifsRes.state === "success" &&
-            (notifsRes.data.items.length === 0 ? (
-              <NoResultsIndicator
-                icon="bell"
-                translationKey="no_notifications_unread"
-              />
-            ) : (
-              notifsRes.data.items.map(r => this.renderItemType(r))
-            ))}
-        </div>
-      );
-    }
+    return (
+      <ListView
+        items={notifsRes.state === "success" ? notifsRes.data.items : undefined}
+        renderItem={r => this.renderItemType(r)}
+        emptyIcon="bell"
+        emptyTranslationKey="no_notifications_unread"
+        loading={notifsRes.state === "loading"}
+        loadingNode={<CommentsLoadingSkeleton />}
+      />
+    );
   }
 
   static fetchInitialData = async ({
