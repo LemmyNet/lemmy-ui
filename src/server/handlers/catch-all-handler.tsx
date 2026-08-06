@@ -9,6 +9,7 @@ import type { Request, Response } from "express";
 import { StaticRouter, matchPath } from "inferno-router";
 import { Match } from "inferno-router";
 import { renderToString } from "inferno-server";
+import { Helmet } from "inferno-helmet";
 import {
   GetSiteResponse,
   LemmyError,
@@ -174,11 +175,16 @@ export default async (req: Request, res: Response) => {
       </StaticRouter>
     );
 
+    // renderToString and Helmet.renderStatic must be called together, without any await in
+    // between. Otherwise Helmet metadata can leak between requests and lead to wrong link previews
     const root = renderToString(wrapper);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
+    const helmet = Helmet.renderStatic();
 
     res.send(
       await createSsrHtml(
         root,
+        helmet,
         isoData,
         res.locals.cspNonce as string,
         languages,

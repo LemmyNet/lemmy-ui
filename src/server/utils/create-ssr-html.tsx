@@ -29,6 +29,7 @@ let embeddedScript = readEmbeddedScript();
 
 export async function createSsrHtml(
   root: string,
+  helmet: Helmet,
   isoData: IsoDataOptionalSite,
   cspNonce: string,
   languages: readonly string[],
@@ -94,9 +95,6 @@ export async function createSsrHtml(
     .map(x => `${getStaticDir()}/js/${x}.client.js`)
     .map(x => `<link rel="preload" as="script" href="${x}" />`)
     .join("");
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-  const helmet = Helmet.renderStatic();
 
   // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
   const helmetAttr = helmet.htmlAttributes.toString();
