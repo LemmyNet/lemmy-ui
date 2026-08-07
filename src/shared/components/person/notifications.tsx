@@ -448,11 +448,10 @@ export class Notifications extends Component<
     const { notifsRes } = this.state;
     return (
       <ListView
-        items={notifsRes.state === "success" ? notifsRes.data.items : undefined}
+        state={notifsRes}
         renderItem={r => this.renderItemType(r)}
         emptyIcon="bell"
         emptyTranslationKey="no_notifications_unread"
-        loading={notifsRes.state === "loading"}
         loadingNode={<CommentsLoadingSkeleton />}
       />
     );

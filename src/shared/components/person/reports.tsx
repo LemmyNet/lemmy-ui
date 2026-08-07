@@ -365,9 +365,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
     const { reportsRes } = this.state;
     return (
       <ListView
-        items={
-          reportsRes.state === "success" ? reportsRes.data.items : undefined
-        }
+        state={reportsRes}
         renderItem={i => (
           <>
             <hr />
@@ -376,7 +374,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         )}
         emptyIcon="alert-triangle"
         emptyTranslationKey="no_reports"
-        loading={reportsRes.state === "loading"}
         loadingNode={
           <h5>
             <Spinner large />
