@@ -46,7 +46,6 @@ import { viewerJsFullSizeImageUrl } from "@components/common/pictrs-image";
 
 type PostListingState = {
   showEdit: boolean;
-  viewerjss: Viewer[];
 };
 
 type PostListingProps = {
@@ -105,7 +104,6 @@ type PostListingProps = {
 export class PostListing extends Component<PostListingProps, PostListingState> {
   state: PostListingState = {
     showEdit: false,
-    viewerjss: [],
   };
 
   unlisten = () => {};
@@ -134,28 +132,28 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
     }
   }
 
-  loadViewerJsForImages(setState: boolean = true) {
-    // Load the image viewer for every image in the post body
+  viewerjss: Viewer[] = [];
+
+  loadViewerJsForImages() {
+    this.unloadViewerJs();
     const id = this.props.postView.post.id;
     const images = document.querySelectorAll(
       `#post-listing-${id} > div > article > div > article > div > div > p > img`,
     );
-    const viewerjss: Viewer[] = [];
+    // Load the image viewer for every image in the post body
     images.forEach((i: HTMLElement) => {
-      const viewer = new Viewer(i, {
-        url: (image: { src: string }) => viewerJsFullSizeImageUrl(image),
-        toolbar: false,
-      });
-      viewerjss.push(viewer);
+      this.viewerjss.push(
+        new Viewer(i, {
+          url: (image: { src: string }) => viewerJsFullSizeImageUrl(image),
+          toolbar: false,
+        }),
+      );
     });
-
-    if (setState) {
-      this.setState({ viewerjss });
-    }
   }
 
   unloadViewerJs() {
-    this.state.viewerjss.forEach(v => v.destroy());
+    this.viewerjss.forEach(v => v.destroy());
+    this.viewerjss = [];
   }
 
   componentDidMount() {
@@ -163,7 +161,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   }
 
   componentDidUpdate() {
-    this.loadViewerJsForImages(false);
+    this.loadViewerJsForImages();
   }
 
   render() {
