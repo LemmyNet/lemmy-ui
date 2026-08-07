@@ -110,7 +110,9 @@ export default async (req: Request, res: Response) => {
     const postRes = await client.getPost({ id: Number(req.params.post_id) });
 
     if (postRes.state !== "success") {
-      res.status(404).send(I18NextService.i18n.t("not_found"));
+      const errKey =
+        postRes.state === "failed" ? postRes.err.message : "not_found";
+      res.status(404).send(I18NextService.i18n.t(errKey));
       return;
     }
 
