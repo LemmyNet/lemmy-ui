@@ -44,7 +44,11 @@ function EmbedPage({ postView }: EmbedProps) {
             <a href={creator.ap_id} className="text-info text-decoration-none">
               {creator.name}
             </a>
-            {post.nsfw && <span className="badge bg-danger ms-2">NSFW</span>}
+            {post.nsfw && (
+              <span className="badge bg-danger ms-2">
+                {I18NextService.i18n.t("nsfw")}
+              </span>
+            )}
           </div>
           <h5 className="post-name d-inline text-break mb-2">
             <a href={post.ap_id} className="text-body text-decoration-none">
@@ -84,7 +88,9 @@ function EmbedPage({ postView }: EmbedProps) {
               className="text-success text-decoration-none ms-auto d-inline-flex align-items-center gap-1"
               href={post.ap_id}
             >
-              {hostname(post.ap_id)}
+              {I18NextService.i18n.t("view_on", {
+                instance: hostname(post.ap_id),
+              })}
               <Icon icon="external-link" inline />
             </a>
           </div>
@@ -96,17 +102,17 @@ function EmbedPage({ postView }: EmbedProps) {
 
 export default async (req: Request, res: Response) => {
   try {
+    // Initialize i18n for SSR
+    const [, i18n] = await loadLanguageInstances([], undefined);
+    I18NextService.i18n = i18n;
+
     const client = new LemmyHttp(getHttpBaseInternal(), {});
     const postRes = await client.getPost({ id: Number(req.params.post_id) });
 
     if (postRes.state !== "success") {
-      res.status(404).send("Post not found");
+      res.status(404).send(I18NextService.i18n.t("not_found"));
       return;
     }
-
-    // Initialize i18n for SSR
-    const [, i18n] = await loadLanguageInstances([], undefined);
-    I18NextService.i18n = i18n;
 
     const html = `<!DOCTYPE html>${renderToString(
       <EmbedPage postView={postRes.data.post_view} />,
@@ -117,6 +123,6 @@ export default async (req: Request, res: Response) => {
     res.send(html);
   } catch (err) {
     console.error("Embed handler error:", err);
-    res.status(500).send("Error rendering embed");
+    res.status(500).send(I18NextService.i18n.t("error_rendering_embed"));
   }
 };
