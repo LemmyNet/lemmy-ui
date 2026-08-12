@@ -322,7 +322,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
                   onCreateComment={() => {}}
                   loading={this.props.editLoading === id}
                   imageUploadDisabled={
-                    !this.props.localSite.image_upload_disabled
+                    this.props.localSite.image_upload_disabled
                   }
                 />
               )}

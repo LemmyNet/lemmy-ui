@@ -198,15 +198,15 @@ export class PostReport extends Component<PostReportProps, PostReportState> {
           <div className="col">
             <ActionButton
               label={I18NextService.i18n.t(
-                pv.creator_banned
+                pv.creator_banned_from_community
                   ? "unban_from_community"
                   : "ban_from_community",
               )}
-              icon={pv.creator_banned ? "unban" : "ban"}
+              icon={pv.creator_banned_from_community ? "unban" : "ban"}
               noLoading
               inlineWithText
               onClick={() => handleModBanFromCommunity(this)}
-              iconClass={`text-${pv.creator_banned ? "success" : "danger"}`}
+              iconClass={`text-${pv.creator_banned_from_community ? "success" : "danger"}`}
             />
           </div>
           {this.props.myUserInfo?.local_user_view.local_user.admin && (

@@ -1554,7 +1554,7 @@ async function handleMarkPostAsRead(
   form: MarkPostAsRead,
   myUserInfo: MyUserInfo | undefined,
 ) {
-  i.setState({ markPostAsReadRes: EMPTY_REQUEST });
+  i.setState({ markPostAsReadRes: LOADING_REQUEST });
   const res = await HttpService.client.markPostAsRead(form);
   i.setState({ markPostAsReadRes: res });
   if (res.state === "success") {
