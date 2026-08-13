@@ -6,7 +6,7 @@ import {
 } from "lemmy-js-client";
 import { isBrowser } from "@utils/browser";
 import { toast } from "@utils/app";
-import { NoOptionI18nKeys, OptionI18nKeys } from "i18next";
+import { NoOptionI18nKeys } from "i18next";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -28,27 +28,12 @@ interface MaxUsesOption {
   count?: number;
 }
 
-interface ExpiresOption {
-  value: string;
-  labelKey: NoOptionI18nKeys | OptionI18nKeys;
-  count?: number;
-}
-
 const MAX_USES_OPTIONS: MaxUsesOption[] = [
   { value: UNLIMITED, labelKey: "unlimited" },
   { value: "1", labelKey: "uses", count: 1 },
   { value: "5", labelKey: "uses", count: 5 },
   { value: "10", labelKey: "uses", count: 10 },
   { value: "25", labelKey: "uses", count: 25 },
-];
-
-const EXPIRES_OPTIONS: ExpiresOption[] = [
-  { value: NEVER, labelKey: "never" },
-  { value: "0.5", labelKey: "n_minutes", count: 30 },
-  { value: "1", labelKey: "n_hours", count: 1 },
-  { value: "6", labelKey: "n_hours", count: 6 },
-  { value: "24", labelKey: "n_days", count: 1 },
-  { value: "168", labelKey: "n_days", count: 7 },
 ];
 
 interface InvitesProps {
@@ -126,9 +111,7 @@ export class Invites extends Component<InvitesProps, InvitesState> {
               id="invite-max-uses"
               className="form-select"
               value={this.state.form.max_uses?.toString() ?? UNLIMITED}
-              onChange={e =>
-                handleMaxUsesChange(this, (e.target).value)
-              }
+              onChange={e => handleMaxUsesChange(this, e.target.value)}
             >
               {MAX_USES_OPTIONS.map(opt => (
                 <option key={opt.value} value={opt.value}>
@@ -151,23 +134,39 @@ export class Invites extends Component<InvitesProps, InvitesState> {
               id="invite-expires"
               className="form-select"
               value={this.state.form.expires_at?.toString() ?? NEVER}
-              onChange={e =>
-                handleExpiresAtChange(
-                  this,
-                  (e.target).value,
-                )
-              }
+              onChange={e => handleExpiresAtChange(this, e.target.value)}
             >
-              {EXPIRES_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.count !== undefined
-                    ? I18NextService.i18n.t(opt.labelKey as OptionI18nKeys, {
-                        count: opt.count,
-                        formattedCount: opt.count,
-                      })
-                    : I18NextService.i18n.t(opt.labelKey as NoOptionI18nKeys)}
-                </option>
-              ))}
+              <option value={NEVER}>{I18NextService.i18n.t("never")}</option>
+              <option value="0.5">
+                {I18NextService.i18n.t("n_minutes", {
+                  count: 30,
+                  formattedCount: 30,
+                })}
+              </option>
+              <option value="1">
+                {I18NextService.i18n.t("n_hours", {
+                  count: 1,
+                  formattedCount: 1,
+                })}
+              </option>
+              <option value="6">
+                {I18NextService.i18n.t("n_hours", {
+                  count: 6,
+                  formattedCount: 6,
+                })}
+              </option>
+              <option value="24">
+                {I18NextService.i18n.t("n_days", {
+                  count: 1,
+                  formattedCount: 1,
+                })}
+              </option>
+              <option value="168">
+                {I18NextService.i18n.t("n_days", {
+                  count: 7,
+                  formattedCount: 7,
+                })}
+              </option>
             </select>
           </div>
 
@@ -253,7 +252,7 @@ export class Invites extends Component<InvitesProps, InvitesState> {
                           className="form-control font-monospace"
                           value={fullUrl}
                           readOnly
-                          onClick={e => (e.target).select()}
+                          onClick={e => e.target.select()}
                         />
                         <button
                           type="button"
