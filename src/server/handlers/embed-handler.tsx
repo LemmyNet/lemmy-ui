@@ -8,6 +8,7 @@ import { hostname } from "@utils/helpers";
 import { mdNoImages } from "@utils/markdown";
 import type { Request, Response } from "express";
 import { renderToString } from "inferno-server";
+import { NoOptionI18nKeys } from "i18next";
 import { LemmyHttp, PostView } from "lemmy-js-client";
 
 interface EmbedProps {
@@ -112,7 +113,7 @@ export default async (req: Request, res: Response) => {
     if (postRes.state !== "success") {
       const errKey =
         postRes.state === "failed" ? postRes.err.message : "not_found";
-      res.status(404).send(I18NextService.i18n.t(errKey));
+      res.status(404).send(I18NextService.i18n.t(errKey as NoOptionI18nKeys));
       return;
     }
 
