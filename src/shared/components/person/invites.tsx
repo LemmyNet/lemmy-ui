@@ -6,7 +6,7 @@ import {
 } from "lemmy-js-client";
 import { isBrowser } from "@utils/browser";
 import { toast } from "@utils/app";
-import { NoOptionI18nKeys } from "i18next";
+import { NoOptionI18nKeys, OptionI18nKeys } from "i18next";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -16,7 +16,40 @@ import {
 import { I18NextService } from "@services/I18NextService";
 import { Icon, Spinner } from "@components/common/icon";
 import { MomentTime } from "@components/common/moment-time";
+import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { fetchLimit } from "@utils/config";
+
+const UNLIMITED = "unlimited";
+const NEVER = "never";
+
+interface MaxUsesOption {
+  value: string;
+  labelKey: NoOptionI18nKeys;
+  count?: number;
+}
+
+interface ExpiresOption {
+  value: string;
+  labelKey: NoOptionI18nKeys | OptionI18nKeys;
+  count?: number;
+}
+
+const MAX_USES_OPTIONS: MaxUsesOption[] = [
+  { value: UNLIMITED, labelKey: "unlimited" },
+  { value: "1", labelKey: "uses", count: 1 },
+  { value: "5", labelKey: "uses", count: 5 },
+  { value: "10", labelKey: "uses", count: 10 },
+  { value: "25", labelKey: "uses", count: 25 },
+];
+
+const EXPIRES_OPTIONS: ExpiresOption[] = [
+  { value: NEVER, labelKey: "never" },
+  { value: "0.5", labelKey: "n_minutes", count: 30 },
+  { value: "1", labelKey: "n_hours", count: 1 },
+  { value: "6", labelKey: "n_hours", count: 6 },
+  { value: "24", labelKey: "n_days", count: 1 },
+  { value: "168", labelKey: "n_days", count: 7 },
+];
 
 interface InvitesProps {
   siteRes: GetSiteResponse;
@@ -80,7 +113,7 @@ export class Invites extends Component<InvitesProps, InvitesState> {
 
   createForm(maxAllowed: number) {
     return (
-      <form onSubmit={e => this.handleCreate(e)}>
+      <form onSubmit={e => handleCreate(this, e)}>
         <div className="row g-3 align-items-end">
           <div className="col-12 col-md-5">
             <label
@@ -92,36 +125,18 @@ export class Invites extends Component<InvitesProps, InvitesState> {
             <select
               id="invite-max-uses"
               className="form-select"
-              value={this.state.form.max_uses?.toString() ?? "unlimited"}
-              onChange={e => {
-                const val = e.target.value;
-                this.setState(s => ({
-                  ...s,
-                  form: {
-                    ...s.form,
-                    max_uses: val === "unlimited" ? undefined : Number(val),
-                  },
-                }));
-              }}
+              value={this.state.form.max_uses?.toString() ?? UNLIMITED}
+              onChange={e =>
+                handleMaxUsesChange(this, (e.target).value)
+              }
             >
-              <option value="1" selected={this.state.form.max_uses === 1}>
-                1 {I18NextService.i18n.t("uses")}
-              </option>
-              <option value="5" selected={this.state.form.max_uses === 5}>
-                5 {I18NextService.i18n.t("uses")}
-              </option>
-              <option value="10" selected={this.state.form.max_uses === 10}>
-                10 {I18NextService.i18n.t("uses")}
-              </option>
-              <option value="25" selected={this.state.form.max_uses === 25}>
-                25 {I18NextService.i18n.t("uses")}
-              </option>
-              <option
-                value="unlimited"
-                selected={this.state.form.max_uses === undefined}
-              >
-                {I18NextService.i18n.t("unlimited")}
-              </option>
+              {MAX_USES_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.count !== undefined
+                    ? `${opt.count} ${I18NextService.i18n.t(opt.labelKey as NoOptionI18nKeys)}`
+                    : I18NextService.i18n.t(opt.labelKey as NoOptionI18nKeys)}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -135,49 +150,24 @@ export class Invites extends Component<InvitesProps, InvitesState> {
             <select
               id="invite-expires"
               className="form-select"
-              value={this.state.form.expires_at?.toString() ?? "never"}
-              onChange={e => {
-                const val = e.target.value;
-                this.setState(s => ({
-                  ...s,
-                  form: {
-                    ...s.form,
-                    expires_at: val === "never" ? undefined : Number(val),
-                  },
-                }));
-              }}
+              value={this.state.form.expires_at?.toString() ?? NEVER}
+              onChange={e =>
+                handleExpiresAtChange(
+                  this,
+                  (e.target).value,
+                )
+              }
             >
-              <option value="0.5">
-                {I18NextService.i18n.t("n_minutes", {
-                  count: 30,
-                  formattedCount: 30,
-                })}
-              </option>
-              <option value="1">
-                {I18NextService.i18n.t("n_hours", {
-                  count: 1,
-                  formattedCount: 1,
-                })}
-              </option>
-              <option value="6">
-                {I18NextService.i18n.t("n_hours", {
-                  count: 6,
-                  formattedCount: 6,
-                })}
-              </option>
-              <option value="24">
-                {I18NextService.i18n.t("n_days", {
-                  count: 1,
-                  formattedCount: 1,
-                })}
-              </option>
-              <option value="168">
-                {I18NextService.i18n.t("n_days", {
-                  count: 7,
-                  formattedCount: 7,
-                })}
-              </option>
-              <option value="never">{I18NextService.i18n.t("never")}</option>
+              {EXPIRES_OPTIONS.map(opt => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.count !== undefined
+                    ? I18NextService.i18n.t(opt.labelKey as OptionI18nKeys, {
+                        count: opt.count,
+                        formattedCount: opt.count,
+                      })
+                    : I18NextService.i18n.t(opt.labelKey as NoOptionI18nKeys)}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -211,11 +201,7 @@ export class Invites extends Component<InvitesProps, InvitesState> {
   invitesList() {
     switch (this.state.invitesRes.state) {
       case "loading":
-        return (
-          <div className="d-flex flex-column align-items-center justify-content-center py-5 text-body-secondary w-100 text-center">
-            <Spinner large />
-          </div>
-        );
+        return <Spinner large centered />;
       case "failed":
         return (
           <div className="alert alert-danger mb-0">
@@ -224,95 +210,101 @@ export class Invites extends Component<InvitesProps, InvitesState> {
         );
       case "success": {
         const invites = this.state.invitesRes.data.items;
-        if (!invites.length) {
-          return (
-            <p className="text-body-secondary mb-0">
-              {I18NextService.i18n.t("no_invites")}
-            </p>
-          );
-        }
-        return (
-          <div className="table-responsive">
-            <table className="table table-hover align-middle mb-0">
-              <thead className="table-light">
-                <tr className="small text-body-secondary">
-                  <th
-                    scope="col"
-                    className="py-3"
-                    style={{ "min-width": "260px" }}
-                  >
-                    {I18NextService.i18n.t("invite_token")}
-                  </th>
-                  <th scope="col" className="py-3 text-center">
-                    {I18NextService.i18n.t("uses")}
-                  </th>
-                  <th scope="col" className="py-3">
-                    {I18NextService.i18n.t("expires")}
-                  </th>
-                  <th scope="col" className="py-3">
-                    {I18NextService.i18n.t("created")}
-                  </th>
-                  <th scope="col" className="py-3 text-end">
-                    {I18NextService.i18n.t("action")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {invites.map(invite => {
-                  const fullUrl = `${this.inviteUrlBase}${invite.token}`;
-                  return (
-                    <tr key={invite.id}>
-                      <td className="py-3">
-                        <div className="input-group input-group-sm">
-                          <input
-                            type="text"
-                            className="form-control font-monospace form-control-sm"
-                            value={fullUrl}
-                            readOnly
-                            onClick={e => e.target.select()}
-                          />
-                          <button
-                            type="button"
-                            className="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1"
-                            onClick={() => this.copyLink(invite.token)}
-                            title={I18NextService.i18n.t("copy_link")}
-                          >
-                            <Icon icon="copy" inline />
-                          </button>
-                        </div>
-                      </td>
-                      <td className="py-3 text-center">
-                        <span className="badge text-bg-light border font-monospace px-2 py-1">
-                          {invite.uses_count}
-                          {invite.max_uses ? ` / ${invite.max_uses}` : " / ∞"}
-                        </span>
-                      </td>
-                      <td className="py-3 small text-body-secondary">
-                        {invite.expires_at ? (
-                          <MomentTime published={invite.expires_at} />
-                        ) : (
-                          I18NextService.i18n.t("never")
-                        )}
-                      </td>
-                      <td className="py-3 small text-body-secondary">
-                        <MomentTime published={invite.published_at} />
-                      </td>
-                      <td className="py-3 text-end">
+        return !invites.length ? (
+          <p className="text-body-secondary mb-0">
+            {I18NextService.i18n.t("no_invites")}
+          </p>
+        ) : (
+          <div id="invites_table">
+            <div className="d-none d-md-block">
+              <div className="row fw-bold text-body-secondary small mb-2">
+                <div className="col-md-5">
+                  {I18NextService.i18n.t("invite_token")}
+                </div>
+                <div className="col-md-2 text-center">
+                  {I18NextService.i18n.t("uses")}
+                </div>
+                <div className="col-md-2">
+                  {I18NextService.i18n.t("expires")}
+                </div>
+                <div className="col-md-2">
+                  {I18NextService.i18n.t("created")}
+                </div>
+                <div className="col-md-1 text-end">
+                  {I18NextService.i18n.t("action")}
+                </div>
+              </div>
+              <TableHr />
+            </div>
+            {invites.map(invite => {
+              const fullUrl = `${this.inviteUrlBase}${invite.token}`;
+              return (
+                <div key={invite.id}>
+                  <div className="row align-items-center g-2">
+                    <div className="d-md-none col-12">
+                      <div className="fw-bold">
+                        {I18NextService.i18n.t("invite_token")}
+                      </div>
+                    </div>
+                    <div className="col-12 col-md-5">
+                      <div className="input-group input-group-sm">
+                        <input
+                          type="text"
+                          className="form-control font-monospace"
+                          value={fullUrl}
+                          readOnly
+                          onClick={e => (e.target).select()}
+                        />
                         <button
                           type="button"
-                          className="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center"
-                          onClick={() => this.handleRevoke(invite.token)}
-                          disabled={this.state.revokeRes.state === "loading"}
-                          title={I18NextService.i18n.t("revoke")}
+                          className="btn btn-outline-secondary d-inline-flex align-items-center gap-1"
+                          onClick={() => copyLink(this, invite.token)}
+                          title={I18NextService.i18n.t("copy_link")}
                         >
-                          {I18NextService.i18n.t("revoke")}
+                          <Icon icon="copy" inline />
                         </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </div>
+                    </div>
+
+                    <ResponsiveTableRowHeader title="uses" />
+                    <div className="col-6 col-md-2 text-md-center">
+                      <span className="badge text-bg-light border font-monospace px-2 py-1">
+                        {invite.uses_count}
+                        {invite.max_uses ? ` / ${invite.max_uses}` : " / ∞"}
+                      </span>
+                    </div>
+
+                    <ResponsiveTableRowHeader title="expires" />
+                    <div className="col-6 col-md-2 small text-body-secondary">
+                      {invite.expires_at ? (
+                        <MomentTime published={invite.expires_at} />
+                      ) : (
+                        I18NextService.i18n.t("never")
+                      )}
+                    </div>
+
+                    <ResponsiveTableRowHeader title="created" />
+                    <div className="col-6 col-md-2 small text-body-secondary">
+                      <MomentTime published={invite.published_at} />
+                    </div>
+
+                    <ResponsiveTableRowHeader title="action" />
+                    <div className="col-6 col-md-1 text-md-end">
+                      <button
+                        type="button"
+                        className="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center"
+                        onClick={() => handleRevoke(this, invite.token)}
+                        disabled={this.state.revokeRes.state === "loading"}
+                        title={I18NextService.i18n.t("revoke")}
+                      >
+                        {I18NextService.i18n.t("revoke")}
+                      </button>
+                    </div>
+                  </div>
+                  <hr className="my-3" />
+                </div>
+              );
+            })}
           </div>
         );
       }
@@ -320,67 +312,81 @@ export class Invites extends Component<InvitesProps, InvitesState> {
         return null;
     }
   }
+}
 
-  async handleCreate(e: Event) {
-    e.preventDefault();
-    this.setState({ createRes: LOADING_REQUEST });
+function handleMaxUsesChange(i: Invites, val: string) {
+  i.setState(s => ({
+    ...s,
+    form: {
+      ...s.form,
+      max_uses: val === UNLIMITED ? undefined : Number(val),
+    },
+  }));
+}
 
-    const { max_uses, expires_at } = this.state.form;
-    const expiresAtIso = expires_at
-      ? new Date(Date.now() + expires_at * 3600_000).toISOString()
-      : undefined;
+function handleExpiresAtChange(i: Invites, val: string) {
+  i.setState(s => ({
+    ...s,
+    form: {
+      ...s.form,
+      expires_at: val === NEVER ? undefined : Number(val),
+    },
+  }));
+}
 
-    const res = await HttpService.client.createRegistrationInvitation({
-      max_uses,
-      expires_at: expiresAtIso,
-    });
+async function handleCreate(i: Invites, e: Event) {
+  e.preventDefault();
+  i.setState({ createRes: LOADING_REQUEST });
 
-    switch (res.state) {
-      case "failed":
-        toast(
-          I18NextService.i18n.t(res.err.name as NoOptionI18nKeys),
-          "danger",
-        );
-        this.setState({ createRes: EMPTY_REQUEST });
-        break;
-      case "success":
-        toast(I18NextService.i18n.t("invite_created"));
-        this.setState({
-          createRes: EMPTY_REQUEST,
-          form: { max_uses: undefined, expires_at: undefined },
-        });
-        await this.fetchInvites();
-        break;
-    }
+  const { max_uses, expires_at } = i.state.form;
+  const expiresAtIso = expires_at
+    ? new Date(Date.now() + expires_at * 3600_000).toISOString()
+    : undefined;
+
+  const res = await HttpService.client.createRegistrationInvitation({
+    max_uses,
+    expires_at: expiresAtIso,
+  });
+
+  switch (res.state) {
+    case "failed":
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+      i.setState({ createRes: EMPTY_REQUEST });
+      break;
+    case "success":
+      toast(I18NextService.i18n.t("invite_created"));
+      i.setState({
+        createRes: EMPTY_REQUEST,
+        form: { max_uses: undefined, expires_at: undefined },
+      });
+      await i.fetchInvites();
+      break;
   }
+}
 
-  async handleRevoke(token: string) {
-    this.setState({ revokeRes: LOADING_REQUEST });
-    const res = await HttpService.client.revokeRegistrationInvitation({
-      token,
-    });
-    switch (res.state) {
-      case "failed":
-        toast(
-          I18NextService.i18n.t(res.err.name as NoOptionI18nKeys),
-          "danger",
-        );
-        this.setState({ revokeRes: EMPTY_REQUEST });
-        break;
-      case "success":
-        toast(I18NextService.i18n.t("invite_revoked"));
-        this.setState({ revokeRes: EMPTY_REQUEST });
-        await this.fetchInvites();
-        break;
-    }
+async function handleRevoke(i: Invites, token: string) {
+  i.setState({ revokeRes: LOADING_REQUEST });
+  const res = await HttpService.client.revokeRegistrationInvitation({
+    token,
+  });
+  switch (res.state) {
+    case "failed":
+      toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
+      i.setState({ revokeRes: EMPTY_REQUEST });
+      break;
+    case "success":
+      toast(I18NextService.i18n.t("invite_revoked"));
+      i.setState({ revokeRes: EMPTY_REQUEST });
+      await i.fetchInvites();
+      break;
   }
+}
 
-  copyLink(token: string) {
-    const link = `${this.inviteUrlBase}${token}`;
-    if (isBrowser()) {
-      void navigator.clipboard
-        .writeText(link)
-        .then(() => toast(I18NextService.i18n.t("copied_to_clipboard")));
-    }
+function copyLink(i: Invites, token: string) {
+  const link = `${i.inviteUrlBase}${token}`;
+  if (isBrowser()) {
+    void navigator.clipboard
+      .writeText(link)
+      .then(() => toast(I18NextService.i18n.t("copied_to_clipboard")));
   }
 }

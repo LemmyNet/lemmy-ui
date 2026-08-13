@@ -82,18 +82,10 @@ export class Signup extends Component<SignupRouteProps, State> {
 
   async componentWillMount() {
     if (isBrowser()) {
-      this.extractInviteToken();
+      extractInviteToken(this);
       if (this.isoData.siteRes?.captcha_enabled) {
         await this.fetchCaptcha();
       }
-    }
-  }
-
-  extractInviteToken() {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token") ?? undefined;
-    if (token && this.state.form.token !== token) {
-      this.setState(s => ({ ...s, form: { ...s.form, token } }));
     }
   }
 
@@ -247,11 +239,7 @@ export class Signup extends Component<SignupRouteProps, State> {
   renderCaptcha(): InfernoNode | void {
     switch (this.state.captchaRes.state) {
       case "loading":
-        return (
-          <div className="d-flex align-items-center justify-content-center py-4 my-2 w-100">
-            <Spinner large />
-          </div>
-        );
+        return <Spinner large centered />;
       case "success": {
         const res = this.state.captchaRes.data;
         return (
@@ -291,11 +279,7 @@ export class Signup extends Component<SignupRouteProps, State> {
       siteView?.local_site.registration_mode === "require_invitation";
     const hasTokenInState = !!this.state.form.token;
 
-    if (!isRequireInvitation && !hasTokenInState) {
-      return null;
-    }
-
-    return (
+    return isRequireInvitation || hasTokenInState ? (
       <div className="mb-3 row">
         <label
           className="col-sm-2 col-form-label"
@@ -314,7 +298,7 @@ export class Signup extends Component<SignupRouteProps, State> {
           />
         </div>
       </div>
-    );
+    ) : undefined;
   }
 
   showCaptcha(res: GetCaptchaResponse) {
@@ -535,4 +519,12 @@ export function signupTitleName(siteView?: SiteView): string {
   return I18NextService.i18n.t(
     siteView?.local_site.private_instance ? "apply_to_join" : "sign_up",
   );
+}
+
+function extractInviteToken(i: Signup) {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token") ?? undefined;
+  if (token && i.state.form.token !== token) {
+    i.setState(s => ({ ...s, form: { ...s.form, token } }));
+  }
 }
