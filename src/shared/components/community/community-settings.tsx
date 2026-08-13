@@ -39,7 +39,11 @@ import {
   CommunityTagId,
   TransferCommunity,
   EditCommunityTag,
+  PersonView,
+  PagedResponse,
+  PaginationCursor,
 } from "lemmy-js-client";
+import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import { T } from "inferno-i18next-dess";
@@ -50,6 +54,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
+import { fetchLimit } from "@utils/config";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { getHttpBaseInternal } from "../../utils/env";
@@ -71,13 +76,15 @@ import { NoOptionI18nKeys } from "i18next";
 import { CommunityLink } from "./community-link";
 import { FilterChipSelect } from "@components/common/filter-chip-select";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
-
 type CommunitySettingsData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
+  followersRes: PagedResponse<PersonView>;
 }>;
 
 interface State {
   communityRes: RequestState<GetCommunityResponse>;
+  followersRes: RequestState<PagedResponse<PersonView>>;
+  followersCursor?: PaginationCursor;
   editCommunityRes: RequestState<CommunityResponse>;
   transferCommunityRes: RequestState<GetCommunityResponse>;
   deleteCommunityRes: RequestState<CommunityResponse>;
@@ -113,6 +120,7 @@ export type CommunitySettingsFetchConfig = IRoutePropsWithFetch<
 export class CommunitySettings extends Component<RouteProps, State> {
   private isoData = setIsoData<CommunitySettingsData>(this.context);
   state: State = {
+    followersRes: EMPTY_REQUEST,
     communityRes: EMPTY_REQUEST,
     editCommunityRes: EMPTY_REQUEST,
     transferCommunityRes: EMPTY_REQUEST,
@@ -130,7 +138,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
   };
 
   loadingSettled() {
-    return resourcesSettled([this.state.communityRes]);
+    return resourcesSettled([this.state.followersRes, this.state.communityRes]);
   }
 
   constructor(props: RouteProps, context: object) {
@@ -138,32 +146,62 @@ export class CommunitySettings extends Component<RouteProps, State> {
 
     // Only fetch the data if coming from another route
     if (FirstLoadService.isFirstLoad) {
-      const { communityRes } = this.isoData.routeData;
-
-      this.state = {
-        ...this.state,
-        isIsomorphic: true,
-        communityRes,
-      };
+      const { followersRes, communityRes } = this.isoData.routeData;
+      if (followersRes && communityRes) {
+        this.state = {
+          ...this.state,
+          communityRes: communityRes,
+          followersRes: followersRes,
+          isIsomorphic: true,
+        };
+      }
     }
   }
 
   fetchCommunityToken?: symbol;
-  async fetchCommunity(props: RouteProps) {
+  async fetchData(props: RouteProps) {
     const token = (this.fetchCommunityToken = Symbol());
-    this.setState({ communityRes: LOADING_REQUEST });
+    this.setState({
+      communityRes: LOADING_REQUEST,
+      followersRes: LOADING_REQUEST,
+    });
+
     const name = decodeURIComponent(props.match.params.name);
+
     const communityRes = await HttpService.client.getCommunity({
       name,
     });
+    if (token !== this.fetchCommunityToken) return;
+
+    const followersRes =
+      communityRes.state === "success"
+        ? await HttpService.client.listPersons({
+            community_id: communityRes.data.community_view.community.id,
+            limit: fetchLimit,
+          })
+        : EMPTY_REQUEST;
     if (token === this.fetchCommunityToken) {
-      this.setState({ communityRes });
+      this.setState({ communityRes, followersRes });
+    }
+  }
+  async fetchFollowersOnly() {
+    this.setState({
+      followersRes: LOADING_REQUEST,
+    });
+    console.warn("cursor reset to:", this.state.followersCursor);
+    if (this.state.communityRes.state === "success") {
+      const followersRes = await HttpService.client.listPersons({
+        page_cursor: this.state.followersCursor,
+        community_id: this.state.communityRes.data.community_view.community.id,
+        limit: fetchLimit,
+      });
+      this.setState({ followersRes });
     }
   }
 
   async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.fetchCommunity(this.props);
+      await this.fetchData(this.props);
     }
   }
 
@@ -174,7 +212,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      await this.fetchCommunity(nextProps);
+      await this.fetchData(nextProps);
     }
   }
 
@@ -193,7 +231,14 @@ export class CommunitySettings extends Component<RouteProps, State> {
 
     const communityRes = await client.getCommunity(communityForm);
 
+    const followersRes =
+      communityRes.state === "success"
+        ? await HttpService.client.listPersons({
+            community_id: communityRes.data.community_view.community.id,
+          })
+        : EMPTY_REQUEST;
     return {
+      followersRes,
       communityRes,
     };
   };
@@ -203,6 +248,87 @@ export class CommunitySettings extends Component<RouteProps, State> {
     return cRes.state === "success"
       ? `${cRes.data.community_view.community.title} ${I18NextService.i18n.t("settings")} - ${this.isoData.siteRes.site_view.site.name}`
       : "";
+  }
+
+  followersList(): InfernoNode | void {
+    switch (this.state.followersRes.state) {
+      case "loading":
+        return (
+          <h5>
+            <Spinner large />
+          </h5>
+        );
+      case "success": {
+        const followers_persons = this.state.followersRes.data.items;
+        const nameCols = "col-6 col-md-3";
+        const dataCols = "col-6 col-md-2";
+        return (
+          <div id="users-table">
+            <div className="d-none d-md-block">
+              <div className="row">
+                <div className={`${nameCols} fw-bold`}>
+                  {I18NextService.i18n.t("username")}
+                </div>
+                <div className={`${dataCols} fw-bold`}>
+                  {I18NextService.i18n.t("registered_date_title")}
+                </div>
+                <div className={`${dataCols} fw-bold`}>
+                  {I18NextService.i18n.t("followed_date_title")}
+                </div>
+              </div>
+              <TableHr />
+            </div>
+            {followers_persons.map(person => (
+              <>
+                <div className="row" key={person.person.id}>
+                  <ResponsiveTableRowHeader title={"username"} />
+                  <div className={nameCols}>
+                    <PersonListing
+                      person={person.person}
+                      banned={person.banned}
+                      myUserInfo={this.isoData.myUserInfo}
+                      muted={false}
+                    />
+                    <UserBadges
+                      classNames="ms-1"
+                      isBanned={person.banned}
+                      isBannedFromCommunity={
+                        person.community_actions?.received_ban_at !== undefined
+                      }
+                      // hided since data is not related to community, to any general person activity
+                      // myUserInfo={this.isoData.myUserInfo}
+                      creator={person.person}
+                    />
+                  </div>
+                  <ResponsiveTableRowHeader title={"registered_date_title"} />
+                  <div className={dataCols}>
+                    <MomentTime published={person.person.published_at} />
+                  </div>
+                  <ResponsiveTableRowHeader title={"followed_date_title"} />
+                  <div className={dataCols}>
+                    {person.community_actions?.followed_at ? (
+                      <MomentTime
+                        published={person.community_actions.followed_at}
+                      />
+                    ) : (
+                      <span className="text-muted">-</span>
+                    )}
+                  </div>
+                </div>
+                <hr key={person.person.id + "hr"} />
+              </>
+            ))}
+            <PaginatorCursor
+              current={this.state.followersCursor}
+              resource={this.state.followersRes}
+              onPageChange={cursor => handleFollowersPageChange(this, cursor)}
+            />
+          </div>
+        );
+      }
+      default:
+        return null;
+    }
   }
 
   render() {
@@ -289,6 +415,22 @@ export class CommunitySettings extends Component<RouteProps, State> {
                   id="users-tab-pane"
                 >
                   {this.moderatorsTab()}
+                </div>
+              ),
+            },
+            {
+              key: "followers",
+              label: I18NextService.i18n.t("followers"),
+              getNode: isSelected => (
+                <div
+                  className={classNames("tab-pane", {
+                    active: isSelected,
+                  })}
+                  role="tabpanel"
+                  id="followers-tab-pane"
+                >
+                  {this.followersList()}
+                  <hr />
                 </div>
               ),
             },
@@ -575,6 +717,14 @@ export class CommunitySettings extends Component<RouteProps, State> {
   }
 }
 
+async function handleFollowersPageChange(
+  i: CommunitySettings,
+  cursor?: PaginationCursor,
+) {
+  i.setState({ followersCursor: cursor });
+  await i.fetchFollowersOnly();
+}
+
 async function handleDeleteCommunity(i: CommunitySettings, deleted: boolean) {
   if (i.state.communityRes.state === "success") {
     const form: DeleteCommunity = {
@@ -661,7 +811,7 @@ async function handleCreateTag(i: CommunitySettings, form: CreateCommunityTag) {
   if (res.state === "success") {
     toast(I18NextService.i18n.t("community_tag_created"));
     // Need to refetch community to update tags
-    await i.fetchCommunity(i.props);
+    await i.fetchData(i.props);
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
@@ -677,7 +827,7 @@ async function handleEditTag(i: CommunitySettings, form: EditCommunityTag) {
   });
 
   // Need to refetch community to update tags
-  await i.fetchCommunity(i.props);
+  await i.fetchData(i.props);
 
   if (res.state === "success") {
     toast(I18NextService.i18n.t("community_tag_edited"));
@@ -694,7 +844,7 @@ async function handleDeleteTag(i: CommunitySettings, form: DeleteCommunityTag) {
   if (res.state === "success") {
     toast(I18NextService.i18n.t("community_tag_deleted"));
     // Need to refetch community to update tags
-    await i.fetchCommunity(i.props);
+    await i.fetchData(i.props);
   }
 }
 

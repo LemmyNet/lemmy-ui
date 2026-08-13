@@ -123,8 +123,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-resolve-reason.1
-        version: 1.0.0-resolve-reason.1
+        specifier: 1.0.0-list-community-followers.2
+        version: 1.0.0-list-community-followers.2
       markdown-it:
         specifier: ^14.1.0
         version: 14.2.0
@@ -3635,8 +3635,8 @@ packages:
   leac@0.7.0:
     resolution: {integrity: sha512-qMrZeyEekgdRQ9o6a4NAB2EQZrv827GJdn1vnapwSJ90hWRB4TzUSunvacPkxQ2TnNqHNI1/zSt0hlo0crG8Jw==}
 
-  lemmy-js-client@1.0.0-resolve-reason.1:
-    resolution: {integrity: sha512-GpE+BKEWa1BZAAFzGwtDRnsOW48c48jIMcQ3xkJg5mG8PIvaTr3ap+F/QT/gjqNJYvpPFgznCN7QBduROnpgxg==}
+  lemmy-js-client@1.0.0-list-community-followers.2:
+    resolution: {integrity: sha512-+Bt7AG0xi3WmuV3elIu2H12qXFMwEH59goxhG6kS3joCCbazmbJL+1YpbhiXg+yttCdzU6Q6w0zq1tAukej0bA==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -9195,7 +9195,7 @@ snapshots:
 
   leac@0.7.0: {}
 
-  lemmy-js-client@1.0.0-resolve-reason.1:
+  lemmy-js-client@1.0.0-list-community-followers.2:
     dependencies:
       '@tsoa/runtime': 6.6.0
     transitivePeerDependencies:
