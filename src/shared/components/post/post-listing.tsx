@@ -267,7 +267,7 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             src={post.embed_video_url}
             sandbox="allow-same-origin allow-scripts"
             allowFullScreen={true}
-            referrerpolicy="strict-origin-when-cross-origin"
+            referrerPolicy="strict-origin-when-cross-origin"
           ></iframe>
         </div>
       );
