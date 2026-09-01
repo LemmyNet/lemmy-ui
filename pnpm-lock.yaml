@@ -187,7 +187,7 @@ importers:
         version: 1.101.0
       sass-loader:
         specifier: ^17.0.0
-        version: 17.0.0(sass@1.101.0)(webpack@5.108.1)
+        version: 17.0.1(sass@1.101.0)(webpack@5.108.1)
       serialize-javascript:
         specifier: ^7.0.0
         version: 7.0.7
@@ -4557,8 +4557,8 @@ packages:
     resolution: {integrity: sha512-M4bo9tfv1yfhQZZKkc6dL07ALrGJtfvNOuhX3hU9AVPR/uPQ+nKOJBqTYc7LfMQblTW04mtSWDJWEyLvygJsLA==}
     engines: {node: '>=22.12.0'}
 
-  sass-loader@17.0.0:
-    resolution: {integrity: sha512-0Ybm8ohBQ9LcrycVrFQp/KQBNX5a3Wda9/smS0mE/xLffzEnwvV8nykOzrbiSWNzTE3IB/jiXx8O4QmDPG2+Gw==}
+  sass-loader@17.0.1:
+    resolution: {integrity: sha512-pgJMwCuLjVTSIWsv/2luVRXKlCeaViUGcgSe8dx95zMG4hUwqIMFmjbhq29ypFLflJU0GyiJZeLM9iI1n3KYAA==}
     engines: {node: '>= 22.11.0'}
     peerDependencies:
       '@rspack/core': 0.x || ^1.0.0 || ^2.0.0-0
@@ -9938,7 +9938,7 @@ snapshots:
       parse-srcset: 1.0.2
       postcss: 8.5.25
 
-  sass-loader@17.0.0(sass@1.101.0)(webpack@5.108.1):
+  sass-loader@17.0.1(sass@1.101.0)(webpack@5.108.1):
     optionalDependencies:
       sass: 1.101.0
       webpack: 5.108.1(postcss@8.5.26)(webpack-cli@7.1.0)
