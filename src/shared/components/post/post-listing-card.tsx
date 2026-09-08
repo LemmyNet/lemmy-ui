@@ -321,6 +321,7 @@ function VideoBlock({ postView }: VideoBlockProps): InfernoNode | void {
           src={post.embed_video_url}
           sandbox="allow-same-origin allow-scripts"
           allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
         ></iframe>
       </div>
     );

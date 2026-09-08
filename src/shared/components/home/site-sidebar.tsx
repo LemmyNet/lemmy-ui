@@ -105,11 +105,11 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
     const { site, activePlugins, myUserInfo } = this.props;
 
     return (
-      <div>
+      <div className="d-flex flex-column gap-2">
         {site.summary && <h6>{site.summary}</h6>}
         {site.sidebar && (
           <div
-            className="md-div mb-2"
+            className="md-div"
             dangerouslySetInnerHTML={mdToHtml(site.sidebar, () =>
               this.forceUpdate(),
             )}
@@ -127,14 +127,14 @@ export class SiteSidebar extends Component<SiteSidebarProps, SiteSidebarState> {
         />
         <CreateMultiCommunityButton myUserInfo={myUserInfo} blockButton />
         <Link
-          className="btn btn-light border-light-subtle d-block mb-2 w-100"
+          className="btn btn-light border-light-subtle d-block w-100"
           to="/modlog"
         >
           {I18NextService.i18n.t("modlog")}
         </Link>
         {amAdmin(myUserInfo) && (
           <Link
-            className="btn btn-light border-light-subtle d-block mb-2 w-100"
+            className="btn btn-light border-light-subtle d-block w-100"
             to="/admin"
           >
             {I18NextService.i18n.t("settings")}

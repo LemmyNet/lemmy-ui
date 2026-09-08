@@ -3,6 +3,7 @@
 import { getStaticDir } from "@utils/env";
 import { VERSION } from "../shared/version";
 import express from "express";
+import morgan from "morgan";
 import path from "path";
 import process from "process";
 import CatchAllHandler from "./handlers/catch-all-handler";
@@ -27,6 +28,14 @@ import {
 } from "./handlers/feed-handler";
 
 const server = express();
+// Log requests, skipping static asset paths to avoid log noise
+const logFormat =
+  process.env["NODE_ENV"] === "development" ? "dev" : "combined";
+server.use(
+  morgan(logFormat, {
+    skip: req => req.originalUrl.startsWith("/static/"),
+  }),
+);
 server.use(cookieParser());
 
 // Split given host into hostname and port on the last `:` character, so that it
@@ -91,8 +100,8 @@ server.get("/.well-known/security.txt", SecurityHandler);
 server.get("/robots.txt", RobotsHandler);
 server.get("/service-worker.js", ServiceWorkerHandler);
 server.get("/manifest.webmanifest", ManifestHandler);
-server.get("/css/themes/:name", ThemeHandler);
-server.get("/css/code-themes/:name", CodeThemeHandler);
+server.get(`${getStaticDir()}/css/themes/:name`, ThemeHandler);
+server.get(`${getStaticDir()}/css/code-themes/:name`, CodeThemeHandler);
 server.get("/css/themelist", ThemesListHandler);
 server.get(["/feed", "/.rss"], FrontPageFeedHandler);
 server.get(["/u/:name/feed", "/u/{:name}.rss"], ProfileFeedHandler);
