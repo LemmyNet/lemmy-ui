@@ -59,6 +59,11 @@ export function mdToHtmlInline(text: string) {
   return { __html: mdLimited.renderInline(text) };
 }
 
+/** Replace spoiler blocks with a placeholder to prevent leaking into meta tags. */
+export function stripSpoilers(text: string, replacement: string): string {
+  return text.replace(/::: spoiler [^]*?:::/g, replacement);
+}
+
 const spoilerConfig = {
   validate: (params: string) => {
     return params.trim().match(/^spoiler\s+(.*)$/);
