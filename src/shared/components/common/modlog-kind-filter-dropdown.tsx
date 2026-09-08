@@ -6,6 +6,8 @@ const options: FilterOption<ModlogKindFilter>[] = [
   { value: "mod_remove_post", i18n: "removing_posts" },
   { value: "mod_lock_post", i18n: "locking_posts" },
   { value: "mod_lock_comment", i18n: "locking_comments" },
+  { value: "mod_warn_comment", i18n: "comment_warnings" },
+  { value: "mod_warn_post", i18n: "post_warnings" },
   { value: "mod_feature_post_community", i18n: "featuring_posts_in_community" },
   {
     value: "admin_feature_post_site",
