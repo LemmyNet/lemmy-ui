@@ -115,13 +115,13 @@ export class FilterChipSelect extends Component<Props, State> {
     }
   }
 
-  async componentWillReceiveProps(
+  componentWillReceiveProps(
     nextProps: Readonly<{ children?: InfernoNode } & Props>,
   ) {
     // For searching, clear the existing choices
     if (this.state.choices && nextProps.onSearch) {
       this.state.choices.clearChoices(true, true);
-      await this.state.choices.setChoices(
+      this.state.choices.setChoices(
         buildChoices(nextProps.allOptions, nextProps.selectedOptions),
       );
     }

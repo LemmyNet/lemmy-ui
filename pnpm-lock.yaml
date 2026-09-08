@@ -48,8 +48,8 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
       choices.js:
-        specifier: 11.2.3
-        version: 11.2.3
+        specifier: 11.2.4
+        version: 11.2.4
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
@@ -2244,8 +2244,8 @@ packages:
   check-password-strength@3.0.0:
     resolution: {integrity: sha512-XIBvWpb7/RI2DO05tMixE4WbFFvEC7ls/jr1VSrWgXvlCmdiH2fsdkixG0cNGs1uIXwoSqJ75T3s9H/TlJV6Cw==}
 
-  choices.js@11.2.3:
-    resolution: {integrity: sha512-K+HA8ShsWWNOVs4ahahjIOtzsvcC/cOFGTdU1BZgMZRhGi/uCQARlFd/80B0hlVVdRIjnrsW7QLDUnpJaW6N7A==}
+  choices.js@11.2.4:
+    resolution: {integrity: sha512-3ESJ42LC1cFPIK2sRxa+Y1zEM5vpeOL/FrZHh6dqqqTHf23FStbjKhxP+eMC0F3O0xRUkhQmOOtUxIi83RxhTg==}
 
   chokidar@3.6.0:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
@@ -7567,7 +7567,7 @@ snapshots:
     dependencies:
       escape-string-regexp: 5.0.0
 
-  choices.js@11.2.3:
+  choices.js@11.2.4:
     dependencies:
       fuse.js: 7.3.0
 
