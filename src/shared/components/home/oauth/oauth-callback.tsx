@@ -268,7 +268,7 @@ function handleSubmit(i: OAuthCallback) {
     handleLoginWithProvider(
       provider,
       i.state.username,
-      decodeURIComponent(local_oauth_state.redirect_uri),
+      local_oauth_state.prev,
       i.state.answer,
       i.state.show_nsfw,
       i.state.stay_logged_in,

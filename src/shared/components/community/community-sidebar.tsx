@@ -99,12 +99,12 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
           <div id="sidebarContainer">
             {!this.props.hideButtons && (
               <section id="sidebarMain" className="card mb-3">
-                <div className="card-body">
+                <div className="card-body d-flex flex-column gap-2">
                   {this.communityTitle()}
                   {summary && <h6>{summary}</h6>}
                   {received_ban_at && (
                     <div
-                      className="alert alert-danger text-sm-start text-xs-center mt-2"
+                      className="alert alert-danger text-sm-start text-xs-center"
                       role="alert"
                     >
                       <Icon
@@ -141,7 +141,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     </>
                   )}
                   <button
-                    className="btn btn-light border-light-subtle d-block mb-2 w-100"
+                    className="btn btn-light border-light-subtle d-block w-100"
                     onClick={() => handleShowReportModal(this)}
                   >
                     {I18NextService.i18n.t("create_report")}
@@ -152,7 +152,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     show={this.state.showReportModal}
                   />
                   <Link
-                    className="btn btn-light border-light-subtle d-block mb-2 w-100"
+                    className="btn btn-light border-light-subtle d-block w-100"
                     to={`/modlog?communityId=${community.id}`}
                   >
                     {I18NextService.i18n.t("modlog")}
@@ -163,7 +163,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   {amAdmin(myUserInfo) && (
                     <>
                       <button
-                        className="btn btn-light border-light-subtle d-block mb-2 w-100"
+                        className="btn btn-light border-light-subtle d-block w-100"
                         onClick={() => handleShowRemoveDialog(this)}
                       >
                         {I18NextService.i18n.t(
@@ -181,7 +181,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                         loading={false}
                       />
                       <button
-                        className="btn btn-light border-light-subtle d-block mb-2 w-100"
+                        className="btn btn-light border-light-subtle d-block w-100"
                         onClick={() => handleShowPurgeDialog(this)}
                         aria-label={I18NextService.i18n.t("purge_community")}
                       >
@@ -201,7 +201,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     {this.props.myUserInfo && this.blockCommunity()}
                     {canViewCommunity_ && (
                       <>
-                        <div className="d-block mb-2">
+                        <div className="d-block">
                           <CommunityNotificationsDropdown
                             currentOption={this.state.notifications}
                             onSelect={val =>
@@ -235,7 +235,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     )}
                   </>
                   {!this.props.myUserInfo && (
-                    <div className="alert alert-info" role="alert">
+                    <div className="alert alert-info mb-0" role="alert">
                       <T
                         i18nKey="community_not_logged_in_alert"
                         interpolation={{
@@ -251,7 +251,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
               </section>
             )}
             <section id="sidebarInfo" className="card mb-3">
-              <div className="card-body">
+              <div className="card-body d-flex flex-column gap-2">
                 {posting_restricted_to_mods && (
                   <div
                     className="alert alert-warning text-sm-start text-xs-center"
@@ -268,8 +268,8 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                   </div>
                 )}
                 {this.sidebarMarkdown()}
-                <div>
-                  <div className="fw-semibold mb-1">
+                <div className="d-flex flex-column gap-1">
+                  <div className="fw-semibold">
                     <span className="align-middle">
                       {I18NextService.i18n.t("community_visibility")}:&nbsp;
                     </span>
@@ -277,7 +277,9 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                       {I18NextService.i18n.t(visibilityLabel)}
                     </span>
                   </div>
-                  <p>{I18NextService.i18n.t(visibilityDescription)}</p>
+                  <p className="mb-0">
+                    {I18NextService.i18n.t(visibilityDescription)}
+                  </p>
                 </div>
                 <LanguageList
                   allLanguages={this.props.allLanguages}
@@ -344,19 +346,19 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     }
 
     return (
-      <ul className="list-inline small">
-        <li className="list-inline-item">{I18NextService.i18n.t("mods")}: </li>
+      <div className="d-flex flex-wrap gap-1 small">
+        <span>{I18NextService.i18n.t("mods")}: </span>
         {this.props.moderators.map(mod => (
-          <li key={mod.moderator.id} className="list-inline-item">
+          <span key={mod.moderator.id}>
             <PersonListing
               person={mod.moderator}
               banned={false}
               myUserInfo={this.props.myUserInfo}
               muted={false}
             />
-          </li>
+          </span>
         ))}
-      </ul>
+      </div>
     );
   }
 
@@ -367,7 +369,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
     return (
       !subscribed && (
         <button
-          className="btn btn-danger d-block mb-2 w-100"
+          className="btn btn-danger d-block w-100"
           onClick={() => handleBlock(this)}
         >
           {I18NextService.i18n.t(

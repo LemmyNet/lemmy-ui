@@ -67,7 +67,7 @@ export function multiCommunityLink(
     const serverStr = `@${hostname(multiCommunity.ap_id)}`;
     const link = realLink
       ? multiCommunity.ap_id
-      : `/c/${multiCommunity.name}${serverStr}`;
+      : `/m/${multiCommunity.name}${serverStr}`;
 
     return { link, serverStr };
   }

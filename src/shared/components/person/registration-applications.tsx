@@ -1,4 +1,4 @@
-import { editRegistrationApplication, setIsoData } from "@utils/app";
+import { setIsoData } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
@@ -23,7 +23,11 @@ import {
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
-import { FirstLoadService, I18NextService } from "../../services";
+import {
+  FirstLoadService,
+  I18NextService,
+  UnreadCounterService,
+} from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -251,7 +255,7 @@ export class RegistrationApplications extends Component<
     return {
       listRegistrationApplicationsResponse: headers["Authorization"]
         ? await client.listRegistrationApplications({
-            unread_only: view === "unread",
+            unread_only: registrationStateFromQuery(view) === "unread",
             page_cursor: cursor,
             limit: fetchLimit,
           })
@@ -312,14 +316,14 @@ async function handleApproveApplication(
   const res = await HttpService.client.approveRegistrationApplication(form);
   i.setState({ approveRes: { id: form.id, res } });
 
-  i.setState(s => {
-    if (s.appsRes.state === "success" && res.state === "success") {
-      removeLocalStorageMarkdown();
-      s.appsRes.data.items = editRegistrationApplication(
-        res.data.registration_application,
-        s.appsRes.data.items,
-      );
-    }
-    return s;
-  });
+  if (res.state === "success") {
+    removeLocalStorageMarkdown();
+    UnreadCounterService.Instance.unreadApplicationCount.next(
+      Math.max(
+        0,
+        UnreadCounterService.Instance.unreadApplicationCount.value - 1,
+      ),
+    );
+    await i.refetch(i.props);
+  }
 }

@@ -43,11 +43,14 @@ export function setCacheControl(
 
   // Only allow caching for success responses
   if (res.statusCode >= 200 && res.statusCode < 400) {
-    if (
-      req.path.match(/\.(js|css|txt|manifest\.webmanifest)\/?$/) ||
-      req.path.includes("/css/themelist")
+    if (req.path.startsWith("/static")) {
+      // Static files are immutable as they include a hash in the url. They can get cached for up to a year.
+      caching = "public, max-age=31556952 , immutable";
+    } else if (
+      req.path === "/manifest.webmanifest" ||
+      req.path === "/css/themelist"
     ) {
-      // Static content gets cached publicly for a day
+      // Cache these for a day
       caching = "public, max-age=86400";
     } else {
       res.set("Vary", "Cookie, Accept, Accept-Language");

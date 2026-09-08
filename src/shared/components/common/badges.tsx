@@ -15,7 +15,7 @@ export function CommunityBadges({
   className,
 }: CommunityBadgesProps) {
   return (
-    <ul className={classNames("badges my-1 list-inline", className)}>
+    <div className={classNames("badges d-flex flex-wrap gap-1", className)}>
       <LocalSiteCommunityCommonBadges
         subject={community}
         lessBadges={lessBadges}
@@ -24,7 +24,7 @@ export function CommunityBadges({
         subject={community}
         lessBadges={lessBadges}
       />
-    </ul>
+    </div>
   );
 }
 
@@ -40,20 +40,20 @@ export function MultiCommunityBadges({
   className,
 }: MultiCommunityBadgesProps) {
   return (
-    <ul className={classNames("badges my-1 list-inline", className)}>
+    <div className={classNames("badges d-flex flex-wrap gap-1", className)}>
       <MultiCommunityCommunityCommonBadges
         subject={multiCommunity}
         lessBadges={lessBadges}
       />
       {!lessBadges && (
-        <li className="list-inline-item badge text-bg-light">
+        <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_communities", {
             count: Number(multiCommunity.communities),
             formattedCount: numToSI(multiCommunity.communities),
           })}
-        </li>
+        </span>
       )}
-    </ul>
+    </div>
   );
 }
 
@@ -69,28 +69,28 @@ export function LocalSiteBadges({
   className,
 }: LocalSiteBadgesProps) {
   return (
-    <ul className={classNames("badges my-1 list-inline", className)}>
+    <div className={classNames("badges d-flex flex-wrap gap-1", className)}>
       <LocalSiteCommunityCommonBadges
         subject={localSite}
         lessBadges={lessBadges}
       />
       {!lessBadges && (
         <>
-          <li className="list-inline-item badge text-bg-light">
+          <span className="badge text-bg-light">
             {I18NextService.i18n.t("number_of_users", {
               count: Number(localSite.users),
               formattedCount: numToSI(localSite.users),
             })}
-          </li>
-          <li className="list-inline-item badge text-bg-light">
+          </span>
+          <span className="badge text-bg-light">
             {I18NextService.i18n.t("number_of_communities", {
               count: Number(localSite.communities),
               formattedCount: numToSI(localSite.communities),
             })}
-          </li>
+          </span>
         </>
       )}
-    </ul>
+    </div>
   );
 }
 
@@ -105,8 +105,8 @@ function LocalSiteCommunityCommonBadges({
   return (
     !lessBadges && (
       <>
-        <li
-          className="list-inline-item badge text-bg-light pointer"
+        <span
+          className="badge text-bg-light pointer"
           data-tippy-content={I18NextService.i18n.t(
             "active_users_in_the_last_day",
             {
@@ -120,9 +120,9 @@ function LocalSiteCommunityCommonBadges({
             formattedCount: numToSI(subject.users_active_day),
           })}{" "}
           / {I18NextService.i18n.t("day")}
-        </li>
-        <li
-          className="list-inline-item badge text-bg-light pointer"
+        </span>
+        <span
+          className="badge text-bg-light pointer"
           data-tippy-content={I18NextService.i18n.t(
             "active_users_in_the_last_week",
             {
@@ -136,9 +136,9 @@ function LocalSiteCommunityCommonBadges({
             formattedCount: numToSI(subject.users_active_week),
           })}{" "}
           / {I18NextService.i18n.t("week")}
-        </li>
-        <li
-          className="list-inline-item badge text-bg-light pointer"
+        </span>
+        <span
+          className="badge text-bg-light pointer"
           data-tippy-content={I18NextService.i18n.t(
             "active_users_in_the_last_month",
             {
@@ -152,9 +152,9 @@ function LocalSiteCommunityCommonBadges({
             formattedCount: numToSI(subject.users_active_month),
           })}{" "}
           / {I18NextService.i18n.t("month")}
-        </li>
-        <li
-          className="list-inline-item badge text-bg-light pointer"
+        </span>
+        <span
+          className="badge text-bg-light pointer"
           data-tippy-content={I18NextService.i18n.t(
             "active_users_in_the_last_six_months",
             {
@@ -172,19 +172,19 @@ function LocalSiteCommunityCommonBadges({
             count: 6,
             formattedCount: 6,
           })}
-        </li>
-        <li className="list-inline-item badge text-bg-light">
+        </span>
+        <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_posts", {
             count: Number(subject.posts),
             formattedCount: numToSI(subject.posts),
           })}
-        </li>
-        <li className="list-inline-item badge text-bg-light">
+        </span>
+        <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_comments", {
             count: Number(subject.comments),
             formattedCount: numToSI(subject.comments),
           })}
-        </li>
+        </span>
       </>
     )
   );
@@ -201,18 +201,18 @@ function MultiCommunityCommunityCommonBadges({
   return (
     !lessBadges && (
       <>
-        <li className="list-inline-item badge text-bg-light">
+        <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_local_subscribers", {
             count: Number(subject.subscribers_local),
             formattedCount: numToSI(subject.subscribers_local),
           })}
-        </li>
-        <li className="list-inline-item badge text-bg-light">
+        </span>
+        <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_subscribers", {
             count: Number(subject.subscribers),
             formattedCount: numToSI(subject.subscribers),
           })}
-        </li>
+        </span>
       </>
     )
   );
