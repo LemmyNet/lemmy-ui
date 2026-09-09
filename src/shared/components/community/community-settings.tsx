@@ -159,32 +159,18 @@ export class CommunitySettings extends Component<RouteProps, State> {
   }
 
   fetchCommunityToken?: symbol;
-  async fetchData(props: RouteProps) {
+  async fetchCommunity(props: RouteProps) {
     const token = (this.fetchCommunityToken = Symbol());
-    this.setState({
-      communityRes: LOADING_REQUEST,
-      followersRes: LOADING_REQUEST,
-    });
-
+    this.setState({ communityRes: LOADING_REQUEST });
     const name = decodeURIComponent(props.match.params.name);
-
     const communityRes = await HttpService.client.getCommunity({
       name,
     });
-    if (token !== this.fetchCommunityToken) return;
-
-    const followersRes =
-      communityRes.state === "success"
-        ? await HttpService.client.listPersons({
-            community_id: communityRes.data.community_view.community.id,
-            limit: fetchLimit,
-          })
-        : EMPTY_REQUEST;
     if (token === this.fetchCommunityToken) {
-      this.setState({ communityRes, followersRes });
+      this.setState({ communityRes });
     }
   }
-  async fetchFollowersOnly() {
+  async fetchFollowers() {
     this.setState({
       followersRes: LOADING_REQUEST,
     });
@@ -201,7 +187,8 @@ export class CommunitySettings extends Component<RouteProps, State> {
 
   async componentWillMount() {
     if (!this.state.isIsomorphic && isBrowser()) {
-      await this.fetchData(this.props);
+      await this.fetchCommunity(this.props);
+      await this.fetchFollowers();
     }
   }
 
@@ -212,7 +199,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
       bareRoutePush(this.props, nextProps) ||
       this.props.match.params.name !== nextProps.match.params.name
     ) {
-      await this.fetchData(nextProps);
+      await this.fetchCommunity(nextProps);
     }
   }
 
@@ -722,7 +709,7 @@ async function handleFollowersPageChange(
   cursor?: PaginationCursor,
 ) {
   i.setState({ followersCursor: cursor });
-  await i.fetchFollowersOnly();
+  await i.fetchFollowers();
 }
 
 async function handleDeleteCommunity(i: CommunitySettings, deleted: boolean) {
@@ -811,7 +798,7 @@ async function handleCreateTag(i: CommunitySettings, form: CreateCommunityTag) {
   if (res.state === "success") {
     toast(I18NextService.i18n.t("community_tag_created"));
     // Need to refetch community to update tags
-    await i.fetchData(i.props);
+    await i.fetchCommunity(i.props);
   } else if (res.state === "failed") {
     toast(I18NextService.i18n.t(res.err.name as NoOptionI18nKeys), "danger");
   }
@@ -827,7 +814,7 @@ async function handleEditTag(i: CommunitySettings, form: EditCommunityTag) {
   });
 
   // Need to refetch community to update tags
-  await i.fetchData(i.props);
+  await i.fetchCommunity(i.props);
 
   if (res.state === "success") {
     toast(I18NextService.i18n.t("community_tag_edited"));
@@ -844,7 +831,7 @@ async function handleDeleteTag(i: CommunitySettings, form: DeleteCommunityTag) {
   if (res.state === "success") {
     toast(I18NextService.i18n.t("community_tag_deleted"));
     // Need to refetch community to update tags
-    await i.fetchData(i.props);
+    await i.fetchCommunity(i.props);
   }
 }
 
