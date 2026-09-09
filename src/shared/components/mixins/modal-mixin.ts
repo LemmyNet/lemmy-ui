@@ -26,6 +26,9 @@ export function modalMixin<
     }
 
     async componentDidMount() {
+      this.handleHide = this.handleHide?.bind(this) as (() => void) | undefined;
+      this.handleShow = this.handleShow?.bind(this) as (() => void) | undefined;
+
       // Keeping this sync to allow the super implementation to be sync
       await import("bootstrap/js/dist/modal").then(
         (res: { default: typeof Modal }) => {
