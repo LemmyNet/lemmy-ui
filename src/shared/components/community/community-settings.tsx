@@ -150,8 +150,8 @@ export class CommunitySettings extends Component<RouteProps, State> {
       if (followersRes && communityRes) {
         this.state = {
           ...this.state,
-          communityRes: communityRes,
-          followersRes: followersRes,
+          communityRes,
+          followersRes,
           isIsomorphic: true,
         };
       }
