@@ -115,6 +115,70 @@ export type CommunitySettingsFetchConfig = IRoutePropsWithFetch<
   Props
 >;
 
+type FollowersListProps = {
+  followers: PersonView[];
+  myUserInfo?: MyUserInfo;
+};
+
+function FollowersList({ followers, myUserInfo }: FollowersListProps) {
+  const nameCols = "col-6 col-md-3";
+  const dataCols = "col-6 col-md-2";
+  return (
+    <div id="users-table">
+      <div className="d-none d-md-block">
+        <div className="row">
+          <div className={`${nameCols} fw-bold`}>
+            {I18NextService.i18n.t("username")}
+          </div>
+          <div className={`${dataCols} fw-bold`}>
+            {I18NextService.i18n.t("registered_date_title")}
+          </div>
+          <div className={`${dataCols} fw-bold`}>
+            {I18NextService.i18n.t("followed_date_title")}
+          </div>
+        </div>
+        <TableHr />
+      </div>
+      {followers.map(person => (
+        <>
+          <div className="row" key={person.person.id}>
+            <ResponsiveTableRowHeader title={"username"} />
+            <div className={nameCols}>
+              <PersonListing
+                person={person.person}
+                banned={person.banned}
+                myUserInfo={myUserInfo}
+                muted={false}
+              />
+              <UserBadges
+                classNames="ms-1"
+                isBanned={person.banned}
+                isBannedFromCommunity={
+                  person.community_actions?.received_ban_at !== undefined
+                }
+                creator={person.person}
+              />
+            </div>
+            <ResponsiveTableRowHeader title={"registered_date_title"} />
+            <div className={dataCols}>
+              <MomentTime published={person.person.published_at} />
+            </div>
+            <ResponsiveTableRowHeader title={"followed_date_title"} />
+            <div className={dataCols}>
+              {person.community_actions?.followed_at ? (
+                <MomentTime published={person.community_actions.followed_at} />
+              ) : (
+                <span className="text-muted">-</span>
+              )}
+            </div>
+          </div>
+          <hr key={person.person.id + "hr"} />
+        </>
+      ))}
+    </div>
+  );
+}
+
 @scrollMixin
 @tippyMixin
 export class CommunitySettings extends Component<RouteProps, State> {
@@ -246,71 +310,18 @@ export class CommunitySettings extends Component<RouteProps, State> {
           </h5>
         );
       case "success": {
-        const followers_persons = this.state.followersRes.data.items;
-        const nameCols = "col-6 col-md-3";
-        const dataCols = "col-6 col-md-2";
         return (
-          <div id="users-table">
-            <div className="d-none d-md-block">
-              <div className="row">
-                <div className={`${nameCols} fw-bold`}>
-                  {I18NextService.i18n.t("username")}
-                </div>
-                <div className={`${dataCols} fw-bold`}>
-                  {I18NextService.i18n.t("registered_date_title")}
-                </div>
-                <div className={`${dataCols} fw-bold`}>
-                  {I18NextService.i18n.t("followed_date_title")}
-                </div>
-              </div>
-              <TableHr />
-            </div>
-            {followers_persons.map(person => (
-              <>
-                <div className="row" key={person.person.id}>
-                  <ResponsiveTableRowHeader title={"username"} />
-                  <div className={nameCols}>
-                    <PersonListing
-                      person={person.person}
-                      banned={person.banned}
-                      myUserInfo={this.isoData.myUserInfo}
-                      muted={false}
-                    />
-                    <UserBadges
-                      classNames="ms-1"
-                      isBanned={person.banned}
-                      isBannedFromCommunity={
-                        person.community_actions?.received_ban_at !== undefined
-                      }
-                      // hided since data is not related to community, to any general person activity
-                      // myUserInfo={this.isoData.myUserInfo}
-                      creator={person.person}
-                    />
-                  </div>
-                  <ResponsiveTableRowHeader title={"registered_date_title"} />
-                  <div className={dataCols}>
-                    <MomentTime published={person.person.published_at} />
-                  </div>
-                  <ResponsiveTableRowHeader title={"followed_date_title"} />
-                  <div className={dataCols}>
-                    {person.community_actions?.followed_at ? (
-                      <MomentTime
-                        published={person.community_actions.followed_at}
-                      />
-                    ) : (
-                      <span className="text-muted">-</span>
-                    )}
-                  </div>
-                </div>
-                <hr key={person.person.id + "hr"} />
-              </>
-            ))}
+          <>
+            <FollowersList
+              followers={this.state.followersRes.data.items}
+              myUserInfo={this.isoData.myUserInfo}
+            />
             <PaginatorCursor
               current={this.state.followersCursor}
               resource={this.state.followersRes}
               onPageChange={cursor => handleFollowersPageChange(this, cursor)}
             />
-          </div>
+          </>
         );
       }
       default:
