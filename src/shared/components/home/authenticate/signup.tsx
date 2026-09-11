@@ -525,6 +525,7 @@ function extractInviteToken(i: Signup) {
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token") ?? undefined;
   if (token && i.state.form.token !== token) {
-    i.setState(s => ({ ...s, form: { ...s.form, token } }));
+    i.state.form.token = token;
+    i.setState(i.state);
   }
 }

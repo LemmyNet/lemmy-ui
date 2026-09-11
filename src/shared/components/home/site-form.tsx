@@ -387,10 +387,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 min={0}
                 value={this.state.siteForm.max_invites_per_user_allowed ?? 0}
                 onInput={e =>
-                  handleMaxInvitesPerUserChange(
-                    this,
-                    Number(e.target.value) || 0,
-                  )
+                  handleMaxInvitesPerUserChange(this, e.target.value)
                 }
               />
               <small className="form-text text-body-secondary">
@@ -899,8 +896,10 @@ function handleSiteEnableNsfwChange(i: SiteForm, val: boolean) {
   i.setState(newState);
 }
 
-function handleMaxInvitesPerUserChange(i: SiteForm, val: number) {
-  i.setState(s => ((s.siteForm.max_invites_per_user_allowed = val), s));
+function handleMaxInvitesPerUserChange(i: SiteForm, val: string) {
+  i.setState(
+    s => ((s.siteForm.max_invites_per_user_allowed = Number(val) || 0), s),
+  );
 }
 
 function handleSiteRegistrationModeChange(i: SiteForm, val: RegistrationMode) {
