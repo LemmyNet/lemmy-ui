@@ -69,7 +69,6 @@ type CommentNodeState = {
   collapsed: boolean;
   viewSource: boolean;
   showAdvanced: boolean;
-  viewerjss: Viewer[];
 };
 
 type CommentNodeProps = {
@@ -132,7 +131,6 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     collapsed: this.initCommentCollapsed(),
     viewSource: false,
     showAdvanced: false,
-    viewerjss: [],
   };
 
   componentWillReceiveProps(
@@ -197,27 +195,28 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     }
   }
 
-  loadViewerJsForImages(setState: boolean = true) {
-    // Load the viewer for every image in the comment
+  viewerjss: Viewer[] = [];
+
+  loadViewerJsForImages() {
+    this.unloadViewerJs();
     const id = this.commentView.comment.id;
     const images = document.querySelectorAll(
       `#comment-${id} > div > div.comment-content > div > p > img`,
     );
-    const viewerjss: Viewer[] = [];
+    // Load the viewer for every image in the comment
     images.forEach((i: HTMLElement) => {
-      const viewer = new Viewer(i, {
-        url: (image: { src: string }) => viewerJsFullSizeImageUrl(image),
-        toolbar: false,
-      });
-      viewerjss.push(viewer);
+      this.viewerjss.push(
+        new Viewer(i, {
+          url: (image: { src: string }) => viewerJsFullSizeImageUrl(image),
+          toolbar: false,
+        }),
+      );
     });
-    if (setState) {
-      this.setState({ viewerjss });
-    }
   }
 
   unloadViewerJs() {
-    this.state.viewerjss.forEach(v => v.destroy());
+    this.viewerjss.forEach(v => v.destroy());
+    this.viewerjss = [];
   }
 
   componentWillUnmount() {
@@ -229,7 +228,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   }
 
   componentDidUpdate() {
-    this.loadViewerJsForImages(false);
+    this.loadViewerJsForImages();
   }
 
   render() {
