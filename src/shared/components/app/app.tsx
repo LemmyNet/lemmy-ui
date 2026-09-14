@@ -97,7 +97,11 @@ export default class App extends Component<AppProps, object> {
 
           return (
             <ErrorGuard>
-              <div tabIndex={-1} ref={this.contentRef}>
+              <div
+                tabIndex={-1}
+                ref={this.contentRef}
+                className="d-flex flex-column fl-1"
+              >
                 {RouteComponent &&
                   (isAuthPath(path ?? "") ? (
                     <AuthGuard
@@ -154,7 +158,7 @@ export default class App extends Component<AppProps, object> {
               />
             )}
             <Navbar siteRes={siteRes} myUserInfo={this.isoData.myUserInfo} />
-            <main className="mt-4 p-0 fl-1">
+            <main className="mt-4 p-0 fl-1 d-flex flex-column">
               <Switch>
                 {this.routes}
                 <Route component={ErrorPage} />
