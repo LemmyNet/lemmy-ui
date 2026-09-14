@@ -71,6 +71,7 @@ import { PostSortDropdown, CommentSortDropdown } from "../common/sort-dropdown";
 import Tabs from "../common/tabs";
 import { CommunityLink } from "../community/community-link";
 import { PersonListing } from "./person-listing";
+import { Invites } from "./invites";
 import { InitialFetchRequest } from "@utils/types";
 import TotpModal from "../common/modal/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
@@ -398,6 +399,16 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               label: I18NextService.i18n.t("blocks"),
               getNode: s => this.blockCards(s),
             },
+            ...(this.isoData.siteRes.site_view.local_site.registration_mode ===
+            "require_invitation"
+              ? [
+                  {
+                    key: "invites",
+                    label: I18NextService.i18n.t("invites"),
+                    getNode: (s: boolean) => this.invitesTab(s),
+                  },
+                ]
+              : []),
           ]}
         />
       </div>
@@ -487,6 +498,27 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </div>
         </div>
       )
+    );
+  }
+
+  invitesTab(isSelected: boolean) {
+    if (userNotLoggedInOrBanned(this.isoData.myUserInfo)) {
+      return null;
+    }
+    return (
+      <div
+        className={classNames("tab-pane", {
+          active: isSelected,
+        })}
+        role="tabpanel"
+        id="invites-tab-pane"
+      >
+        <div className="row">
+          <div className="col-12">
+            <Invites siteRes={this.isoData.siteRes} />
+          </div>
+        </div>
+      </div>
     );
   }
 
