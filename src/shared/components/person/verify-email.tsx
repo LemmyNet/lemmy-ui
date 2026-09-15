@@ -1,5 +1,5 @@
 import { setIsoData } from "@utils/app";
-import { Component, linkEvent } from "inferno";
+import { Component } from "inferno";
 import { SuccessResponse } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import {
@@ -30,9 +30,6 @@ export class VerifyEmail extends Component<
   };
 
   async verify() {
-    if (this.state.verifyRes.state === "loading") {
-      return;
-    }
     this.setState({
       verifyRes: LOADING_REQUEST,
     });
@@ -53,13 +50,13 @@ export class VerifyEmail extends Component<
     }
   }
 
-  componentDidMount() {
-    void this.verify();
+  async componentDidMount() {
+    await this.verify();
   }
 
-  handleRetry(this: void, i: VerifyEmail) {
-    void i.verify();
-  }
+  handleRetry = async () => {
+    await this.verify();
+  };
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("verify_email")} - ${
@@ -125,7 +122,7 @@ export class VerifyEmail extends Component<
             <button
               type="button"
               className="btn btn-primary"
-              onClick={linkEvent(this, this.handleRetry)}
+              onClick={this.handleRetry}
             >
               {I18NextService.i18n.t("email_verification_retry")}
             </button>
