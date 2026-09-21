@@ -13,7 +13,7 @@ ENV npm_config_target_platform=linux
 ENV npm_config_target_libc=musl
 
 # Cache deps
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm i --prefer-offline
 
 # Build
