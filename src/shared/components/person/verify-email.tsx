@@ -4,6 +4,7 @@ import { SuccessResponse } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import {
   EMPTY_REQUEST,
+  FailedRequestState,
   HttpService,
   LOADING_REQUEST,
   RequestState,
@@ -37,12 +38,7 @@ export class VerifyEmail extends Component<
     const verifyRes = await HttpService.client.verifyEmail({
       token: this.props.match.params.token,
     });
-    this.setState({
-      verifyRes:
-        verifyRes.state === "empty"
-          ? { state: "failed", err: new Error("empty_response") }
-          : verifyRes,
-    });
+    this.setState({ verifyRes });
 
     if (verifyRes.state === "success") {
       toast(I18NextService.i18n.t("email_verified"));
@@ -54,9 +50,9 @@ export class VerifyEmail extends Component<
     await this.verify();
   }
 
-  handleRetry = async () => {
-    await this.verify();
-  };
+  async handleRetry(i: VerifyEmail) {
+    await i.verify();
+  }
 
   get documentTitle(): string {
     return `${I18NextService.i18n.t("verify_email")} - ${
@@ -80,19 +76,14 @@ export class VerifyEmail extends Component<
               </h5>
             )}
             {this.state.verifyRes.state === "failed" &&
-              this.verificationError()}
+              this.verificationError(this.state.verifyRes)}
           </div>
         </div>
       </div>
     );
   }
 
-  verificationError() {
-    const { verifyRes } = this.state;
-    if (verifyRes.state !== "failed") {
-      return;
-    }
-
+  verificationError(verifyRes: FailedRequestState) {
     // Tokens are deleted after verification, so the API cannot distinguish an
     // already used link from an invalid one. Do not claim the account is verified.
     const unavailable = verifyRes.err.name === "not_found";
@@ -122,7 +113,7 @@ export class VerifyEmail extends Component<
             <button
               type="button"
               className="btn btn-primary"
-              onClick={this.handleRetry}
+              onClick={() => this.handleRetry(this)}
             >
               {I18NextService.i18n.t("email_verification_retry")}
             </button>
