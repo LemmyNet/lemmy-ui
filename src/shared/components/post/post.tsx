@@ -1076,11 +1076,9 @@ export class Post extends Component<PostRouteProps, PostState> {
 
         comments.splice(foundCommentParentIndex + 1, 0, newComment);
       }
-      // The server updates the post's comment count before building the
-      // mutation response, so sync it here to keep the header count fresh.
+      // Sync the refreshed post (count, edits) from the mutation response.
       if (s.postRes.state === "success" && res.state === "success") {
-        s.postRes.data.post_view.post.comments =
-          res.data.comment_view.post.comments;
+        s.postRes.data.post_view.post = res.data.comment_view.post;
       }
       return s;
     });
@@ -1113,11 +1111,9 @@ export class Post extends Component<PostRouteProps, PostState> {
           s.commentsRes.data.items,
         );
       }
-      // The server updates the post's comment count before building the
-      // mutation response, so sync it here to keep the header count fresh.
+      // Sync the refreshed post (count, edits) from the mutation response.
       if (s.postRes.state === "success" && res.state === "success") {
-        s.postRes.data.post_view.post.comments =
-          res.data.comment_view.post.comments;
+        s.postRes.data.post_view.post = res.data.comment_view.post;
       }
       return s;
     });
