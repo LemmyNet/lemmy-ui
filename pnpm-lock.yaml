@@ -251,7 +251,7 @@ importers:
         version: 14.1.2
       '@types/markdown-it-container':
         specifier: ^4.0.0
-        version: 4.0.0
+        version: 4.0.1
       '@types/masonry-layout':
         specifier: ^4.2.8
         version: 4.2.8
@@ -1718,8 +1718,8 @@ packages:
   '@types/linkify-it@5.0.0':
     resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
 
-  '@types/markdown-it-container@4.0.0':
-    resolution: {integrity: sha512-GmD8OECLfzPHv8VyvFRzslqdwXoDBJ2H40fxXFjrarbqvJZSB/BJKZXN5e3k7Mx7GQanSNzTYhzeS3H9o0gAOw==}
+  '@types/markdown-it-container@4.0.1':
+    resolution: {integrity: sha512-lGoaXzFY51sfUiBZ+L9V7n/Ah2q/46G2MGERUXN/4Djq0aCFOEUxysC8xftAdf5EdnvKfb2QkQnGNMoaKwjI1Q==}
 
   '@types/markdown-it@14.1.2':
     resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
@@ -6933,7 +6933,7 @@ snapshots:
 
   '@types/linkify-it@5.0.0': {}
 
-  '@types/markdown-it-container@4.0.0':
+  '@types/markdown-it-container@4.0.1':
     dependencies:
       '@types/markdown-it': 14.1.2
 
