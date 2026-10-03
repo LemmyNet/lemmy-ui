@@ -1076,6 +1076,10 @@ export class Post extends Component<PostRouteProps, PostState> {
 
         comments.splice(foundCommentParentIndex + 1, 0, newComment);
       }
+      // Sync the refreshed post (count, edits) from the mutation response.
+      if (s.postRes.state === "success" && res.state === "success") {
+        s.postRes.data.post_view.post = res.data.comment_view.post;
+      }
       return s;
     });
     if (res.state === "failed") {
@@ -1106,6 +1110,10 @@ export class Post extends Component<PostRouteProps, PostState> {
           res.data.comment_view,
           s.commentsRes.data.items,
         );
+      }
+      // Sync the refreshed post (count, edits) from the mutation response.
+      if (s.postRes.state === "success" && res.state === "success") {
+        s.postRes.data.post_view.post = res.data.comment_view.post;
       }
       return s;
     });
