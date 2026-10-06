@@ -35,10 +35,19 @@ export function Icon({ icon, classes, inline, small }: IconProps) {
 
 type SpinnerProps = {
   large?: boolean;
+  centered?: boolean;
   className?: string;
 };
 
-export function Spinner({ large, className }: SpinnerProps) {
+export function Spinner({ large, centered, className }: SpinnerProps) {
+  if (centered) {
+    return (
+      <div className="d-flex align-items-center justify-content-center py-4 my-2">
+        <Spinner large={large} className={className} />
+      </div>
+    );
+  }
+
   return (
     <Icon
       icon="spinner"

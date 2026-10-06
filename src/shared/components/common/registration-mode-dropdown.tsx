@@ -3,6 +3,7 @@ import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
 
 const options: FilterOption<RegistrationMode>[] = [
   { value: "require_application", i18n: "require_registration_application" },
+  { value: "require_invitation", i18n: "require_registration_invitation" },
   { value: "open", i18n: "open_registration" },
   { value: "closed", i18n: "close_registration" },
 ];

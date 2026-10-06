@@ -9,6 +9,7 @@ import {
   SiteView,
 } from "lemmy-js-client";
 import { validActorRegexPattern } from "@utils/config";
+import { NoOptionI18nKeys } from "i18next";
 import { I18NextService } from "@services/I18NextService";
 import { UserService } from "@services/UserService";
 import {
@@ -45,6 +46,7 @@ interface State {
     honeypot?: string;
     answer?: string;
     stay_logged_in: boolean;
+    token?: string;
   };
   captchaPlaying: boolean;
 }
@@ -79,8 +81,11 @@ export class Signup extends Component<SignupRouteProps, State> {
   }
 
   async componentWillMount() {
-    if (this.isoData.siteRes?.captcha_enabled && isBrowser()) {
-      await this.fetchCaptcha();
+    if (isBrowser()) {
+      extractInviteToken(this);
+      if (this.isoData.siteRes?.captcha_enabled) {
+        await this.fetchCaptcha();
+      }
     }
   }
 
@@ -207,6 +212,7 @@ export class Signup extends Component<SignupRouteProps, State> {
           getSiteRes={this.isoData.siteRes}
           onAnswerChange={answer => handleAnswerChange(this, answer)}
         />
+        {this.renderInviteTokenInput(siteView)}
         {this.renderCaptcha()}
         <RegistrationLegalInfo siteView={siteView} />
         <RegistrationCheckboxes
@@ -233,7 +239,7 @@ export class Signup extends Component<SignupRouteProps, State> {
   renderCaptcha(): InfernoNode | void {
     switch (this.state.captchaRes.state) {
       case "loading":
-        return <Spinner />;
+        return <Spinner large centered />;
       case "success": {
         const res = this.state.captchaRes.data;
         return (
@@ -266,6 +272,33 @@ export class Signup extends Component<SignupRouteProps, State> {
         );
       }
     }
+  }
+
+  renderInviteTokenInput(siteView?: SiteView) {
+    const isRequireInvitation =
+      siteView?.local_site.registration_mode === "require_invitation";
+    const hasTokenInState = !!this.state.form.token;
+
+    return isRequireInvitation || hasTokenInState ? (
+      <div className="mb-3 row">
+        <label
+          className="col-sm-2 col-form-label"
+          htmlFor="register-invite-token"
+        >
+          {I18NextService.i18n.t("invite_token")}
+        </label>
+        <div className="col-sm-10">
+          <input
+            type="text"
+            id="register-invite-token"
+            className="form-control font-monospace"
+            value={this.state.form.token ?? ""}
+            onInput={e => handleInviteTokenChange(this, e)}
+            required={isRequireInvitation}
+          />
+        </div>
+      </div>
+    ) : undefined;
   }
 
   showCaptcha(res: GetCaptchaResponse) {
@@ -332,10 +365,14 @@ async function handleRegisterSubmit(
       honeypot,
       answer,
       stay_logged_in,
+      token: i.state.form.token,
     });
     switch (registerRes.state) {
       case "failed": {
-        toast(registerRes.err.name, "danger");
+        toast(
+          I18NextService.i18n.t(registerRes.err.name as NoOptionI18nKeys),
+          "danger",
+        );
         i.setState({ registerRes: EMPTY_REQUEST });
         break;
       }
@@ -437,6 +474,14 @@ function handleHoneyPotChange(i: Signup, value: string) {
   i.setState(i.state);
 }
 
+function handleInviteTokenChange(
+  i: Signup,
+  event: FormEvent<HTMLInputElement>,
+) {
+  i.state.form.token = event.target.value.trim();
+  i.setState(i.state);
+}
+
 async function handleRegenCaptcha(i: Signup) {
   i.audio = undefined;
   i.setState({ captchaPlaying: false });
@@ -474,4 +519,13 @@ export function signupTitleName(siteView?: SiteView): string {
   return I18NextService.i18n.t(
     siteView?.local_site.private_instance ? "apply_to_join" : "sign_up",
   );
+}
+
+function extractInviteToken(i: Signup) {
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get("token") ?? undefined;
+  if (token && i.state.form.token !== token) {
+    i.state.form.token = token;
+    i.setState(i.state);
+  }
 }
