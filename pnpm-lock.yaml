@@ -306,6 +306,9 @@ importers:
       lint-staged:
         specifier: ^17.0.0
         version: 17.0.8
+      markdown-it-cjk-friendly:
+        specifier: ^3.0.0
+        version: 3.0.0(@types/markdown-it@14.1.2)(markdown-it@14.2.0)
       prettier:
         specifier: ^3.6.2
         version: 3.9.9
@@ -3716,6 +3719,16 @@ packages:
 
   markdown-it-bidi@0.2.0:
     resolution: {integrity: sha512-7vm0gsynh8I1wcz5zD/Z2pWRbn/99HFlF9qfoH1u0bmdcOVSi+X4PCINujz+VqPVIbg/9q2wCFCdqMKLL3y7nQ==}
+
+  markdown-it-cjk-friendly@3.0.0:
+    resolution: {integrity: sha512-y4OkqwenFXmb1i3w7qfh9E60qNX6U4KzECke8N/7io9SARFSvbR/wde0q/l6/Az9doieLOIw7ZsbDSgl27DR4g==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/markdown-it': '>=14.2.0'
+      markdown-it: '*'
+    peerDependenciesMeta:
+      '@types/markdown-it':
+        optional: true
 
   markdown-it-container@4.0.0:
     resolution: {integrity: sha512-HaNccxUH0l7BNGYbFbjmGpf5aLHAMTinqRZQAEQbMr2cdD3z91Q6kIo1oUn1CQndkT03jat6ckrdRYuwwqLlQw==}
@@ -9298,6 +9311,13 @@ snapshots:
       sourcemap-codec: 1.4.8
 
   markdown-it-bidi@0.2.0: {}
+
+  markdown-it-cjk-friendly@3.0.0(@types/markdown-it@14.1.2)(markdown-it@14.2.0):
+    dependencies:
+      get-east-asian-width: 1.6.0
+      markdown-it: 14.2.0
+    optionalDependencies:
+      '@types/markdown-it': 14.1.2
 
   markdown-it-container@4.0.0: {}
 
