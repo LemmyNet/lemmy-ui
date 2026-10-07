@@ -139,6 +139,7 @@
     "husky": "^9.1.5",
     "import-sort-style-module": "^6.0.0",
     "lint-staged": "^17.0.0",
+    "markdown-it-cjk-friendly": "^3.0.0",
     "prettier": "^3.6.2",
     "prettier-plugin-import-sort": "^0.0.7",
     "prettier-plugin-organize-imports": "^4.2.0",
