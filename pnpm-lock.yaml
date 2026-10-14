@@ -126,8 +126,8 @@ importers:
         specifier: 1.0.0-list-community-followers.2
         version: 1.0.0-list-community-followers.2
       markdown-it:
-        specifier: ^14.1.0
-        version: 14.2.0
+        specifier: ^14.3.2
+        version: 14.3.2
       markdown-it-bidi:
         specifier: ^0.2.0
         version: 0.2.0
@@ -145,7 +145,7 @@ importers:
         version: 4.3.0
       markdown-it-html5-media:
         specifier: ^0.8.0
-        version: 0.8.0(markdown-it@14.2.0)
+        version: 0.8.0(markdown-it@14.3.2)
       markdown-it-link-attributes:
         specifier: ^4.0.1
         version: 4.0.1
@@ -308,7 +308,7 @@ importers:
         version: 17.0.8
       markdown-it-cjk-friendly:
         specifier: ^3.0.0
-        version: 3.0.0(@types/markdown-it@14.1.2)(markdown-it@14.2.0)
+        version: 3.0.0(@types/markdown-it@14.1.2)(markdown-it@14.3.2)
       prettier:
         specifier: ^3.6.2
         version: 3.9.9
@@ -3670,8 +3670,8 @@ packages:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
 
-  linkify-it@5.0.1:
-    resolution: {integrity: sha512-wVoTjP4Q6R0NW5hiZkVJaFZPWgtXfoGF+6LucL3/FtiNjmcHhYjEr5f1Kqjirc1nBW07J/ZuRFumqr2oqccEWg==}
+  linkify-it@5.0.2:
+    resolution: {integrity: sha512-ONTm2jCMAVZjgQa/Fy1kScXsuOoF5NPTsoFBdE1KVIZ2vAh/r9+Bqo+0jINCBYnavTPQZz38QzFTme79ENoN3Q==}
 
   lint-staged@17.0.8:
     resolution: {integrity: sha512-B2P/d+jVW0UXOQ0MVMLrB/9ydA1P+zz6jYfdrbbEd9ur3S2rcbduFWKiUCC02Sm5hbC8nrm7y24WuYMG54HfxA==}
@@ -3760,8 +3760,8 @@ packages:
   markdown-it-sup@2.0.0:
     resolution: {integrity: sha512-5VgmdKlkBd8sgXuoDoxMpiU+BiEt3I49GItBzzw7Mxq9CxvnhE/k09HFli09zgfFDRixDQDfDxi0mgBCXtaTvA==}
 
-  markdown-it@14.2.0:
-    resolution: {integrity: sha512-1TGiQiJVRQ3NPmZH6sx5Cfnmg6GQm9jvC1ch4TK511NjSJvjzKLzn5pPfZRNZkRPZP0HqCioSndqH8v2nRaWVQ==}
+  markdown-it@14.3.2:
+    resolution: {integrity: sha512-sHHjZ5fJKlgrG4qns2YwVcdNep35h5fERrfkD2YNsb9UFk0UIHarbiTaHKVMlPuWAoiilyK8Fv/jAm11slsY7Q==}
     hasBin: true
 
   masonry-layout@4.2.2:
@@ -3771,8 +3771,8 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  mdurl@2.0.0:
-    resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
+  mdurl@2.1.0:
+    resolution: {integrity: sha512-1+HBaOx0zi/dQWht8rNv9MYf9qqpqL/kxI0hXImU6Y547zM6Sni8BQibt7ifgMcYtQg41ao3Ivd6cnSM86inpg==}
 
   media-typer@0.3.0:
     resolution: {integrity: sha512-dq+qelQ9akHpcOl/gUVRTxVIOkAJ1wR3QAvb4RsVjS8oVoFjDGTc679wJYmUmknUF5HwMLOgb5O+a3KxfWapPQ==}
@@ -9255,7 +9255,7 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  linkify-it@5.0.1:
+  linkify-it@5.0.2:
     dependencies:
       uc.micro: 2.1.0
 
@@ -9312,10 +9312,10 @@ snapshots:
 
   markdown-it-bidi@0.2.0: {}
 
-  markdown-it-cjk-friendly@3.0.0(@types/markdown-it@14.1.2)(markdown-it@14.2.0):
+  markdown-it-cjk-friendly@3.0.0(@types/markdown-it@14.1.2)(markdown-it@14.3.2):
     dependencies:
       get-east-asian-width: 1.6.0
-      markdown-it: 14.2.0
+      markdown-it: 14.3.2
     optionalDependencies:
       '@types/markdown-it': 14.1.2
 
@@ -9329,9 +9329,9 @@ snapshots:
     dependencies:
       highlight.js: 11.11.1
 
-  markdown-it-html5-media@0.8.0(markdown-it@14.2.0):
+  markdown-it-html5-media@0.8.0(markdown-it@14.3.2):
     dependencies:
-      markdown-it: 14.2.0
+      markdown-it: 14.3.2
 
   markdown-it-link-attributes@4.0.1: {}
 
@@ -9341,12 +9341,12 @@ snapshots:
 
   markdown-it-sup@2.0.0: {}
 
-  markdown-it@14.2.0:
+  markdown-it@14.3.2:
     dependencies:
       argparse: 2.0.1
       entities: 4.5.0
-      linkify-it: 5.0.1
-      mdurl: 2.0.0
+      linkify-it: 5.0.2
+      mdurl: 2.1.0
       punycode.js: 2.3.1
       uc.micro: 2.1.0
 
@@ -9357,7 +9357,7 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  mdurl@2.0.0: {}
+  mdurl@2.1.0: {}
 
   media-typer@0.3.0: {}
 
