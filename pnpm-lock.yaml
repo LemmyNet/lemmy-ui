@@ -120,8 +120,8 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0
       markdown-it:
-        specifier: ^14.3.0
-        version: 14.3.0
+        specifier: ^14.3.2
+        version: 14.3.2
       markdown-it-bidi:
         specifier: ^0.1.0
         version: 0.1.0
@@ -139,7 +139,7 @@ importers:
         version: 4.3.0
       markdown-it-html5-media:
         specifier: ^0.8.0
-        version: 0.8.0(markdown-it@14.3.0)
+        version: 0.8.0(markdown-it@14.3.2)
       markdown-it-ruby:
         specifier: ^0.1.1
         version: 0.1.1
@@ -3501,8 +3501,8 @@ packages:
   markdown-it-sup@2.0.0:
     resolution: {integrity: sha512-5VgmdKlkBd8sgXuoDoxMpiU+BiEt3I49GItBzzw7Mxq9CxvnhE/k09HFli09zgfFDRixDQDfDxi0mgBCXtaTvA==}
 
-  markdown-it@14.3.0:
-    resolution: {integrity: sha512-RCEsPjR+sr0x+AuYp601tKTkgFG4YEPLCzHST3cQ/fhlJkqAkz1L2/Qbp1j9qw5SBwQHFBoW8+hoN5xssOF0Tw==}
+  markdown-it@14.3.2:
+    resolution: {integrity: sha512-sHHjZ5fJKlgrG4qns2YwVcdNep35h5fERrfkD2YNsb9UFk0UIHarbiTaHKVMlPuWAoiilyK8Fv/jAm11slsY7Q==}
     hasBin: true
 
   math-intrinsics@1.1.0:
@@ -8591,9 +8591,9 @@ snapshots:
     dependencies:
       highlight.js: 11.11.1
 
-  markdown-it-html5-media@0.8.0(markdown-it@14.3.0):
+  markdown-it-html5-media@0.8.0(markdown-it@14.3.2):
     dependencies:
-      markdown-it: 14.3.0
+      markdown-it: 14.3.2
 
   markdown-it-ruby@0.1.1: {}
 
@@ -8601,7 +8601,7 @@ snapshots:
 
   markdown-it-sup@2.0.0: {}
 
-  markdown-it@14.3.0:
+  markdown-it@14.3.2:
     dependencies:
       argparse: 2.0.1
       entities: 4.5.0
