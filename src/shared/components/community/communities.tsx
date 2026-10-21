@@ -140,6 +140,7 @@ export class Communities extends Component<
 
   renderListingsTable(): InfernoNode | void {
     const nameCols = "col-6 col-md-7";
+    // 5 of these
     const countCols = "col-6 col-md-1";
 
     switch (this.state.listCommunitiesResponse.state) {

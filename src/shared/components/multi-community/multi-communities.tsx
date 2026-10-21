@@ -136,9 +136,9 @@ export class MultiCommunities extends Component<RouteProps, State> {
   }
 
   renderListingsTable(): InfernoNode | void {
-    const nameCols = "col-6 col-md-9";
+    const nameCols = "col-6 col-md-6 col-lg-9";
     // 3 of these: subscribers, communities, subscribe
-    const countCols = "col-6 col-md-1";
+    const countCols = "col-6 col-md-2 col-lg-1";
 
     switch (this.state.listMultiCommunitiesRes.state) {
       case "loading":
@@ -152,13 +152,13 @@ export class MultiCommunities extends Component<RouteProps, State> {
           <div id="community_table">
             <div className="d-none d-md-block">
               <div className="row">
-                <div className={`${nameCols} fw-bold`}>
+                <div className={`${nameCols} fw-bold text-truncate`}>
                   {I18NextService.i18n.t("name")}
                 </div>
-                <div className={`${countCols} fw-bold`}>
+                <div className={`${countCols} fw-bold text-truncate`}>
                   {I18NextService.i18n.t("subscribers")}
                 </div>
-                <div className={`${countCols} fw-bold`}>
+                <div className={`${countCols} fw-bold text-truncate`}>
                   {I18NextService.i18n.t("communities")}
                 </div>
               </div>
