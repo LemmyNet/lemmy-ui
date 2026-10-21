@@ -44,7 +44,7 @@ const PRESET_OAUTH_PROVIDERS: ProviderToEdit[] = [
     authorization_endpoint: "https://github.com/login/oauth/authorize",
     token_endpoint: "https://github.com/login/oauth/access_token",
     userinfo_endpoint: "https://api.github.com/user",
-    id_claim: "email",
+    id_claim: "id",
     scopes: "user:email",
     auto_verify_email: true,
     account_linking_enabled: true,
