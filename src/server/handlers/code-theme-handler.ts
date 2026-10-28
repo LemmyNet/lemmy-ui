@@ -8,7 +8,7 @@ const extraThemesFolder =
 export default (req: Request, res: Response) => {
   res.contentType("text/css");
 
-  const theme = req.params.name;
+  const theme = String(req.params.name);
 
   if (!theme.endsWith(".css")) {
     res.status(400).send("Theme must be a css file");
