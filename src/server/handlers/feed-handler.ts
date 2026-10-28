@@ -11,16 +11,16 @@ export function FrontPageFeedHandler(_req: Request, res: Response) {
 }
 
 export function ProfileFeedHandler(req: Request, res: Response) {
-  const name = req.params.name;
+  const name = String(req.params.name);
   res.redirect(profileRSSUrl(name));
 }
 
 export function CommunityFeedHandler(req: Request, res: Response) {
-  const name = req.params.name;
+  const name = String(req.params.name);
   res.redirect(communityRSSUrlLocal(name));
 }
 
 export function MultiCommunityFeedHandler(req: Request, res: Response) {
-  const name = req.params.name;
+  const name = String(req.params.name);
   res.redirect(multiCommunityRSSUrlLocal(name));
 }

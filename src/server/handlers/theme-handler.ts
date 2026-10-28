@@ -7,7 +7,7 @@ const extraThemesFolder =
   process.env["LEMMY_UI_EXTRA_THEMES_FOLDER"] || "./extra_themes";
 
 export default (req: Request, res: Response) => {
-  const theme = req.params.name;
+  const theme = String(req.params.name);
 
   if (theme.endsWith(".css")) {
     res.contentType("text/css");
