@@ -168,7 +168,7 @@ export class UserBadges extends Component<UserBadgesProps> {
               <RoleLabelPill
                 label={"🌱"}
                 tooltip={I18NextService.i18n.t("new_account_label")}
-                classes={""}
+                classes={"text-bg-light text-wrap"}
               />
             </span>
           )}
