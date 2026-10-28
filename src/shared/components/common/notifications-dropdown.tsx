@@ -30,6 +30,7 @@ export function PostNotificationsDropdown({
 }: PostNotificationDropdownProps) {
   return (
     <FilterChipDropdown
+      icon="bell"
       allOptions={postNotifOptions}
       currentOption={postNotifOptions.find(t => t.value === currentOption)}
       onSelect={onSelect}
@@ -69,6 +70,7 @@ export function CommunityNotificationsDropdown({
 }: CommunityNotificationDropdownProps) {
   return (
     <FilterChipDropdown
+      icon="bell"
       allOptions={communityNotifOptions}
       currentOption={communityNotifOptions.find(t => t.value === currentOption)}
       onSelect={onSelect}
