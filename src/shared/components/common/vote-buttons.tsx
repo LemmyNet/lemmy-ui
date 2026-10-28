@@ -430,7 +430,7 @@ type ScoreIconProps = {
 function ScoreIcon({ score }: ScoreIconProps): InfernoNode {
   let icon: string;
 
-  if (score > 0) {
+  if (score >= 0) {
     icon = "heart";
   } else {
     icon = "frown";
