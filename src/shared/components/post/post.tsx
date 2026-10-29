@@ -728,7 +728,6 @@ export class Post extends Component<PostRouteProps, PostState> {
                 </div>
                 <div className="col">
                   <div className="btn-group w-auto mb-2" role="group">
-                    <Icon icon="bell" classes="me-2" />
                     <PostNotificationsDropdown
                       currentOption={this.state.notifications}
                       onSelect={val => handleNotificationChange(this, val)}
