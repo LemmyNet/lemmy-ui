@@ -371,11 +371,12 @@ function Score({ myVoteIsUpvote, score }: ScoreProps) {
   return (
     <button
       className={classNames(
-        "btn btn-sm btn-animate border-light-subtle py-0",
+        "btn btn-sm border-light-subtle py-0",
         scoreColor(myVoteIsUpvote),
       )}
       aria-label={scoreTippy}
       data-tippy-content={scoreTippy}
+      disabled
     >
       <Icon icon="heart" classes="me-1 icon-inline small" />
       {scoreStr}
@@ -401,9 +402,10 @@ function UpvotePct(props: UpvotePctProps) {
   return (
     thresholdCheck && (
       <button
-        className={"btn btn-sm btn-animate border-light-subtle py-0"}
+        className={"btn btn-sm border-light-subtle py-0"}
         aria-label={upvotesPctTippy}
         data-tippy-content={upvotesPctTippy}
+        disabled
       >
         {pctStr}
       </button>
