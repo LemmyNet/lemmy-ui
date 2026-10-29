@@ -1,6 +1,6 @@
 import { calculateUpvotePct, newVoteIsUpvote } from "@utils/app";
 import { numToSI } from "@utils/helpers";
-import { Component } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   Comment,
   CreateCommentLike,
@@ -371,13 +371,14 @@ function Score({ myVoteIsUpvote, score }: ScoreProps) {
   return (
     <button
       className={classNames(
-        "btn btn-sm btn-animate border-light-subtle py-0",
+        "btn btn-sm border-light-subtle py-0",
         scoreColor(myVoteIsUpvote),
       )}
       aria-label={scoreTippy}
       data-tippy-content={scoreTippy}
+      disabled
     >
-      <Icon icon="heart" classes="me-1 icon-inline small" />
+      <ScoreIcon score={score} />
       {scoreStr}
     </button>
   );
@@ -401,9 +402,10 @@ function UpvotePct(props: UpvotePctProps) {
   return (
     thresholdCheck && (
       <button
-        className={"btn btn-sm btn-animate border-light-subtle py-0"}
+        className={"btn btn-sm border-light-subtle py-0"}
         aria-label={upvotesPctTippy}
         data-tippy-content={upvotesPctTippy}
+        disabled
       >
         {pctStr}
       </button>
@@ -419,4 +421,21 @@ function scoreColor(myVoteIsUpvote: boolean | undefined): string {
   } else {
     return "text-muted";
   }
+}
+
+type ScoreIconProps = {
+  score: number;
+};
+/**
+ * Show a heart or a frowning face depending on the vote score.
+ **/
+function ScoreIcon({ score }: ScoreIconProps): InfernoNode {
+  let icon: string;
+
+  if (score >= 0) {
+    icon = "heart";
+  } else {
+    icon = "frown";
+  }
+  return <Icon icon={icon} classes="me-1 icon-inline small" />;
 }

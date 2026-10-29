@@ -165,10 +165,10 @@ export class UserBadges extends Component<UserBadgesProps> {
           )}
           {isNewAccount && (
             <span className="col-auto">
-              <RoleLabelIcon
-                icon="user-plus"
+              <RoleLabelPill
+                label={"🌱"}
                 tooltip={I18NextService.i18n.t("new_account_label")}
-                classes="text-muted"
+                classes={"text-bg-light text-wrap"}
               />
             </span>
           )}

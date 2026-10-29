@@ -140,17 +140,6 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                       )}
                     </>
                   )}
-                  <button
-                    className="btn btn-light border-light-subtle d-block w-100"
-                    onClick={() => handleShowReportModal(this)}
-                  >
-                    {I18NextService.i18n.t("create_report")}
-                  </button>
-                  <CommunityReportModal
-                    onSubmit={reason => handleSubmitReport(this, reason)}
-                    onCancel={() => handleHideReportModal(this)}
-                    show={this.state.showReportModal}
-                  />
                   <Link
                     className="btn btn-light border-light-subtle d-block w-100"
                     to={`/modlog?communityId=${community.id}`}
@@ -247,6 +236,17 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                       </T>
                     </div>
                   )}
+                  <button
+                    className="btn btn-light border-light-subtle d-block w-100"
+                    onClick={() => handleShowReportModal(this)}
+                  >
+                    {I18NextService.i18n.t("report_community")}
+                  </button>
+                  <CommunityReportModal
+                    onSubmit={reason => handleSubmitReport(this, reason)}
+                    onCancel={() => handleHideReportModal(this)}
+                    show={this.state.showReportModal}
+                  />
                 </div>
               </section>
             )}

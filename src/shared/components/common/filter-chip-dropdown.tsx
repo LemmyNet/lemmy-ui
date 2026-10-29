@@ -4,6 +4,7 @@ import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
 import { RefObject } from "inferno";
 import { InfernoNode } from "inferno";
+import { Icon } from "./icon";
 
 export type FilterOption<T extends string> = {
   value: T;
@@ -16,6 +17,7 @@ type FilterChipDropdownProps<T extends string> = {
   allOptions: FilterOption<T>[];
   currentOption: FilterOption<T> | undefined;
   label?: NoOptionI18nKeys;
+  icon?: string;
   onSelect: (val: T) => void;
   className?: string;
   children?: InfernoNode;
@@ -28,6 +30,7 @@ export function FilterChipDropdown<T extends string>({
   allOptions,
   currentOption,
   label,
+  icon,
   onSelect,
   className,
   children,
@@ -54,8 +57,10 @@ export function FilterChipDropdown<T extends string>({
           data-bs-toggle="dropdown"
           data-bs-auto-close={autoClose}
         >
+          {icon && <Icon icon={icon} classes="me-2" />}
           {buttonTitle}
         </button>
+
         <ul className="dropdown-menu">
           {allOptions.map(opt => (
             <li>
