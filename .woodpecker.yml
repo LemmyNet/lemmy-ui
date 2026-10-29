@@ -43,6 +43,14 @@ steps:
     when:
       - event: pull_request
 
+  test:
+    image: node:24-alpine
+    commands:
+      - *install_pnpm
+      - pnpm test
+    when:
+      - event: pull_request
+
   build_dev:
     image: node:24-alpine
     commands:
