@@ -431,7 +431,7 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               style={`border-left: var(--comment-border-width) ${moreRepliesBorderColor} solid !important`}
             >
               <button
-                className="btn btn-sm border-light-subtle text-muted"
+                className="btn btn-sm border-light-subtle text-muted ms-2"
                 onClick={() => handleFetchChildren(this)}
               >
                 {this.props.fetchChildrenLoading === id ? (
