@@ -78,14 +78,14 @@ export function LocalSiteBadges({
         <>
           <span className="badge text-bg-light">
             {I18NextService.i18n.t("number_of_users", {
-              count: Number(localSite.users),
-              formattedCount: numToSI(localSite.users),
+              count: Number(localSite.local_users),
+              formattedCount: numToSI(localSite.local_users),
             })}
           </span>
           <span className="badge text-bg-light">
             {I18NextService.i18n.t("number_of_communities", {
-              count: Number(localSite.communities),
-              formattedCount: numToSI(localSite.communities),
+              count: Number(localSite.local_communities),
+              formattedCount: numToSI(localSite.local_communities),
             })}
           </span>
         </>
@@ -102,6 +102,9 @@ function LocalSiteCommunityCommonBadges({
   subject,
   lessBadges,
 }: LocalSiteCommunityCommonBadgesProps) {
+  const posts = "posts" in subject ? subject.posts : subject.local_posts;
+  const comments =
+    "comments" in subject ? subject.comments : subject.local_comments;
   return (
     !lessBadges && (
       <>
@@ -175,14 +178,14 @@ function LocalSiteCommunityCommonBadges({
         </span>
         <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_posts", {
-            count: Number(subject.posts),
-            formattedCount: numToSI(subject.posts),
+            count: Number(posts),
+            formattedCount: numToSI(posts),
           })}
         </span>
         <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_comments", {
-            count: Number(subject.comments),
-            formattedCount: numToSI(subject.comments),
+            count: Number(comments),
+            formattedCount: numToSI(comments),
           })}
         </span>
       </>

@@ -5,7 +5,6 @@ import {
   CommentSortType,
   CreateSite,
   EditSite,
-  FederationMode,
   GetSiteResponse,
   ImageMode,
   ListingType,
@@ -14,6 +13,7 @@ import {
   PostListingMode,
   PostSortType,
   RegistrationMode,
+  VoteSettings,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -22,7 +22,7 @@ import { LanguageSelect } from "../common/language-select";
 import { MarkdownTextArea } from "../common/markdown-textarea";
 import UrlListTextarea from "../common/url-list-textarea";
 import { FormEvent } from "inferno";
-import { FederationModeDropdown } from "./federation-mode-dropdown";
+import { VoteSettingsDropdown } from "@components/common/vote-settings-dropdown";
 import {
   CommentSortDropdown,
   PostSortDropdown,
@@ -92,10 +92,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
       max_invites_per_user_allowed: ls?.max_invites_per_user_allowed,
       oauth_registration: ls?.oauth_registration,
       community_creation_admin_only: ls?.community_creation_admin_only,
-      post_upvotes: ls?.post_upvotes,
-      post_downvotes: ls?.post_downvotes,
-      comment_upvotes: ls?.comment_upvotes,
-      comment_downvotes: ls?.comment_downvotes,
+      default_post_upvotes: ls?.default_post_upvotes,
+      default_post_downvotes: ls?.default_post_downvotes,
+      default_comment_upvotes: ls?.default_comment_upvotes,
+      default_comment_downvotes: ls?.default_comment_downvotes,
       email_verification_required: ls?.email_verification_required,
       application_question: ls?.application_question,
       private_instance: ls?.private_instance,
@@ -284,12 +284,18 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         <div className="mb-3 row align-items-center">
           {(
             [
-              { kind: "post_upvotes", i18nKey: "post_upvote_federation" },
-              { kind: "post_downvotes", i18nKey: "post_downvote_federation" },
-              { kind: "comment_upvotes", i18nKey: "comment_upvote_federation" },
+              { kind: "default_post_upvotes", i18nKey: "default_post_upvotes" },
               {
-                kind: "comment_downvotes",
-                i18nKey: "comment_downvote_federation",
+                kind: "default_post_downvotes",
+                i18nKey: "default_post_downvotes",
+              },
+              {
+                kind: "default_comment_upvotes",
+                i18nKey: "default_comment_upvotes",
+              },
+              {
+                kind: "default_comment_downvotes",
+                i18nKey: "default_comment_downvotes",
               },
             ] as const
           ).map(vote => (
@@ -298,7 +304,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
                 {I18NextService.i18n.t(vote.i18nKey)}
               </label>
               <div className="col-sm-9">
-                <FederationModeDropdown
+                <VoteSettingsDropdown
                   currentOption={this.state.siteForm[vote.kind] ?? "all"}
                   onSelect={val =>
                     handleSiteVoteModeChange(this, val, vote.kind)
@@ -795,10 +801,10 @@ function handleSubmit(i: SiteForm, event: FormEvent<HTMLFormElement>) {
       sidebar: stateSiteForm.sidebar,
       community_creation_admin_only:
         stateSiteForm.community_creation_admin_only,
-      post_upvotes: stateSiteForm.post_upvotes,
-      post_downvotes: stateSiteForm.post_downvotes,
-      comment_upvotes: stateSiteForm.comment_upvotes,
-      comment_downvotes: stateSiteForm.comment_downvotes,
+      default_post_upvotes: stateSiteForm.default_post_upvotes,
+      default_post_downvotes: stateSiteForm.default_post_downvotes,
+      default_comment_upvotes: stateSiteForm.default_comment_upvotes,
+      default_comment_downvotes: stateSiteForm.default_comment_downvotes,
       nsfw_content_disallowed: stateSiteForm.nsfw_content_disallowed,
       application_question: stateSiteForm.application_question,
       registration_mode: stateSiteForm.registration_mode,
@@ -916,8 +922,8 @@ function handleSiteCommunityCreationAdminOnly(i: SiteForm, val: boolean) {
 
 function handleSiteVoteModeChange(
   i: SiteForm,
-  val: FederationMode,
-  voteKind: `${"post" | "comment"}_${"upvotes" | "downvotes"}`,
+  val: VoteSettings,
+  voteKind: `default_${"post" | "comment"}_${"upvotes" | "downvotes"}`,
 ) {
   const newState = i.state;
   newState.siteForm[voteKind] = val;

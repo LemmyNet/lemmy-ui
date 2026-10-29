@@ -209,7 +209,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             hideImage={p.hideImage}
             viewOnly={p.viewOnly}
             myUserInfo={p.myUserInfo}
-            localSite={p.localSite}
             showCrossPosts={p.showCrossPosts}
             voteLoading={p.voteLoading}
             mutePersonName={p.mutePersonName}
@@ -237,7 +236,6 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
             topBorder={p.topBorder}
             showAdultConsentModal={p.showAdultConsentModal}
             myUserInfo={p.myUserInfo}
-            localSite={p.localSite}
             showCrossPosts={p.showCrossPosts}
             showMarkRead={p.showMarkRead}
             disableAutoMarkAsRead={p.disableAutoMarkAsRead}

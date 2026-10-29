@@ -2,7 +2,6 @@ import { ShowCrossPostsType } from "@utils/types";
 import {
   CreatePostLike,
   Language,
-  LocalSite,
   MyUserInfo,
   PostView,
 } from "lemmy-js-client";
@@ -21,7 +20,6 @@ type Props = {
   hideImage: boolean;
   viewOnly: boolean;
   myUserInfo: MyUserInfo | undefined;
-  localSite: LocalSite;
   showCrossPosts: ShowCrossPostsType;
   voteLoading: boolean;
   mutePersonName: boolean;
@@ -39,7 +37,6 @@ export function PostListingList({
   hideImage,
   viewOnly,
   myUserInfo,
-  localSite,
   showCrossPosts,
   onPostVote,
   onScrollIntoCommentsClick,
@@ -58,7 +55,7 @@ export function PostListingList({
               id={postView.post.id}
               onVote={onPostVote}
               myUserInfo={myUserInfo}
-              localSite={localSite}
+              community={postView.community}
               subject={postView.post}
               myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
               disabled={userNotLoggedInOrBanned(myUserInfo)}
@@ -98,7 +95,6 @@ export function PostListingList({
         crossPosts={crossPosts}
         type_={showCrossPosts}
         myUserInfo={myUserInfo}
-        localSite={localSite}
       />
     </div>
   );

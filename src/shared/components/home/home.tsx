@@ -11,7 +11,6 @@ import {
   localRSSUrl,
   mixedToCommentSortType,
   mixedToPostSortType,
-  myAuth,
   reportToast,
   setIsoData,
   showLocal,
@@ -169,7 +168,11 @@ type HomeData = RouteDataResponse<{
   commentsRes: PagedResponse<CommentView>;
 }>;
 
-function getRss(listingType: ListingType, sort: PostSortType) {
+function getRss(
+  listingType: ListingType,
+  sort: PostSortType,
+  feedToken: string | undefined,
+) {
   let rss: string | undefined = undefined;
 
   const queryString = getQueryString({ sort });
@@ -183,8 +186,7 @@ function getRss(listingType: ListingType, sort: PostSortType) {
       break;
     }
     case "subscribed": {
-      const auth = myAuth();
-      rss = auth ? subscribedRSSUrl(auth, queryString) : undefined;
+      rss = feedToken ? subscribedRSSUrl(feedToken, queryString) : undefined;
       break;
     }
   }
@@ -993,6 +995,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
                 this.state.siteRes.site_view.local_site
                   .default_post_listing_type,
               sort,
+              this.state.siteRes.my_feed_token,
             )}
           </div>
           {myUserInfo && (

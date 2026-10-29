@@ -24,7 +24,6 @@ import {
   PostView,
   PersonView,
   MyUserInfo,
-  LocalSite,
   CreatePostLike,
   MarkPostAsRead,
   Post,
@@ -56,7 +55,6 @@ type PostActionBarProps = {
   viewOnly: boolean;
   viewSource: boolean;
   myUserInfo: MyUserInfo | undefined;
-  localSite: LocalSite;
   notificationRead?: boolean;
   markReadLoading: boolean;
   voteLoading: boolean;
@@ -95,7 +93,6 @@ export function PostActionBar(props: PostActionBarProps, context: object) {
     viewOnly,
     viewSource,
     myUserInfo,
-    localSite,
     showMarkRead,
     notificationRead,
     onMarkPostAsRead,
@@ -132,7 +129,7 @@ export function PostActionBar(props: PostActionBarProps, context: object) {
             subject={postView.post}
             myVoteIsUpvote={postView.post_actions?.vote_is_upvote}
             myUserInfo={myUserInfo}
-            localSite={localSite}
+            community={postView.community}
             disabled={userNotLoggedInOrBanned(myUserInfo)}
             loading={voteLoading}
           />

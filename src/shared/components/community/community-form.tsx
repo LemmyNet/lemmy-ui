@@ -7,7 +7,9 @@ import {
   CreateCommunity,
   EditCommunity,
   Language,
+  LocalSite,
   MyUserInfo,
+  VoteSettings,
 } from "lemmy-js-client";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
@@ -18,6 +20,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { validActorRegexPattern } from "@utils/config";
 import { userNotLoggedInOrBanned } from "@utils/app";
 import { CommunityVisibilityDropdown } from "@components/common/community-visibility-dropdown";
+import { VoteSettingsDropdown } from "@components/common/vote-settings-dropdown";
 
 interface CommunityFormProps {
   communityView?: CommunityView; // If a community is given, that means this is an edit
@@ -29,6 +32,7 @@ interface CommunityFormProps {
   deleteLoading?: boolean;
   myUserInfo: MyUserInfo | undefined;
   imageUploadDisabled: boolean;
+  localSite?: LocalSite;
   onCreate?: (form: CreateCommunity) => void;
   onEdit?: (form: EditCommunity) => void;
   onDelete?: (deleted: boolean) => void;
@@ -46,6 +50,10 @@ interface CommunityFormState {
     posting_restricted_to_mods?: boolean;
     discussion_languages?: number[];
     visibility?: CommunityVisibility;
+    post_upvotes?: VoteSettings;
+    post_downvotes?: VoteSettings;
+    comment_upvotes?: VoteSettings;
+    comment_downvotes?: VoteSettings;
   };
   submitted: boolean;
 }
@@ -76,8 +84,18 @@ export class CommunityForm extends Component<
           posting_restricted_to_mods: cv.community.posting_restricted_to_mods,
           discussion_languages: this.props.communityLanguages,
           visibility: cv.community.visibility,
+          post_upvotes: cv.community.post_upvotes,
+          post_downvotes: cv.community.post_downvotes,
+          comment_upvotes: cv.community.comment_upvotes,
+          comment_downvotes: cv.community.comment_downvotes,
         }
-      : {};
+      : {
+          // Use the site defaults when creating a new community
+          post_upvotes: this.props.localSite?.default_post_upvotes,
+          post_downvotes: this.props.localSite?.default_post_downvotes,
+          comment_upvotes: this.props.localSite?.default_comment_upvotes,
+          comment_downvotes: this.props.localSite?.default_comment_downvotes,
+        };
   }
 
   render() {
@@ -307,6 +325,30 @@ export class CommunityForm extends Component<
             </div>
           </div>
         </div>
+        <div className="mb-3 row align-items-center">
+          {(
+            [
+              { kind: "post_upvotes", i18nKey: "post_upvotes" },
+              { kind: "post_downvotes", i18nKey: "post_downvotes" },
+              { kind: "comment_upvotes", i18nKey: "comment_upvotes" },
+              { kind: "comment_downvotes", i18nKey: "comment_downvotes" },
+            ] as const
+          ).map(vote => (
+            <>
+              <label className="col-sm-3 col-form-label" htmlFor={vote.kind}>
+                {I18NextService.i18n.t(vote.i18nKey)}
+              </label>
+              <div className="col-sm-9">
+                <VoteSettingsDropdown
+                  currentOption={this.state.form[vote.kind] ?? "all"}
+                  onSelect={val =>
+                    handleCommunityVoteModeChange(this, val, vote.kind)
+                  }
+                />
+              </div>
+            </>
+          ))}
+        </div>
         <LanguageSelect
           allLanguages={this.props.allLanguages}
           siteLanguages={this.props.siteLanguages}
@@ -386,6 +428,10 @@ function handleCommunitySubmit(
       posting_restricted_to_mods: cForm.posting_restricted_to_mods,
       discussion_languages: cForm.discussion_languages,
       visibility: cForm.visibility,
+      post_upvotes: cForm.post_upvotes,
+      post_downvotes: cForm.post_downvotes,
+      comment_upvotes: cForm.comment_upvotes,
+      comment_downvotes: cForm.comment_downvotes,
     });
   } else {
     if (cForm.name) {
@@ -398,6 +444,10 @@ function handleCommunitySubmit(
         posting_restricted_to_mods: cForm.posting_restricted_to_mods,
         discussion_languages: cForm.discussion_languages,
         visibility: cForm.visibility,
+        post_upvotes: cForm.post_upvotes,
+        post_downvotes: cForm.post_downvotes,
+        comment_upvotes: cForm.comment_upvotes,
+        comment_downvotes: cForm.comment_downvotes,
       });
     }
   }
@@ -453,6 +503,16 @@ function handleCommunityVisibilityChange(
   val: CommunityVisibility,
 ) {
   i.setState(s => ((s.form.visibility = val), s));
+}
+
+function handleCommunityVoteModeChange(
+  i: CommunityForm,
+  val: VoteSettings,
+  voteKind: `${"post" | "comment"}_${"upvotes" | "downvotes"}`,
+) {
+  const newState = i.state;
+  newState.form[voteKind] = val;
+  i.setState(newState);
 }
 
 function handleIconChange(i: CommunityForm, url?: string) {
