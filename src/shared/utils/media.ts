@@ -1,19 +1,20 @@
 const imageRegex =
-  /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp|avif))/;
+  /(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp|avif))(?:[?#]|$)/;
 
 export function isImage(url: string) {
   return imageRegex.test(url);
 }
 
-const animatedImageRegex = /(http)?s?:?(\/\/[^"']*\.(?:gif))/;
+const animatedImageRegex = /(http)?s?:?(\/\/[^"']*\.(?:gif))(?:[?#]|$)/;
 
 export function isAnimatedImage(url: string) {
   return animatedImageRegex.test(url);
 }
 
-const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm|ogv))/;
+const videoRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp4|webm|ogv))(?:[?#]|$)/;
 
-const audioRegex = /(http)?s?:?(\/\/[^"']*\.(?:mp3|wav|opus|ogg|m4a|flac|spx))/;
+const audioRegex =
+  /(http)?s?:?(\/\/[^"']*\.(?:mp3|wav|opus|ogg|m4a|flac|spx))(?:[?#]|$)/;
 
 export function isVideo(url: string) {
   return videoRegex.test(url);
