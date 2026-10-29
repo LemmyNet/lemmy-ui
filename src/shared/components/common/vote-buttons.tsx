@@ -1,6 +1,6 @@
 import { calculateUpvotePct, newVoteIsUpvote } from "@utils/app";
 import { numToSI } from "@utils/helpers";
-import { Component } from "inferno";
+import { Component, InfernoNode } from "inferno";
 import {
   Comment,
   CreateCommentLike,
@@ -377,7 +377,7 @@ function Score({ myVoteIsUpvote, score }: ScoreProps) {
       aria-label={scoreTippy}
       data-tippy-content={scoreTippy}
     >
-      <Icon icon="heart" classes="me-1 icon-inline small" />
+      <ScoreIcon score={score} />
       {scoreStr}
     </button>
   );
@@ -419,4 +419,21 @@ function scoreColor(myVoteIsUpvote: boolean | undefined): string {
   } else {
     return "text-muted";
   }
+}
+
+type ScoreIconProps = {
+  score: number;
+};
+/**
+ * Show a heart or a frowning face depending on the vote score.
+ **/
+function ScoreIcon({ score }: ScoreIconProps): InfernoNode {
+  let icon: string;
+
+  if (score >= 0) {
+    icon = "heart";
+  } else {
+    icon = "frown";
+  }
+  return <Icon icon={icon} classes="me-1 icon-inline small" />;
 }
