@@ -1,6 +1,5 @@
 import {
   communityToChoice,
-  enableDownvotes,
   searchCommunities,
   fetchThemeList,
   searchUsers,
@@ -1090,21 +1089,19 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               />
             </div>
           </div>
-          {enableDownvotes(siteRes) && (
-            <div className="mb-3 row align-items-center">
-              <label className="col-sm-3 col-form-label">
-                {I18NextService.i18n.t("show_downvotes")}
-              </label>
-              <div className="col-sm-9">
-                <VoteShowDropdown
-                  currentOption={
-                    this.state.saveUserSettingsForm.show_downvotes ?? "show"
-                  }
-                  onSelect={val => handleShowDownvotesChange(this, val)}
-                />
-              </div>
+          <div className="mb-3 row align-items-center">
+            <label className="col-sm-3 col-form-label">
+              {I18NextService.i18n.t("show_downvotes")}
+            </label>
+            <div className="col-sm-9">
+              <VoteShowDropdown
+                currentOption={
+                  this.state.saveUserSettingsForm.show_downvotes ?? "show"
+                }
+                onSelect={val => handleShowDownvotesChange(this, val)}
+              />
             </div>
-          )}
+          </div>
           <div className="row mb-3">
             <div className="col">
               <FilterChipCheckbox

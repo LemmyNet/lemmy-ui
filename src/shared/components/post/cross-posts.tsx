@@ -12,30 +12,20 @@ import { unreadCommentsCount } from "@utils/helpers";
 import { mdToHtmlInline } from "@utils/markdown";
 import { ShowCrossPostsType } from "@utils/types";
 import { Link } from "inferno-router";
-import { PostView, MyUserInfo, LocalSite } from "lemmy-js-client";
+import { PostView, MyUserInfo } from "lemmy-js-client";
 
 type CrossPostsProps = {
   crossPosts?: PostView[];
   type_: ShowCrossPostsType;
   myUserInfo: MyUserInfo | undefined;
-  localSite: LocalSite;
 };
-export function CrossPosts({
-  crossPosts,
-  type_,
-  myUserInfo,
-  localSite,
-}: CrossPostsProps) {
+export function CrossPosts({ crossPosts, type_, myUserInfo }: CrossPostsProps) {
   switch (type_) {
     case "small":
       return <SmallCrossPosts crossPosts={crossPosts} />;
     case "expanded":
       return (
-        <ExpandedCrossPosts
-          crossPosts={crossPosts}
-          myUserInfo={myUserInfo}
-          localSite={localSite}
-        />
+        <ExpandedCrossPosts crossPosts={crossPosts} myUserInfo={myUserInfo} />
       );
     case "show_separately":
       return <></>;
@@ -69,12 +59,10 @@ function SmallCrossPosts({ crossPosts }: SmallCrossPostsProps) {
 type ExpandedCrossPostsProps = {
   crossPosts?: PostView[];
   myUserInfo: MyUserInfo | undefined;
-  localSite: LocalSite;
 };
 function ExpandedCrossPosts({
   crossPosts,
   myUserInfo,
-  localSite,
 }: ExpandedCrossPostsProps) {
   return crossPosts && crossPosts.length > 0 ? (
     <div>
@@ -97,7 +85,7 @@ function ExpandedCrossPosts({
                 subject={pv.post}
                 myVoteIsUpvote={pv.post_actions?.vote_is_upvote}
                 myUserInfo={myUserInfo}
-                localSite={localSite}
+                community={pv.community}
                 disabled
                 onVote={() => null}
                 loading={false}

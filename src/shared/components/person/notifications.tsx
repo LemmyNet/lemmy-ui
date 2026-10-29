@@ -3,7 +3,6 @@ import {
   enableNsfw,
   handleWarnComment,
   handleWarnPost,
-  myAuth,
   notificationsRSSUrl,
   reportToast,
   setIsoData,
@@ -202,8 +201,8 @@ export class Notifications extends Component<
   }
 
   render() {
-    const auth = myAuth();
-    const notifsRss = auth ? notificationsRSSUrl(auth) : undefined;
+    const feedToken = this.isoData.siteRes?.my_feed_token;
+    const notifsRss = feedToken ? notificationsRSSUrl(feedToken) : undefined;
     return (
       <div className="notifications container-lg d-flex flex-column fl-1">
         <div className="row fl-1">

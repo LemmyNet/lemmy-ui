@@ -66,6 +66,7 @@ export class CreateCommunity extends Component<
               }
               myUserInfo={this.isoData.myUserInfo}
               imageUploadDisabled={imageUploadDisabled}
+              localSite={this.isoData.siteRes?.site_view.local_site}
             />
           </div>
         </div>

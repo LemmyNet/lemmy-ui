@@ -1,7 +1,6 @@
 import {
   CommentView,
   CommunityView,
-  FederationMode,
   GetSiteResponse,
   MyUserInfo,
   PostView,
@@ -307,29 +306,6 @@ export function editCommentsSlimLocked(
     c.comment.path.startsWith(path)
       ? { ...c, comment: { ...c.comment, locked } }
       : c,
-  );
-}
-
-export function commentUpvotesMode(siteRes: GetSiteResponse): FederationMode {
-  return siteRes.site_view.local_site.comment_upvotes;
-}
-
-export function commentDownvotesMode(siteRes: GetSiteResponse): FederationMode {
-  return siteRes.site_view.local_site.comment_downvotes;
-}
-
-export function postUpvotesMode(siteRes: GetSiteResponse): FederationMode {
-  return siteRes.site_view.local_site.post_upvotes;
-}
-
-export function postDownvotesMode(siteRes: GetSiteResponse): FederationMode {
-  return siteRes.site_view.local_site.post_downvotes;
-}
-
-export function enableDownvotes(siteRes: GetSiteResponse): boolean {
-  return (
-    siteRes.site_view.local_site.post_downvotes !== "disable" ||
-    siteRes.site_view.local_site.comment_downvotes !== "disable"
   );
 }
 

@@ -21,7 +21,6 @@ import {
   FeaturePost,
   HidePost,
   Language,
-  LocalSite,
   LockPost,
   MarkPostAsRead,
   MyUserInfo,
@@ -68,7 +67,6 @@ type PostListingCardProps = {
   viewOnly: boolean;
   showAdultConsentModal: boolean;
   myUserInfo: MyUserInfo | undefined;
-  localSite: LocalSite;
   showCrossPosts: ShowCrossPostsType;
   showMarkRead: ShowMarkReadType;
   disableAutoMarkAsRead: boolean;
@@ -197,7 +195,6 @@ export class PostListingCard extends Component<
             viewOnly={p.viewOnly}
             viewSource={this.state.viewSource}
             myUserInfo={p.myUserInfo}
-            localSite={p.localSite}
             notificationRead={p.notificationRead}
             markReadLoading={p.markReadLoading}
             voteLoading={p.voteLoading}
@@ -239,7 +236,6 @@ export class PostListingCard extends Component<
           crossPosts={p.crossPosts}
           type_={p.showCrossPosts}
           myUserInfo={p.myUserInfo}
-          localSite={p.localSite}
         />
       </div>
     );

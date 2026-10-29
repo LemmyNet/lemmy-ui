@@ -1,25 +1,26 @@
-import { FederationMode } from "lemmy-js-client";
+import { VoteSettings } from "lemmy-js-client";
 import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
 
-const options: FilterOption<FederationMode>[] = [
+const options: FilterOption<VoteSettings>[] = [
   { value: "all", i18n: "all" },
   { value: "local", i18n: "local" },
+  { value: "subscribed", i18n: "subscribed" },
   { value: "disable", i18n: "disable" },
 ];
 
-type FederationModeDropdownProps = {
-  currentOption: FederationMode;
-  onSelect: (val: FederationMode) => void;
+type VoteSettingsDropdownProps = {
+  currentOption: VoteSettings;
+  onSelect: (val: VoteSettings) => void;
   className?: string;
 };
-export function FederationModeDropdown({
+export function VoteSettingsDropdown({
   currentOption,
   onSelect,
   className,
-}: FederationModeDropdownProps) {
+}: VoteSettingsDropdownProps) {
   return (
     <FilterChipDropdown
       allOptions={options}
