@@ -12,6 +12,7 @@
     "noUncheckedSideEffectImports": false,
     "rootDir": "./src",
     "noEmit": true,
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
