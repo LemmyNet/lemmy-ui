@@ -577,6 +577,9 @@ export class MultiCommunity extends Component<RouteProps, State> {
         {myUserInfo && (
           <button
             className="col btn btn-ghost"
+            aria-label={I18NextService.i18n.t(
+              selectButtonsHidden ? "expand" : "collapse",
+            )}
             onClick={_ => handleHideSelectButtons(this)}
           >
             <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />

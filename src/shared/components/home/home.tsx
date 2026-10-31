@@ -1001,6 +1001,9 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           {myUserInfo && (
             <button
               className="col btn btn-ghost"
+              aria-label={I18NextService.i18n.t(
+                selectButtonsHidden ? "expand" : "collapse",
+              )}
               onClick={_ => handleHideSelectButtons(this)}
             >
               <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />

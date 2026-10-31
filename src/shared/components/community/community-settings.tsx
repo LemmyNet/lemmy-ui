@@ -549,6 +549,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                             showRemoveModDialog: m,
                           })
                         }
+                        aria-label={I18NextService.i18n.t("remove_as_mod")}
                         data-tippy-content={I18NextService.i18n.t(
                           "remove_as_mod",
                         )}
@@ -594,6 +595,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                             showTransferDialog: m,
                           })
                         }
+                        aria-label={I18NextService.i18n.t("transfer_community")}
                         data-tippy-content={I18NextService.i18n.t(
                           "transfer_community",
                         )}

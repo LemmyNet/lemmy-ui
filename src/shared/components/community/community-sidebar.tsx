@@ -216,6 +216,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                           <button
                             type="submit"
                             className="btn btn-outline-secondary ms-1"
+                            aria-label={I18NextService.i18n.t("search")}
                           >
                             <Icon icon="search" />
                           </button>

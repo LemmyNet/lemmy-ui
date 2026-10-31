@@ -239,6 +239,7 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
           <button
             type="submit"
             className="btn btn-light border-light-subtle ms-1"
+            aria-label={I18NextService.i18n.t("search")}
           >
             <Icon icon="search" />
           </button>
@@ -299,6 +300,7 @@ export function InstanceList({
               {showRemove && onRemove && (
                 <button
                   className="btn btn-link"
+                  aria-label={I18NextService.i18n.t("remove")}
                   onClick={() => onRemove(i.instance.domain)}
                 >
                   <Icon icon={"x"} classes="icon-inline text-danger" />

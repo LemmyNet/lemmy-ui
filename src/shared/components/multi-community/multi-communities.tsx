@@ -270,6 +270,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
         <button
           type="submit"
           className="btn btn-light border-light-subtle ms-1"
+          aria-label={I18NextService.i18n.t("search")}
         >
           <Icon icon="search" />
         </button>
