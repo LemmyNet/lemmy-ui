@@ -132,10 +132,11 @@ export class PictrsImage extends Component<Props, State> {
               "object-fit-cover img-icon me-1": type === "icon",
               "img-blur-icon": type === "icon" && blurImage,
               "img-blur-thumb": type === "thumbnail" && blurImage,
-              "avatar rounded-circle object-fit-cover":
-                type === "icon_and_banner" || type === "icon_without_banner",
               // The icon and banner uses an overlay
-              "avatar-overlay": type === "icon_and_banner",
+              "rounded-circle avatar-overlay icon-with-banner":
+                type === "icon_and_banner",
+              "rounded-circle icon-without-banner":
+                type === "icon_without_banner",
               "card-img-top": type === "card_top",
             })}
             onLoad={() => masonryUpdate()}
