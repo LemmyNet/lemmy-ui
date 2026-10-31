@@ -391,22 +391,34 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             {
               key: "settings",
               label: I18NextService.i18n.t("settings"),
-              getNode: s => this.userSettings(s),
+              getNode: s => {
+                masonryUpdate("settings-grid");
+                return this.userSettings(s);
+              },
             },
             {
               key: "blocks",
               label: I18NextService.i18n.t("blocks"),
-              getNode: s => this.blockCards(s),
+              getNode: s => {
+                masonryUpdate("blocks-grid");
+                return this.blockCards(s);
+              },
             },
             {
               key: "authentication",
               label: I18NextService.i18n.t("authentication"),
-              getNode: s => this.authentication(s),
+              getNode: s => {
+                masonryUpdate("authentication-grid");
+                return this.authentication(s);
+              },
             },
             {
               key: "import_export",
               label: I18NextService.i18n.t("import_export"),
-              getNode: s => this.importExport(s),
+              getNode: s => {
+                masonryUpdate("import-export-grid");
+                return this.importExport(s);
+              },
             },
             ...(this.isoData.siteRes.site_view.local_site.registration_mode ===
             "require_invitation"
@@ -450,7 +462,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           role="tabpanel"
           id="blocks-tab-pane"
         >
-          <div className="row">
+          <div className="row blocks-grid">
             <div className="col-12 col-md-6">
               <div className="card mb-3">
                 <div className="card-body">{this.blockUserCard()}</div>
@@ -491,7 +503,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           role="tabpanel"
           id="authentication-tab-pane"
         >
-          <div className="row">
+          <div className="row authentication-grid">
             <div className="col-12 col-md-6">
               <div className="card mb-3">
                 <div className="card-body">{this.changePasswordHtmlForm()}</div>
@@ -528,7 +540,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               {I18NextService.i18n.t("import_export_section_description")}
             </h6>
           </div>
-          <div className="row">
+          <div className="row import-export-grid">
             <div className="col-12 col-md-6">
               <div className="card mb-3">
                 <div className="card-body">{this.importForm()}</div>
@@ -1314,19 +1326,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             />
           </div>
         </div>
-        <div className="mb-3 row align-items-center">
-          <label className="col-sm-3 col-form-label">
-            {I18NextService.i18n.t("show_downvotes")}
-          </label>
-          <div className="col-sm-9">
-            <VoteShowDropdown
-              currentOption={
-                this.state.saveUserSettingsForm.show_downvotes ?? "show"
-              }
-              onSelect={val => handleShowDownvotesChange(this, val)}
-            />
-          </div>
-        </div>
         <div className="row mb-3">
           <div className="col">
             <FilterChipCheckbox
@@ -1351,6 +1350,19 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             />
           </div>
         </div>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("show_downvotes")}
+          </label>
+          <div className="col-sm-9">
+            <VoteShowDropdown
+              currentOption={
+                this.state.saveUserSettingsForm.show_downvotes ?? "show"
+              }
+              onSelect={val => handleShowDownvotesChange(this, val)}
+            />
+          </div>
+        </div>
       </>
     );
   }
@@ -1358,7 +1370,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   saveUserSettingsHtmlForm() {
     return (
       <form onSubmit={e => handleSaveSettingsSubmit(this, e)}>
-        <div className="row">
+        <div className="row settings-grid">
           <div className="col-12 col-md-6">
             <div className="card mb-3">
               <div className="card-body">{this.profileCard()}</div>
@@ -1366,12 +1378,12 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </div>
           <div className="col-12 col-md-6">
             <div className="card mb-3">
-              <div className="card-body">{this.contentCard()}</div>
+              <div className="card-body">{this.lookAndFeelCard()}</div>
             </div>
           </div>
           <div className="col-12 col-md-6">
             <div className="card mb-3">
-              <div className="card-body">{this.lookAndFeelCard()}</div>
+              <div className="card-body">{this.contentCard()}</div>
             </div>
           </div>
           <div className="col-12 col-md-6">
@@ -1384,17 +1396,19 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <div className="card-body">{this.votingCard()}</div>
             </div>
           </div>
-          <div className="input-group mb-3">
-            <button
-              type="submit"
-              className="btn d-block btn-light border-light-subtle me-4"
-            >
-              {this.state.saveRes.state === "loading" ? (
-                <Spinner />
-              ) : (
-                capitalizeFirstLetter(I18NextService.i18n.t("save"))
-              )}
-            </button>
+          <div className="col-12 col-md-6">
+            <div className="input-group d-grid mb-3">
+              <button
+                type="submit"
+                className="btn btn-light border-light-subtle"
+              >
+                {this.state.saveRes.state === "loading" ? (
+                  <Spinner />
+                ) : (
+                  capitalizeFirstLetter(I18NextService.i18n.t("save"))
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </form>
@@ -2281,5 +2295,15 @@ async function handleDeleteAccount(
     }
 
     i.setState({ deleteAccountRes });
+  }
+}
+
+async function masonryUpdate(name_: string): void {
+  if (isBrowser() && document.getElementsByClassName(name_)) {
+    const Masonry = (await import("masonry-layout")).default;
+    new Masonry(`.${name_}`, {
+      percentPosition: true,
+      horizontalOrder: true,
+    });
   }
 }
