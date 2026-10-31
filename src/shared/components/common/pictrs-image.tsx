@@ -101,12 +101,18 @@ export class PictrsImage extends Component<Props, State> {
     // A testable blurhash
     // const blurhash = "LEHV6nWB2yk8pyo0adR*.7kCMdnj";
 
+    // Only set the src as the default blurry placeholder if theres no blurhash.
+    // Otherwise, unlazy can use data-blurhash
+    const src = imageDetails?.blurhash
+      ? undefined
+      : blurryPlaceholder(width, height);
+
     return (
       !this.isoData.showAdultConsentModal && (
         <picture>
           <img
             ref={this.imageRef}
-            src={base64Placeholder(width, height)}
+            src={src}
             data-src={buildPictrsSrc(this.state.src, type)}
             data-blurhash={imageDetails?.blurhash}
             alt={this.alt()}
@@ -151,20 +157,11 @@ export class PictrsImage extends Component<Props, State> {
     }
   }
 
-  widthAndHeight(): [number, number] {
-    switch (this.props.type) {
-      case "icon":
-        return [iconThumbnailSize, iconThumbnailSize];
-      case "thumbnail":
-        return [thumbnailSize, thumbnailSize];
-      case "banner":
-        return [bannerSize, bannerSize];
-      default:
-        return [
-          this.props.imageDetails?.width ?? defaultImgSize,
-          this.props.imageDetails?.height ?? defaultImgSize,
-        ];
-    }
+  widthAndHeight(): [number | string, number | string] {
+    const details = this.props.imageDetails;
+
+    // Only set hard sizes if it comes back with image details
+    return [details?.width ?? "auto", details?.height ?? "auto"];
   }
 }
 
@@ -185,7 +182,8 @@ export function buildPictrsSrc(src: string, type: PictrsImageType): string {
   // If there's no match, then it's not a pictrs image
   if (
     !url.pathname.includes("/api/v3/image") &&
-    !url.pathname.includes("/api/v4/image")
+    !url.pathname.includes("/api/v4/image") &&
+    !url.pathname.includes("/pictrs/image")
   ) {
     return src;
   }
@@ -215,8 +213,8 @@ export function buildPictrsSrc(src: string, type: PictrsImageType): string {
   return url.href;
 }
 
-function base64Placeholder(width: number = 32, height: number = 32) {
-  return `data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height}'%3e%3c/svg%3e`;
+function blurryPlaceholder(width: number | string, height: number | string) {
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${width} ${height} '%3E%3Cfilter id='b'%3E%3CfeGaussianBlur stdDeviation='8'/%3E%3C/filter%3E%3Crect width='100' height='100' fill='%23cccccc' filter='url(%23b)'/%3E%3C/svg%3E`;
 }
 
 export function viewerJsFullSizeImageUrl(image: { src: string }): string {
