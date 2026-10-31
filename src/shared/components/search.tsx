@@ -752,6 +752,7 @@ export class Search extends Component<SearchRouteProps, SearchState> {
           <button
             type="submit"
             className="btn btn-light border-light-subtle mb-2"
+            aria-label={I18NextService.i18n.t("search")}
           >
             {this.state.searchRes.state === "loading" ? (
               <Spinner />

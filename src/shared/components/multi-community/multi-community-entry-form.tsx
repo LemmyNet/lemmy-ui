@@ -13,6 +13,7 @@ import {
 } from "@utils/app";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { EMPTY_REQUEST, RequestState } from "@services/HttpService";
+import { I18NextService } from "@services/index";
 import { Choice } from "@utils/types";
 import { CommunityLink } from "@components/community/community-link";
 import { Icon } from "@components/common/icon";
@@ -136,6 +137,7 @@ export function MultiCommunityEntryList({
                 {isCreator && onDelete && (
                   <button
                     className="btn btn-sm btn-link"
+                    aria-label={I18NextService.i18n.t("remove")}
                     onClick={() => onDelete?.(c.community.id)}
                   >
                     <Icon icon={"x"} classes="icon-inline text-danger" />
