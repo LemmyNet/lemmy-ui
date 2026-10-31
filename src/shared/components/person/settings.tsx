@@ -398,6 +398,16 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               label: I18NextService.i18n.t("blocks"),
               getNode: s => this.blockCards(s),
             },
+            {
+              key: "authentication",
+              label: I18NextService.i18n.t("authentication"),
+              getNode: s => this.authentication(s),
+            },
+            {
+              key: "import_export",
+              label: I18NextService.i18n.t("import_export"),
+              getNode: s => this.importExport(s),
+            },
             ...(this.isoData.siteRes.site_view.local_site.registration_mode ===
             "require_invitation"
               ? [
@@ -424,37 +434,8 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         role="tabpanel"
         id="settings-tab-pane"
       >
-        <div className="row">
-          {!userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
-            <div className="col-12 col-md-6">
-              <div className="card mb-3">
-                <div className="card-body">
-                  {this.saveUserSettingsHtmlForm()}
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="col-12 col-md-6">
-            {!userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
-              <>
-                <div className="card mb-3">
-                  <div className="card-body">
-                    {this.changePasswordHtmlForm()}
-                  </div>
-                </div>
-                <div className="card mb-3">
-                  <div className="card-body">{this.totpSection()}</div>
-                </div>
-              </>
-            )}
-            <div className="card mb-3">
-              <div className="card-body">{this.importExportForm()}</div>
-            </div>
-            <div className="card mb-3">
-              <div className="card-body">{this.deleteAccountForm()}</div>
-            </div>
-          </div>
-        </div>
+        {!userNotLoggedInOrBanned(this.isoData.myUserInfo) &&
+          this.saveUserSettingsHtmlForm()}
       </div>
     );
   }
@@ -500,6 +481,70 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
+  authentication(isSelected: boolean) {
+    return (
+      !userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
+        <div
+          className={classNames("tab-pane", {
+            active: isSelected,
+          })}
+          role="tabpanel"
+          id="authentication-tab-pane"
+        >
+          <div className="row">
+            <div className="col-12 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">{this.changePasswordHtmlForm()}</div>
+              </div>
+            </div>
+            <div className="col-12 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">{this.totpSection()}</div>
+              </div>
+            </div>
+            <div className="col-12 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">{this.deleteAccountForm()}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    );
+  }
+
+  importExport(isSelected: boolean) {
+    return (
+      !userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
+        <div
+          className={classNames("tab-pane", {
+            active: isSelected,
+          })}
+          role="tabpanel"
+          id="import-export-tab-pane"
+        >
+          <div className="row mb-3">
+            <h6>
+              {I18NextService.i18n.t("import_export_section_description")}
+            </h6>
+          </div>
+          <div className="row">
+            <div className="col-12 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">{this.importForm()}</div>
+              </div>
+            </div>
+            <div className="col-12 col-md-6">
+              <div className="card mb-3">
+                <div className="card-body">{this.exportForm()}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    );
+  }
+
   invitesTab(isSelected: boolean) {
     if (userNotLoggedInOrBanned(this.isoData.myUserInfo)) {
       return null;
@@ -524,7 +569,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   changePasswordHtmlForm() {
     return (
       <>
-        <h2 className="h5">{I18NextService.i18n.t("change_password")}</h2>
+        <h5 className="card-title">
+          {I18NextService.i18n.t("change_password")}
+        </h5>
         <form onSubmit={e => handleChangePasswordSubmit(this, e)}>
           <div className="mb-3">
             <PasswordInput
@@ -588,7 +635,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   blockedUsersList() {
     return (
       <>
-        <h2 className="h5">{I18NextService.i18n.t("blocked_users")}</h2>
+        <h5 className="card-title">{I18NextService.i18n.t("blocked_users")}</h5>
         <ul className="list-unstyled mb-0">
           {this.state.personBlocks.map(p => (
             <li key={p.id}>
@@ -632,7 +679,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   blockedCommunitiesList() {
     return (
       <>
-        <h2 className="h5">{I18NextService.i18n.t("blocked_communities")}</h2>
+        <h5 className="card-title">
+          {I18NextService.i18n.t("blocked_communities")}
+        </h5>
         <ul className="list-unstyled mb-0">
           {this.state.communityBlocks.map(c => (
             <li key={c.id}>
@@ -688,15 +737,16 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   blockedInstanceCommunitiesList() {
+    const blocks = this.state.instanceCommunitiesBlocks;
     return (
       <>
-        <h2 className="h5">
+        <h6 className="card-subtitle">
           {I18NextService.i18n.t(
             "blocked_all_communities_from_these_instances",
           )}
-        </h2>
+        </h6>
         <ul className="list-unstyled mb-0">
-          {this.state.instanceCommunitiesBlocks.map(i => (
+          {blocks.map(i => (
             <li key={i.id}>
               {i.domain}
               <button
@@ -714,13 +764,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   blockedInstancePersonsList() {
+    const blocks = this.state.instancePersonsBlocks;
     return (
       <>
-        <h2 className="h5">
+        <h6 className="card-subtitle">
           {I18NextService.i18n.t("blocked_all_users_from_these_instances")}
-        </h2>
+        </h6>
         <ul className="list-unstyled mb-0">
-          {this.state.instancePersonsBlocks.map(i => (
+          {blocks.map(i => (
             <li key={i.id}>
               {i.domain}
               <button
@@ -737,60 +788,59 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
     );
   }
 
-  importExportForm() {
+  exportForm() {
     return (
       <>
-        <h2 className="h5">
-          {I18NextService.i18n.t("import_export_section_title")}
-        </h2>
-        <p>{I18NextService.i18n.t("import_export_section_description")}</p>
-        {!(
-          this.state.importSettingsRes.state === "loading" ||
-          this.state.exportSettingsRes.state === "loading"
-        ) ? (
-          <>
-            <button
-              className="btn btn-light border-light-subtle mb-4"
-              onClick={() => handleExportSettings(this)}
-              type="button"
-            >
-              {I18NextService.i18n.t("export")}
-            </button>
-            <fieldset className="border rounded p-3 bg-secondary bg-opacity-25">
-              <input
-                type="file"
-                accept="application/json"
-                className="form-control"
-                aria-label="Import settings file input"
-                onChange={e => handleImportFileChange(this, e)}
-              />
-              <button
-                className="btn btn-light border-light-subtle mt-3"
-                onClick={() => handleImportSettings(this)}
-                type="button"
-                disabled={!this.state.settingsFile}
-              >
-                {I18NextService.i18n.t("import")}
-              </button>
-            </fieldset>
-          </>
-        ) : (
-          <div>
-            <div className="text-center">
-              {this.state.exportSettingsRes.state === "loading"
-                ? I18NextService.i18n.t("exporting")
-                : I18NextService.i18n.t("importing")}
+        <h5 className="card-title">{I18NextService.i18n.t("export")}</h5>
+        <button
+          className="btn btn-light border-light-subtle mb-4"
+          onClick={() => handleExportSettings(this)}
+          type="button"
+        >
+          {this.state.exportSettingsRes.state === "loading" ? (
+            <>
+              {I18NextService.i18n.t("exporting")}
               <LoadingEllipses />
-            </div>
-            <Spinner large />
-          </div>
-        )}
+            </>
+          ) : (
+            I18NextService.i18n.t("export")
+          )}
+        </button>
       </>
     );
   }
 
-  saveUserSettingsHtmlForm() {
-    const selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
+  importForm() {
+    return (
+      <>
+        <h5 className="card-title">{I18NextService.i18n.t("import")}</h5>
+        <input
+          type="file"
+          accept="application/json"
+          className="form-control"
+          aria-label="Import settings file input"
+          onChange={e => handleImportFileChange(this, e)}
+        />
+        <button
+          className="btn btn-light border-light-subtle mt-3"
+          onClick={() => handleImportSettings(this)}
+          type="button"
+          disabled={!this.state.settingsFile}
+        >
+          {this.state.importSettingsRes.state === "loading" ? (
+            <>
+              {I18NextService.i18n.t("importing")}
+              <LoadingEllipses />
+            </>
+          ) : (
+            I18NextService.i18n.t("import")
+          )}
+        </button>
+      </>
+    );
+  }
+
+  profileCard() {
     const siteRes = this.state.siteRes;
     const myUserInfo = this.isoData.myUserInfo;
     const imageUploadDisabled =
@@ -798,122 +848,143 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
     return (
       <>
-        <h2 className="h5">{I18NextService.i18n.t("settings")}</h2>
-        <form onSubmit={e => handleSaveSettingsSubmit(this, e)}>
-          <div className="mb-3 row">
-            <label className="col-sm-3 col-form-label" htmlFor="display-name">
-              {I18NextService.i18n.t("display_name")}
-            </label>
-            <div className="col-sm-9">
-              <input
-                id="display-name"
-                type="text"
-                className="form-control"
-                placeholder={I18NextService.i18n.t("optional")}
-                value={this.state.saveUserSettingsForm.display_name}
-                onInput={e => handleDisplayNameChange(this, e)}
-                pattern="^(?!@)(.+)$"
-                minLength={3}
-                maxLength={50}
-              />
-            </div>
+        <h5 className="card-title">{I18NextService.i18n.t("profile")}</h5>
+        <div className="mb-3 row">
+          <label className="col-sm-3 col-form-label" htmlFor="display-name">
+            {I18NextService.i18n.t("display_name")}
+          </label>
+          <div className="col-sm-9">
+            <input
+              id="display-name"
+              type="text"
+              className="form-control"
+              placeholder={I18NextService.i18n.t("optional")}
+              value={this.state.saveUserSettingsForm.display_name}
+              onInput={e => handleDisplayNameChange(this, e)}
+              pattern="^(?!@)(.+)$"
+              minLength={3}
+              maxLength={50}
+            />
           </div>
-          <div className="mb-3 row">
-            <label className="col-sm-3 col-form-label" htmlFor="user-bio">
-              {I18NextService.i18n.t("bio")}
-            </label>
-            <div className="col-sm-9">
-              <MarkdownTextArea
-                initialContent={this.state.saveUserSettingsForm.bio}
-                onContentChange={val => handleBioChange(this, val)}
-                maxLength={1000}
-                hideNavigationWarnings
-                allLanguages={siteRes.all_languages}
-                siteLanguages={siteRes.discussion_languages}
-                myUserInfo={myUserInfo}
-                imageUploadDisabled={imageUploadDisabled}
-              />
-            </div>
+        </div>
+        <div className="mb-3 row">
+          <label className="col-sm-3 col-form-label" htmlFor="user-bio">
+            {I18NextService.i18n.t("bio")}
+          </label>
+          <div className="col-sm-9">
+            <MarkdownTextArea
+              initialContent={this.state.saveUserSettingsForm.bio}
+              onContentChange={val => handleBioChange(this, val)}
+              maxLength={1000}
+              hideNavigationWarnings
+              allLanguages={siteRes.all_languages}
+              siteLanguages={siteRes.discussion_languages}
+              myUserInfo={myUserInfo}
+              imageUploadDisabled={imageUploadDisabled}
+            />
           </div>
-          <div className="mb-3 row">
-            <label className="col-sm-3 col-form-label" htmlFor="user-email">
-              {I18NextService.i18n.t("email")}
-            </label>
-            <div className="col-sm-9">
-              <input
-                type="email"
-                id="user-email"
-                className="form-control"
-                placeholder={I18NextService.i18n.t("optional")}
-                value={this.state.saveUserSettingsForm.email}
-                onInput={e => handleEmailChange(this, e)}
-                minLength={3}
-              />
-            </div>
+        </div>
+        <div className="mb-3 row">
+          <label className="col-sm-3 col-form-label" htmlFor="user-email">
+            {I18NextService.i18n.t("email")}
+          </label>
+          <div className="col-sm-9">
+            <input
+              type="email"
+              id="user-email"
+              className="form-control"
+              placeholder={I18NextService.i18n.t("optional")}
+              value={this.state.saveUserSettingsForm.email}
+              onInput={e => handleEmailChange(this, e)}
+              minLength={3}
+            />
           </div>
-          <div className="mb-3 row">
-            <label className="col-sm-3 col-form-label" htmlFor="matrix-user-id">
-              <a href={matrixUrl} rel={relTags}>
-                {I18NextService.i18n.t("matrix_user_id")}
-              </a>
-            </label>
-            <div className="col-sm-9">
-              <input
-                id="matrix-user-id"
-                type="text"
-                className="form-control"
-                placeholder="@user:example.com"
-                value={this.state.saveUserSettingsForm.matrix_user_id}
-                onInput={e => handleMatrixUserIdChange(this, e)}
-                pattern="^@[A-Za-z0-9\x21-\x39\x3B-\x7F]+:[A-Za-z0-9.-]+(:[0-9]{2,5})?$"
-              />
-            </div>
+        </div>
+        <div className="mb-3 row">
+          <label className="col-sm-3 col-form-label" htmlFor="matrix-user-id">
+            <a href={matrixUrl} rel={relTags}>
+              {I18NextService.i18n.t("matrix_user_id")}
+            </a>
+          </label>
+          <div className="col-sm-9">
+            <input
+              id="matrix-user-id"
+              type="text"
+              className="form-control"
+              placeholder="@user:example.com"
+              value={this.state.saveUserSettingsForm.matrix_user_id}
+              onInput={e => handleMatrixUserIdChange(this, e)}
+              pattern="^@[A-Za-z0-9\x21-\x39\x3B-\x7F]+:[A-Za-z0-9.-]+(:[0-9]{2,5})?$"
+            />
           </div>
-          <div className="mb-3 row">
-            <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("avatar")}
-            </label>
-            <div className="col-sm-9">
-              <ImageUploadForm
-                uploadTitle={I18NextService.i18n.t("upload_avatar")}
-                imageSrc={this.state.avatar}
-                uploadKey="uploadUserAvatar"
-                removeKey="deleteUserAvatar"
-                onImageChange={url => handleAvatarChange(this, myUserInfo, url)}
-                rounded
-                disabled={!myUserInfo}
-              />
-            </div>
+        </div>
+        <div className="mb-3 row">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("avatar")}
+          </label>
+          <div className="col-sm-9">
+            <ImageUploadForm
+              uploadTitle={I18NextService.i18n.t("upload_avatar")}
+              imageSrc={this.state.avatar}
+              uploadKey="uploadUserAvatar"
+              removeKey="deleteUserAvatar"
+              onImageChange={url => handleAvatarChange(this, myUserInfo, url)}
+              rounded
+              disabled={!myUserInfo}
+            />
           </div>
-          <div className="mb-3 row">
-            <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("banner")}
-            </label>
-            <div className="col-sm-9">
-              <ImageUploadForm
-                uploadTitle={I18NextService.i18n.t("upload_banner")}
-                uploadKey="uploadUserBanner"
-                removeKey="deleteUserBanner"
-                onImageChange={url => handleBannerChange(this, myUserInfo, url)}
-                imageSrc={this.state.banner}
-                disabled={!myUserInfo}
-              />
-            </div>
+        </div>
+        <div className="mb-3 row">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("banner")}
+          </label>
+          <div className="col-sm-9">
+            <ImageUploadForm
+              uploadTitle={I18NextService.i18n.t("upload_banner")}
+              uploadKey="uploadUserBanner"
+              removeKey="deleteUserBanner"
+              onImageChange={url => handleBannerChange(this, myUserInfo, url)}
+              imageSrc={this.state.banner}
+              disabled={!myUserInfo}
+            />
           </div>
-          <div className="mb-3 row">
-            <label className="col-sm-3 form-label" htmlFor="user-language">
-              {I18NextService.i18n.t("interface_language")}
-            </label>
-            <div className="col-sm-9">
-              <InterfaceLanguageDropdown
-                currentOption={
-                  this.state.saveUserSettingsForm.interface_language ??
-                  "browser"
-                }
-                onSelect={val => handleInterfaceLangChange(this, val)}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"bot_account"}
+              isChecked={this.state.saveUserSettingsForm.bot_account ?? false}
+              onCheck={val => handleBotAccountChange(this, val)}
+            />
           </div>
+        </div>
+      </>
+    );
+  }
+
+  contentCard() {
+    const selectedLangs = this.state.saveUserSettingsForm.discussion_languages;
+    const siteRes = this.state.siteRes;
+    const myUserInfo = this.isoData.myUserInfo;
+
+    return (
+      <>
+        <h5 className="card-title">{I18NextService.i18n.t("content")}</h5>
+        <div className="mb-3 row">
+          <label className="col-sm-3 form-label" htmlFor="user-language">
+            {I18NextService.i18n.t("interface_language")}
+          </label>
+          <div className="col-sm-9">
+            <InterfaceLanguageDropdown
+              currentOption={
+                this.state.saveUserSettingsForm.interface_language ?? "browser"
+              }
+              onSelect={val => handleInterfaceLangChange(this, val)}
+            />
+          </div>
+        </div>
+        <details className="col-form-label mb-3">
+          <summary>Languages TODO</summary>
           <LanguageSelect
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
@@ -927,347 +998,390 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             }
             myUserInfo={myUserInfo}
           />
-          <div className="mb-3 row align-items-center">
-            <label className="col-sm-3 col-form-label" htmlFor="user-theme">
-              {I18NextService.i18n.t("theme")}
-            </label>
-            <div className="col-sm-9">
-              <ThemeDropdown
-                themeList={this.state.themeList}
-                includeInstanceDefaults
-                currentOption={
-                  this.state.saveUserSettingsForm.theme ?? "instance"
-                }
-                onSelect={theme => handleThemeChange(this, theme)}
-              />
-            </div>
+        </details>
+      </>
+    );
+  }
+
+  lookAndFeelCard() {
+    const myUserInfo = this.isoData.myUserInfo;
+
+    return (
+      <>
+        <h5 className="card-title">{I18NextService.i18n.t("look_and_feel")}</h5>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label" htmlFor="user-theme">
+            {I18NextService.i18n.t("theme")}
+          </label>
+          <div className="col-sm-9">
+            <ThemeDropdown
+              themeList={this.state.themeList}
+              includeInstanceDefaults
+              currentOption={
+                this.state.saveUserSettingsForm.theme ?? "instance"
+              }
+              onSelect={theme => handleThemeChange(this, theme)}
+            />
           </div>
-          <div className="mb-3 row align-items-center">
-            <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("type")}
-            </label>
-            <div className="col-sm-9">
-              <ListingTypeDropdown
-                currentOption={
-                  this.state.saveUserSettingsForm.default_listing_type ??
-                  "local"
-                }
-                showLocal={showLocal(this.isoData)}
-                showSubscribed
-                showSuggested={
-                  !!this.isoData.siteRes.site_view.local_site
-                    .suggested_multi_community_id
-                }
-                myUserInfo={myUserInfo}
-                showLabel={false}
-                onSelect={val => handleListingTypeChange(this, val)}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_nsfw"}
+              isChecked={this.state.saveUserSettingsForm.show_nsfw ?? false}
+              onCheck={val => handleShowNsfwChange(this, val)}
+            />
           </div>
-          <div className="mb-3 row align-items-center">
-            <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("listing_mode")}
-            </label>
-            <div className="col-sm-9">
-              <PostListingModeDropdown
-                currentOption={
-                  this.state.saveUserSettingsForm.post_listing_mode ?? "list"
-                }
-                onSelect={val => handlePostListingModeChange(this, val)}
-                showLabel={false}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"blur_nsfw"}
+              isChecked={
+                (this.state.saveUserSettingsForm.blur_nsfw ?? false) &&
+                (this.state.saveUserSettingsForm.show_nsfw ?? false)
+              }
+              onCheck={val => handleBlurNsfwChange(this, val)}
+              disabled={!this.state.saveUserSettingsForm.show_nsfw}
+            />
           </div>
-          <div className="mb-3 row align-items-center">
-            <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("post_sort_type")}
-            </label>
-            <div className="col-sm-9">
-              <PostSortDropdown
-                currentOption={
-                  this.state.saveUserSettingsForm.default_post_sort_type ??
-                  "active"
-                }
-                onSelect={val => handlePostSortTypeChange(this, val)}
-                showLabel={false}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_avatars"}
+              isChecked={this.state.saveUserSettingsForm.show_avatars ?? false}
+              onCheck={val => handleShowAvatarsChange(this, val, myUserInfo)}
+            />
           </div>
-          <div className="mb-3 row align-items-center">
-            <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("comment_sort_type")}
-            </label>
-            <div className="col-sm-9">
-              <CommentSortDropdown
-                currentOption={
-                  this.state.saveUserSettingsForm.default_comment_sort_type ??
-                  "hot"
-                }
-                onSelect={val => handleCommentSortTypeChange(this, val)}
-                showLabel={false}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_media"}
+              isChecked={this.state.saveUserSettingsForm.show_media ?? false}
+              onCheck={val => handleShowMediaChange(this, val, myUserInfo)}
+            />
           </div>
-          <div className="mb-3 row align-items-center">
-            <label
-              className="col-sm-3 col-form-label"
-              htmlFor="post-time-range"
-            >
-              {I18NextService.i18n.t("post_time_range")}
-            </label>
-            <div className="col-sm-9">
-              <TimeIntervalFilter
-                interval={
-                  secondsToLargestInterval(
-                    this.state.saveUserSettingsForm
-                      .default_post_time_range_seconds,
-                  ) ?? ALL_TIME_INTERVAL
-                }
-                onChange={interval => handlePostTimeRangeChange(this, interval)}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_animated_images"}
+              isChecked={
+                this.state.saveUserSettingsForm.animated_images_enabled ?? false
+              }
+              onCheck={val =>
+                handleEnableAnimatedImagesChange(this, val, myUserInfo)
+              }
+            />
           </div>
-          <div className="mb-3 row">
-            <label className="col-sm-3 col-form-label" htmlFor="items-per-page">
-              {I18NextService.i18n.t("posts_per_page")}
-            </label>
-            <div className="col-sm-9">
-              <input
-                id="items-per-page"
-                type="number"
-                className="form-control"
-                value={this.state.saveUserSettingsForm.default_items_per_page}
-                onInput={e => handleItemsPerPageChange(this, e)}
-                min={1}
-                max={50}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div
+            className="col"
+            data-tippy-content={I18NextService.i18n.t("hide_memes_description")}
+          >
+            <FilterChipCheckbox
+              option={"hide_memes"}
+              isChecked={
+                this.state.saveUserSettingsForm.hide_posts_with_media ?? false
+              }
+              onCheck={val =>
+                handleHidePostsWithMediaChange(this, val, myUserInfo)
+              }
+            />
           </div>
-          <BlockingKeywordsTextArea
-            keywords={this.state.saveUserSettingsForm.blocking_keywords ?? []}
-            onUpdate={keywords => handleBlockingKeywordsUpdate(this, keywords)}
-          />
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_nsfw"}
-                isChecked={this.state.saveUserSettingsForm.show_nsfw ?? false}
-                onCheck={val => handleShowNsfwChange(this, val)}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_bot_accounts"}
+              isChecked={
+                this.state.saveUserSettingsForm.show_bot_accounts ?? false
+              }
+              onCheck={val => handleShowBotAccountsChange(this, val)}
+            />
           </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"blur_nsfw"}
-                isChecked={
-                  (this.state.saveUserSettingsForm.blur_nsfw ?? false) &&
-                  (this.state.saveUserSettingsForm.show_nsfw ?? false)
-                }
-                onCheck={val => handleBlurNsfwChange(this, val)}
-                disabled={!this.state.saveUserSettingsForm.show_nsfw}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"collapse_bot_comments"}
+              isChecked={
+                this.state.saveUserSettingsForm.collapse_bot_comments ?? false
+              }
+              onCheck={val => handleCollapseBotCommentsChange(this, val)}
+            />
           </div>
-          <div className="row mb-3 align-items-center">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_scores"}
-                isChecked={this.state.saveUserSettingsForm.show_score ?? false}
-                onCheck={val => handleShowScoresChange(this, val, myUserInfo)}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_read_posts"}
+              isChecked={
+                this.state.saveUserSettingsForm.show_read_posts ?? false
+              }
+              onCheck={val => handleShowReadPostsChange(this, val)}
+            />
           </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_upvotes"}
-                isChecked={
-                  this.state.saveUserSettingsForm.show_upvotes ?? false
-                }
-                onCheck={val => handleShowUpvotesChange(this, val, myUserInfo)}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"send_notifications_to_email"}
+              isChecked={
+                this.state.saveUserSettingsForm.send_notifications_to_email ??
+                false
+              }
+              onCheck={val => handleSendNotificationsToEmailChange(this, val)}
+            />
           </div>
-          <div className="mb-3 row align-items-center">
-            <label className="col-sm-3 col-form-label">
-              {I18NextService.i18n.t("show_downvotes")}
-            </label>
-            <div className="col-sm-9">
-              <VoteShowDropdown
-                currentOption={
-                  this.state.saveUserSettingsForm.show_downvotes ?? "show"
-                }
-                onSelect={val => handleShowDownvotesChange(this, val)}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"open_links_in_new_tab"}
+              isChecked={
+                this.state.saveUserSettingsForm.open_links_in_new_tab ?? false
+              }
+              onCheck={val => handleOpenLinksInNewTabChange(this, val)}
+            />
           </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_upvote_percentage"}
-                isChecked={
-                  this.state.saveUserSettingsForm.show_upvote_percentage ??
-                  false
-                }
-                onCheck={val =>
-                  handleShowUpvotePercentageChange(this, val, myUserInfo)
-                }
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"enable_private_messages"}
+              isChecked={
+                this.state.saveUserSettingsForm.private_messages_enabled ??
+                false
+              }
+              onCheck={val => handleEnablePrivateMessages(this, val)}
+            />
           </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_user_vote_totals"}
-                isChecked={
-                  this.state.saveUserSettingsForm.show_person_votes ?? false
-                }
-                onCheck={val => handleShowPersonVotesChange(this, val)}
-              />
-            </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"auto_mark_fetched_posts_as_read"}
+              isChecked={
+                this.state.saveUserSettingsForm
+                  .auto_mark_fetched_posts_as_read ?? false
+              }
+              onCheck={val => handleAutoMarkFetchedPostsAsReadChange(this, val)}
+            />
           </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_avatars"}
-                isChecked={
-                  this.state.saveUserSettingsForm.show_avatars ?? false
-                }
-                onCheck={val => handleShowAvatarsChange(this, val, myUserInfo)}
-              />
-            </div>
+        </div>
+      </>
+    );
+  }
+
+  sortingAndFilteringCard() {
+    const myUserInfo = this.isoData.myUserInfo;
+
+    return (
+      <>
+        <h5 className="card-title">
+          {I18NextService.i18n.t("sorting_and_filtering")}
+        </h5>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("type")}
+          </label>
+          <div className="col-sm-9">
+            <ListingTypeDropdown
+              currentOption={
+                this.state.saveUserSettingsForm.default_listing_type ?? "local"
+              }
+              showLocal={showLocal(this.isoData)}
+              showSubscribed
+              showSuggested={
+                !!this.isoData.siteRes.site_view.local_site
+                  .suggested_multi_community_id
+              }
+              myUserInfo={myUserInfo}
+              showLabel={false}
+              onSelect={val => handleListingTypeChange(this, val)}
+            />
           </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_media"}
-                isChecked={this.state.saveUserSettingsForm.show_media ?? false}
-                onCheck={val => handleShowMediaChange(this, val, myUserInfo)}
-              />
-            </div>
+        </div>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("listing_mode")}
+          </label>
+          <div className="col-sm-9">
+            <PostListingModeDropdown
+              currentOption={
+                this.state.saveUserSettingsForm.post_listing_mode ?? "list"
+              }
+              onSelect={val => handlePostListingModeChange(this, val)}
+              showLabel={false}
+            />
           </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_animated_images"}
-                isChecked={
-                  this.state.saveUserSettingsForm.animated_images_enabled ??
-                  false
-                }
-                onCheck={val =>
-                  handleEnableAnimatedImagesChange(this, val, myUserInfo)
-                }
-              />
-            </div>
+        </div>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("post_sort_type")}
+          </label>
+          <div className="col-sm-9">
+            <PostSortDropdown
+              currentOption={
+                this.state.saveUserSettingsForm.default_post_sort_type ??
+                "active"
+              }
+              onSelect={val => handlePostSortTypeChange(this, val)}
+              showLabel={false}
+            />
           </div>
-          <div className="row mb-3">
-            <div
-              className="col"
-              data-tippy-content={I18NextService.i18n.t(
-                "hide_memes_description",
-              )}
-            >
-              <FilterChipCheckbox
-                option={"hide_memes"}
-                isChecked={
-                  this.state.saveUserSettingsForm.hide_posts_with_media ?? false
-                }
-                onCheck={val =>
-                  handleHidePostsWithMediaChange(this, val, myUserInfo)
-                }
-              />
-            </div>
+        </div>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("comment_sort_type")}
+          </label>
+          <div className="col-sm-9">
+            <CommentSortDropdown
+              currentOption={
+                this.state.saveUserSettingsForm.default_comment_sort_type ??
+                "hot"
+              }
+              onSelect={val => handleCommentSortTypeChange(this, val)}
+              showLabel={false}
+            />
           </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"bot_account"}
-                isChecked={this.state.saveUserSettingsForm.bot_account ?? false}
-                onCheck={val => handleBotAccountChange(this, val)}
-              />
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_bot_accounts"}
-                isChecked={
-                  this.state.saveUserSettingsForm.show_bot_accounts ?? false
-                }
-                onCheck={val => handleShowBotAccountsChange(this, val)}
-              />
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"collapse_bot_comments"}
-                isChecked={
-                  this.state.saveUserSettingsForm.collapse_bot_comments ?? false
-                }
-                onCheck={val => handleCollapseBotCommentsChange(this, val)}
-              />
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_read_posts"}
-                isChecked={
-                  this.state.saveUserSettingsForm.show_read_posts ?? false
-                }
-                onCheck={val => handleShowReadPostsChange(this, val)}
-              />
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"send_notifications_to_email"}
-                isChecked={
-                  this.state.saveUserSettingsForm.send_notifications_to_email ??
-                  false
-                }
-                onCheck={val => handleSendNotificationsToEmailChange(this, val)}
-              />
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"open_links_in_new_tab"}
-                isChecked={
-                  this.state.saveUserSettingsForm.open_links_in_new_tab ?? false
-                }
-                onCheck={val => handleOpenLinksInNewTabChange(this, val)}
-              />
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"enable_private_messages"}
-                isChecked={
-                  this.state.saveUserSettingsForm.private_messages_enabled ??
-                  false
-                }
-                onCheck={val => handleEnablePrivateMessages(this, val)}
-              />
-            </div>
-          </div>
-          <div className="row mb-3">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"auto_mark_fetched_posts_as_read"}
-                isChecked={
+        </div>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label" htmlFor="post-time-range">
+            {I18NextService.i18n.t("post_time_range")}
+          </label>
+          <div className="col-sm-9">
+            <TimeIntervalFilter
+              interval={
+                secondsToLargestInterval(
                   this.state.saveUserSettingsForm
-                    .auto_mark_fetched_posts_as_read ?? false
-                }
-                onCheck={val =>
-                  handleAutoMarkFetchedPostsAsReadChange(this, val)
-                }
-              />
+                    .default_post_time_range_seconds,
+                ) ?? ALL_TIME_INTERVAL
+              }
+              onChange={interval => handlePostTimeRangeChange(this, interval)}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <label className="col-sm-3 col-form-label" htmlFor="items-per-page">
+            {I18NextService.i18n.t("posts_per_page")}
+          </label>
+          <div className="col-sm-9">
+            <input
+              id="items-per-page"
+              type="number"
+              className="form-control"
+              value={this.state.saveUserSettingsForm.default_items_per_page}
+              onInput={e => handleItemsPerPageChange(this, e)}
+              min={1}
+              max={50}
+            />
+          </div>
+        </div>
+        <BlockingKeywordsTextArea
+          keywords={this.state.saveUserSettingsForm.blocking_keywords ?? []}
+          onUpdate={keywords => handleBlockingKeywordsUpdate(this, keywords)}
+        />
+      </>
+    );
+  }
+
+  votingCard() {
+    const myUserInfo = this.isoData.myUserInfo;
+
+    return (
+      <>
+        <h5 className="card-title">{I18NextService.i18n.t("voting")}</h5>
+        <div className="row mb-3 align-items-center">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_scores"}
+              isChecked={this.state.saveUserSettingsForm.show_score ?? false}
+              onCheck={val => handleShowScoresChange(this, val, myUserInfo)}
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_upvotes"}
+              isChecked={this.state.saveUserSettingsForm.show_upvotes ?? false}
+              onCheck={val => handleShowUpvotesChange(this, val, myUserInfo)}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("show_downvotes")}
+          </label>
+          <div className="col-sm-9">
+            <VoteShowDropdown
+              currentOption={
+                this.state.saveUserSettingsForm.show_downvotes ?? "show"
+              }
+              onSelect={val => handleShowDownvotesChange(this, val)}
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_upvote_percentage"}
+              isChecked={
+                this.state.saveUserSettingsForm.show_upvote_percentage ?? false
+              }
+              onCheck={val =>
+                handleShowUpvotePercentageChange(this, val, myUserInfo)
+              }
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"show_user_vote_totals"}
+              isChecked={
+                this.state.saveUserSettingsForm.show_person_votes ?? false
+              }
+              onCheck={val => handleShowPersonVotesChange(this, val)}
+            />
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  saveUserSettingsHtmlForm() {
+    return (
+      <form onSubmit={e => handleSaveSettingsSubmit(this, e)}>
+        <div className="row">
+          <div className="col-12 col-md-6">
+            <div className="card mb-3">
+              <div className="card-body">{this.profileCard()}</div>
+            </div>
+          </div>
+          <div className="col-12 col-md-6">
+            <div className="card mb-3">
+              <div className="card-body">{this.contentCard()}</div>
+            </div>
+          </div>
+          <div className="col-12 col-md-6">
+            <div className="card mb-3">
+              <div className="card-body">{this.lookAndFeelCard()}</div>
+            </div>
+          </div>
+          <div className="col-12 col-md-6">
+            <div className="card mb-3">
+              <div className="card-body">{this.sortingAndFilteringCard()}</div>
+            </div>
+          </div>
+          <div className="col-12 col-md-6">
+            <div className="card mb-3">
+              <div className="card-body">{this.votingCard()}</div>
             </div>
           </div>
           <div className="input-group mb-3">
@@ -1282,15 +1396,17 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               )}
             </button>
           </div>
-        </form>
-      </>
+        </div>
+      </form>
     );
   }
 
   deleteAccountForm() {
     return (
       <>
-        <h2 className="h5">{I18NextService.i18n.t("delete_account")}</h2>
+        <h5 className="card-title">
+          {I18NextService.i18n.t("delete_account")}
+        </h5>
         <form className="mb-3" onSubmit={e => handleDeleteAccount(this, e)}>
           <button
             type="button"
@@ -1359,7 +1475,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
 
     return (
       <>
-        <h2 className="h5">{I18NextService.i18n.t(totpActionStr)}</h2>
+        <h5 className="card-title">{I18NextService.i18n.t(totpActionStr)}</h5>
         <button
           type="button"
           className="btn btn-light border-light-subtle my-2"
