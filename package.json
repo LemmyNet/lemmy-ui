@@ -70,7 +70,7 @@
     "i18next": "^23.16.8",
     "idna-uts46-hx": "^6.2.4",
     "inferno": "^9.1.0",
-    "inferno-create-element": "^9.1.0",
+    "inferno-create-element": "^10.0.0",
     "inferno-helmet": "^5.2.1",
     "inferno-hydrate": "^9.1.0",
     "inferno-i18next-dess": "0.0.2",
