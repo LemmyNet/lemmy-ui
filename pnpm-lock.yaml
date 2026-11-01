@@ -36,8 +36,8 @@ importers:
         specifier: ^10.1.1
         version: 10.1.1(@babel/core@7.29.7)(webpack@5.112.2)
       babel-plugin-inferno:
-        specifier: ^6.9.0
-        version: 6.9.0(@babel/core@7.29.7)
+        specifier: ^10.0.0
+        version: 10.0.0(@babel/core@7.29.7)
       bootstrap:
         specifier: ^5.3.8
         version: 5.3.8(@popperjs/core@2.11.8)
@@ -2175,9 +2175,9 @@ packages:
       webpack:
         optional: true
 
-  babel-plugin-inferno@6.9.0:
-    resolution: {integrity: sha512-OQNdU/zIbUOwBSyNGElbwoJflAMXkXaYKIe8vqnjgc6f5g25CKwFOZIEko33nuNEaqO8tcCDe2pEzwVhiaQksA==}
-    engines: {node: '>=18'}
+  babel-plugin-inferno@10.0.0:
+    resolution: {integrity: sha512-q0tvkJrh6P+vbdEf/kb2LpHLB5funE9pqW1I0Adi9BUP5IDY1QCCxXw3f8KKuq5SidznpMIrw8t/SUxBREqL5Q==}
+    engines: {node: '>=24'}
 
   babel-plugin-polyfill-corejs2@0.4.17:
     resolution: {integrity: sha512-aTyf30K/rqAsNwN76zYrdtx8obu0E4KoUME29B1xj+B3WxgvWkp943vYQ+z8Mv3lw9xHXMHpvSPOBxzAkIa94w==}
@@ -7233,7 +7233,7 @@ snapshots:
     optionalDependencies:
       webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
 
-  babel-plugin-inferno@6.9.0(@babel/core@7.29.7):
+  babel-plugin-inferno@10.0.0(@babel/core@7.29.7):
     dependencies:
       '@babel/plugin-syntax-jsx': 8.0.1(@babel/core@7.29.7)
       '@babel/types': 8.0.8
