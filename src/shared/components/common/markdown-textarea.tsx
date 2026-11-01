@@ -175,6 +175,7 @@ export class MarkdownTextArea extends Component<
                           <button
                             type="button"
                             className="btn btn-sm btn-link rounded-0 text-muted mb-0"
+                            aria-label={I18NextService.i18n.t("upload_image")}
                             onClick={() => {
                               fileUploadRef.current?.click();
                             }}

@@ -10,22 +10,14 @@ type IconProps = {
 };
 
 export function Icon({ icon, classes, inline, small }: IconProps) {
-  let iconAltText: string | undefined;
-  if (icon === "plus-square" || icon === "minus-square") {
-    iconAltText = `${I18NextService.i18n.t("show_content")}`;
-  }
-
   return (
     <svg
       className={classNames("icon", classes, {
         "icon-inline": inline,
         small: small,
       })}
-      {...(iconAltText
-        ? { role: "img", "aria-describedby": `${icon}-alt` }
-        : {})}
+      aria-hidden="true"
     >
-      {iconAltText && <title id={`${icon}-alt`}>{iconAltText}</title>}
       <use
         xlinkHref={`${getStaticDir()}/assets/symbols.svg#icon-${icon}`}
       ></use>
