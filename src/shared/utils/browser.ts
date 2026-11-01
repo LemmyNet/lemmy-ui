@@ -128,12 +128,16 @@ export function snapToTop() {
   window.scrollTo({ left: 0, top: 0, behavior: "instant" });
 }
 
-export async function masonryUpdate() {
-  if (isBrowser() && document.getElementsByClassName("post-listings-grid")) {
+export async function masonryUpdate(name_: string) {
+  if (isBrowser() && document.getElementsByClassName(name_)) {
     const Masonry = (await import("masonry-layout")).default;
-    new Masonry(".post-listings-grid", {
+    new Masonry(`.${name_}`, {
       percentPosition: true,
       horizontalOrder: true,
     });
   }
+}
+
+export async function masonryUpdatePostListings() {
+  await masonryUpdate("post-listings-grid");
 }

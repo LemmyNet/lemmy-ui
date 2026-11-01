@@ -76,6 +76,7 @@ import TotpModal from "../common/modal/totp-modal";
 import { LoadingEllipses } from "../common/loading-ellipses";
 import {
   isBrowser,
+  masonryUpdate,
   refreshTheme,
   setThemeOverride,
   snapToTop,
@@ -995,7 +996,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             />
           </div>
         </div>
-        <details className="col-form-label mb-3">
+        <details
+          className="col-form-label mb-3"
+          onToggle={async () => await masonryUpdate("settings-grid")}
+        >
           <summary>Languages TODO</summary>
           <LanguageSelect
             allLanguages={siteRes.all_languages}
@@ -2295,15 +2299,5 @@ async function handleDeleteAccount(
     }
 
     i.setState({ deleteAccountRes });
-  }
-}
-
-async function masonryUpdate(name_: string) {
-  if (isBrowser() && document.getElementsByClassName(name_)) {
-    const Masonry = (await import("masonry-layout")).default;
-    new Masonry(`.${name_}`, {
-      percentPosition: true,
-      horizontalOrder: true,
-    });
   }
 }

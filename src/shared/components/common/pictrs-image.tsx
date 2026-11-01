@@ -6,7 +6,7 @@ import { Component } from "inferno";
 import { setIsoData } from "@utils/app";
 import { IsoData } from "@utils/types";
 import { getStaticDir } from "@utils/env";
-import { masonryUpdate } from "@utils/browser";
+import { masonryUpdatePostListings } from "@utils/browser";
 import { ImageDetails } from "lemmy-js-client";
 import { createRef } from "inferno";
 
@@ -132,7 +132,7 @@ export class PictrsImage extends Component<Props, State> {
               "avatar-overlay": type === "icon_and_banner",
               "card-img-top": type === "card_top",
             })}
-            onLoad={() => masonryUpdate()}
+            onLoad={() => masonryUpdatePostListings()}
             onError={() => handleImgLoadError(this)}
           />
         </picture>
