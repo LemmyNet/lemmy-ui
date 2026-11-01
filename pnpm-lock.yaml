@@ -43,7 +43,7 @@ importers:
         version: 5.3.8(@popperjs/core@2.11.8)
       caniuse-lite:
         specifier: ^1.0.30001819
-        version: 1.0.30001819
+        version: 1.0.30001820
       check-password-strength:
         specifier: ^3.0.0
         version: 3.0.0
@@ -217,7 +217,7 @@ importers:
         version: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.2.3)
       webpack-cli:
         specifier: ^7.2.3
-        version: 7.2.3(json5@2.2.3)(webpack-bundle-analyzer@5.4.0)(webpack-dev-server@5.2.5)(webpack@5.112.2)
+        version: 7.2.3(json5@2.2.3)(webpack-bundle-analyzer@5.4.0)(webpack-dev-server@5.2.7)(webpack@5.112.2)
       webpack-node-externals:
         specifier: ^3.0.0
         version: 3.0.0
@@ -323,7 +323,7 @@ importers:
         version: 3.0.3(prettier@3.9.10)
       qs:
         specifier: ^6.17.0
-        version: 6.17.0
+        version: 6.17.1
       rimraf:
         specifier: ^6.1.3
         version: 6.1.3
@@ -349,8 +349,8 @@ importers:
         specifier: ^5.4.0
         version: 5.4.0
       webpack-dev-server:
-        specifier: 5.2.5
-        version: 5.2.5(webpack-cli@7.2.3)(webpack@5.112.2)
+        specifier: 5.2.7
+        version: 5.2.7(webpack-cli@7.2.3)(webpack@5.112.2)
 
 packages:
 
@@ -2297,8 +2297,8 @@ packages:
     resolution: {integrity: sha512-ksWePWBloaWPxJYQ8TL0JHvtci6G5QTKwQ95RcWAa/lzoAKuAOflGdAK92hpHXjkwb8zLxoLNUoNYZgVsaJzvQ==}
     engines: {node: '>=4'}
 
-  caniuse-lite@1.0.30001819:
-    resolution: {integrity: sha512-LFUqIIAwpzsIuevnKnsR9qnStBcgzPShTX61lBwN9uFkkf8o8zLiebEjbW8AYtZiF+1YKDWfdt/pWDtMuG8Xwg==}
+  caniuse-lite@1.0.30001820:
+    resolution: {integrity: sha512-gfWD6MxqVCqAOwmODfZf7DchWvlrA+SRdNX7ceLfg3xRqe5ssjjpF7EgslC/0tiLiNTajdaNN/q8c/5u/7Gz8w==}
 
   check-password-strength@3.0.0:
     resolution: {integrity: sha512-XIBvWpb7/RI2DO05tMixE4WbFFvEC7ls/jr1VSrWgXvlCmdiH2fsdkixG0cNGs1uIXwoSqJ75T3s9H/TlJV6Cw==}
@@ -4263,12 +4263,12 @@ packages:
     resolution: {integrity: sha512-7b14+QCADpdeBAf9x+BzrFiKFyLBkEsSsHU8jmZAwbGnA5ce/bGzA4TS+wtayzAdapO9x01NMErhHINJAcWwLw==}
     engines: {node: '>=18'}
 
-  qs@6.16.1:
-    resolution: {integrity: sha512-5Px6J7rfHBAGUhNQ3es4YzcOdBBw0SDcVtThJml4RdnKw4tKs2epA0kPZ+K8X+WiHktT93RHVcQ/3ym5aTCgtg==}
+  qs@6.16.2:
+    resolution: {integrity: sha512-VYdnB5S7/0IeXzBacUtwNAaM6d7Y/PgYnNC7bJCI6meqA/OgnsQbZMtVW8Dt2D1PHgbHGtYmhSoEIgvt7xZ2ZA==}
     engines: {node: '>=0.6'}
 
-  qs@6.17.0:
-    resolution: {integrity: sha512-5LK5BZ2XDHMvcUJaf0CQ5HL3aVgKbpklvByC7qLSxYkfE8COEEbJg5xCHWCTqzqi0Gs4Jn5Mv5v3R38W6edscA==}
+  qs@6.17.1:
+    resolution: {integrity: sha512-jd3COkaKVgGUW+ZHyEHCG9bH7RoaaiWuMgzsIBjUMVjLAaWGWpoUAVwljVvBHxRu/2qEHnadLGZrkutYUBPQJA==}
     engines: {node: '>=0.6'}
 
   queue-microtask@1.2.3:
@@ -4999,8 +4999,8 @@ packages:
       webpack:
         optional: true
 
-  webpack-dev-server@5.2.5:
-    resolution: {integrity: sha512-4wZtCquSuv9CKX8oybo+mqxtxZqWz47uM1Ch94lxowBztOhWCbhqvRbfC/mODOwxgV2brY+JGZpHq58/SuVFYg==}
+  webpack-dev-server@5.2.7:
+    resolution: {integrity: sha512-ryXhAEoe/BZlvk0iPNHrr9nsGtNBhC7viKO/tFISSpLjleFfSoi58hpOkN18iZRgwht1aMKVIVvrYgjYfYqSiA==}
     engines: {node: '>= 18.12.0'}
     hasBin: true
     peerDependencies:
@@ -6765,7 +6765,7 @@ snapshots:
 
   '@types/connect-history-api-fallback@1.5.4':
     dependencies:
-      '@types/express-serve-static-core': 4.19.9
+      '@types/express-serve-static-core': 5.1.3
       '@types/node': 24.19.2
 
   '@types/connect@3.4.38':
@@ -7316,7 +7316,7 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.4.24
       on-finished: 2.4.2
-      qs: 6.16.1
+      qs: 6.16.2
       raw-body: 2.5.3
       type-is: 1.6.18
       unpipe: 1.0.0
@@ -7331,7 +7331,7 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.7.3
       on-finished: 2.4.2
-      qs: 6.17.0
+      qs: 6.17.1
       raw-body: 3.0.2
       type-is: 2.1.0
     transitivePeerDependencies:
@@ -7366,7 +7366,7 @@ snapshots:
   browserslist@4.29.5:
     dependencies:
       baseline-browser-mapping: 2.11.33
-      caniuse-lite: 1.0.30001819
+      caniuse-lite: 1.0.30001820
       electron-to-chromium: 1.5.465
       node-releases: 2.0.60
       update-browserslist-db: 1.3.4(browserslist@4.29.5)
@@ -7418,7 +7418,7 @@ snapshots:
 
   callsites@2.0.0: {}
 
-  caniuse-lite@1.0.30001819: {}
+  caniuse-lite@1.0.30001820: {}
 
   check-password-strength@3.0.0:
     dependencies:
@@ -8026,7 +8026,7 @@ snapshots:
       parseurl: 1.3.3
       path-to-regexp: 0.1.13
       proxy-addr: 2.0.8
-      qs: 6.16.1
+      qs: 6.16.2
       range-parser: 1.2.1
       safe-buffer: 5.2.1
       send: 0.19.2
@@ -8061,7 +8061,7 @@ snapshots:
       once: 1.4.0
       parseurl: 1.3.3
       proxy-addr: 2.0.8
-      qs: 6.17.0
+      qs: 6.17.1
       range-parser: 1.3.0
       router: 2.2.0
       send: 1.2.1
@@ -9339,12 +9339,12 @@ snapshots:
       js-base64: 3.9.5
       sharp: 0.34.5
 
-  qs@6.16.1:
+  qs@6.16.2:
     dependencies:
       es-define-property: 1.0.1
       side-channel: 1.1.1
 
-  qs@6.17.0:
+  qs@6.17.1:
     dependencies:
       es-define-property: 1.0.1
       side-channel: 1.1.1
@@ -10195,7 +10195,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  webpack-cli@7.2.3(json5@2.2.3)(webpack-bundle-analyzer@5.4.0)(webpack-dev-server@5.2.5)(webpack@5.112.2):
+  webpack-cli@7.2.3(json5@2.2.3)(webpack-bundle-analyzer@5.4.0)(webpack-dev-server@5.2.7)(webpack@5.112.2):
     dependencies:
       '@discoveryjs/json-ext': 1.1.0
       commander: 14.0.3
@@ -10209,7 +10209,7 @@ snapshots:
     optionalDependencies:
       json5: 2.2.3
       webpack-bundle-analyzer: 5.4.0
-      webpack-dev-server: 5.2.5(webpack-cli@7.2.3)(webpack@5.112.2)
+      webpack-dev-server: 5.2.7(webpack-cli@7.2.3)(webpack@5.112.2)
 
   webpack-dev-middleware@7.4.6(webpack@5.112.2):
     dependencies:
@@ -10222,7 +10222,7 @@ snapshots:
     optionalDependencies:
       webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.2.3)
 
-  webpack-dev-server@5.2.5(webpack-cli@7.2.3)(webpack@5.112.2):
+  webpack-dev-server@5.2.7(webpack-cli@7.2.3)(webpack@5.112.2):
     dependencies:
       '@types/bonjour': 3.5.13
       '@types/connect-history-api-fallback': 1.5.4
@@ -10254,7 +10254,7 @@ snapshots:
       ws: 8.22.0
     optionalDependencies:
       webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.2.3)
-      webpack-cli: 7.2.3(json5@2.2.3)(webpack-bundle-analyzer@5.4.0)(webpack-dev-server@5.2.5)(webpack@5.112.2)
+      webpack-cli: 7.2.3(json5@2.2.3)(webpack-bundle-analyzer@5.4.0)(webpack-dev-server@5.2.7)(webpack@5.112.2)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -10301,7 +10301,7 @@ snapshots:
       watchpack: 2.6.3
       webpack-sources: 3.6.0
     optionalDependencies:
-      webpack-cli: 7.2.3(json5@2.2.3)(webpack-bundle-analyzer@5.4.0)(webpack-dev-server@5.2.5)(webpack@5.112.2)
+      webpack-cli: 7.2.3(json5@2.2.3)(webpack-bundle-analyzer@5.4.0)(webpack-dev-server@5.2.7)(webpack@5.112.2)
     transitivePeerDependencies:
       - '@minify-html/node'
       - '@napi-rs/image'
