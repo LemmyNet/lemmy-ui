@@ -1000,7 +1000,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           className="col-form-label mb-3"
           onToggle={async () => await masonryUpdate("settings-grid")}
         >
-          <summary>Languages TODO</summary>
+          <summary>{I18NextService.i18n.t("language_plural")}</summary>
           <LanguageSelect
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
