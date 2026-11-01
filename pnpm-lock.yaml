@@ -117,8 +117,8 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0(history@5.3.0)
       inferno-server:
-        specifier: ^9.1.0
-        version: 9.1.0
+        specifier: ^10.0.0
+        version: 10.0.0
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
@@ -3234,8 +3234,8 @@ packages:
     peerDependencies:
       history: ^5.3.0
 
-  inferno-server@9.1.0:
-    resolution: {integrity: sha512-TYjwFYNvn/68rjhLxVf+2xSvdjU6BCPVzFkussnbLQRi5BJmcxW2mwfIuBwdvaYQ8YmEnGBoo/xLbsiV8IsURQ==}
+  inferno-server@10.0.0:
+    resolution: {integrity: sha512-ikMDTQbuQrY7eYPlS5YaIjU0I69fss05db/dmynunydnxPxARsfWCpksoWTAWMXFsb30aPLs2jZY3kYndNk6Cg==}
     engines: {node: '>=8'}
 
   inferno-shared@8.2.3:
@@ -3246,11 +3246,17 @@ packages:
     peerDependencies:
       inferno: ^5.0.3
 
+  inferno-vnode-flags@10.0.0:
+    resolution: {integrity: sha512-BvHztsE+5XdD/5+gCnyeg/f2zpiNfYMnZfNL53xmGQY8EPIApr0w+TX3fcmz3Y0ObPWa8HuRxnlZTMeZocGKNw==}
+
   inferno-vnode-flags@8.2.3:
     resolution: {integrity: sha512-dfC0MIwFv9PCbZCUsuk9ISejFS3fKJODC0rZ/LjxxzE+OrCk+PMwPLsUnGU6O9/jbBnPACVz1BkACDf5LWgU5Q==}
 
   inferno-vnode-flags@9.1.0:
     resolution: {integrity: sha512-pyM4YQbYGiKS/YHgXUBsrrG6VHDZCqtas4Ba3OQqxZE6UMNWDO9Sz9q3y2hLHO7Ue1e4gcBV9S1BCr5gnUuQ8A==}
+
+  inferno@10.0.0:
+    resolution: {integrity: sha512-R9IIOzV7sqAKKdO+/BUNvvfkui8A5kzkJD2Yice+o12qp5qH61u3PieTQFvLPxKIFn0DlmLc9X8PXmTG2Ck+PA==}
 
   inferno@8.2.3:
     resolution: {integrity: sha512-LMeRlCe+RlXw8kHCLyOWRk2PsZ3Fo4jkESyAR1g4FfPT48N78i11YhTVXW2ukCx5MFjv+qrfa73JzJWU9sg4CQ==}
@@ -8542,9 +8548,10 @@ snapshots:
       inferno: 9.1.0
       path-to-regexp: 1.9.0
 
-  inferno-server@9.1.0:
+  inferno-server@10.0.0:
     dependencies:
-      inferno: 9.1.0
+      inferno: 10.0.0
+      inferno-vnode-flags: 10.0.0
 
   inferno-shared@8.2.3: {}
 
@@ -8555,9 +8562,17 @@ snapshots:
       npm: 5.10.0
       shallowequal: 1.1.0
 
+  inferno-vnode-flags@10.0.0: {}
+
   inferno-vnode-flags@8.2.3: {}
 
   inferno-vnode-flags@9.1.0: {}
+
+  inferno@10.0.0:
+    dependencies:
+      csstype: 3.2.3
+      inferno-vnode-flags: 10.0.0
+      opencollective-postinstall: 2.0.3
 
   inferno@8.2.3:
     dependencies:
