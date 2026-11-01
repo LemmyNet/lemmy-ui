@@ -124,7 +124,7 @@
     "@types/markdown-it-container": "^4.0.1",
     "@types/masonry-layout": "^4.2.8",
     "@types/morgan": "^1.9.10",
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.0.0",
     "@types/path-browserify": "^1.0.3",
     "@types/sanitize-html": "^2.16.2",
     "@types/serialize-javascript": "^5.0.4",
