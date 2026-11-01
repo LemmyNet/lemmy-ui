@@ -354,7 +354,7 @@ importers:
         version: 1.0.0(supports-color@8.1.1)(webpack@5.112.2)
       sharp:
         specifier: 0.35.5
-        version: 0.35.5(@types/node@24.19.2)
+        version: 0.35.5(@types/node@26.6.6)
       tippy.js:
         specifier: ^6.3.7
         version: 6.3.7
@@ -372,7 +372,7 @@ importers:
         version: 1.15.2
       webpack:
         specifier: ^5.112.2
-        version: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+        version: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
       webpack-cli:
         specifier: ^7.2.3
         version: 7.3.1(json5@2.2.3)(webpack-bundle-analyzer@5.4.0)(webpack-dev-server@5.2.7)(webpack@5.112.2)
@@ -417,8 +417,8 @@ importers:
         specifier: ^1.9.10
         version: 1.9.10
       '@types/node':
-        specifier: ^24.19.2
-        version: 24.19.2
+        specifier: ^26.0.0
+        version: 26.6.6
       '@types/path-browserify':
         specifier: ^1.0.3
         version: 1.0.3
@@ -2035,8 +2035,8 @@ packages:
   '@types/multer@1.4.13':
     resolution: {integrity: sha512-bhhdtPw7JqCiEfC9Jimx5LqX9BDIPJEh2q/fQ4bqbBPtyEZYr3cvF22NwG0DmPZNYA0CAf2CnqDB4KIGGpJcaw==}
 
-  '@types/node@24.19.2':
-    resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
+  '@types/node@26.6.6':
+    resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
 
   '@types/path-browserify@1.0.3':
     resolution: {integrity: sha512-ZmHivEbNCBtAfcrFeBCiTjdIc2dey0l7oCGNGpSuRTy8jP6UVND7oUowlvDujBy8r2Hoa8bfFUOCiPWfmtkfxw==}
@@ -5132,8 +5132,8 @@ packages:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
 
-  undici-types@7.24.6:
-    resolution: {integrity: sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg==}
+  undici-types@8.9.0:
+    resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
     resolution: {integrity: sha512-dA8WbNeb2a6oQzAQ55YlT5vQAWGV9WXOsi3SskE3bcCdM0P4SDd+24zS/OCacdRq5BkdsRj9q3Pg6YyQoxIGqg==}
@@ -7015,18 +7015,18 @@ snapshots:
 
   '@types/accepts@1.3.7':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/autosize@4.0.3': {}
 
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/bonjour@3.5.13':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/bootstrap@5.2.11':
     dependencies:
@@ -7035,16 +7035,16 @@ snapshots:
   '@types/compression@1.8.1':
     dependencies:
       '@types/express': 5.0.6
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/connect-history-api-fallback@1.5.4':
     dependencies:
       '@types/express-serve-static-core': 5.1.3
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/content-disposition@0.5.9': {}
 
@@ -7057,7 +7057,7 @@ snapshots:
       '@types/connect': 3.4.38
       '@types/express': 5.0.6
       '@types/keygrip': 1.0.6
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/esrecurse@4.3.1': {}
 
@@ -7069,14 +7069,14 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.9':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
       '@types/qs': 6.15.1
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
 
   '@types/express-serve-static-core@5.1.3':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
       '@types/qs': 6.15.1
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -7097,7 +7097,7 @@ snapshots:
   '@types/glob@7.2.0':
     dependencies:
       '@types/minimatch': 6.0.0
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/html-to-text@9.0.4': {}
 
@@ -7107,7 +7107,7 @@ snapshots:
 
   '@types/http-proxy@1.17.17':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/jquery@4.0.1': {}
 
@@ -7128,7 +7128,7 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/keygrip': 1.0.6
       '@types/koa-compose': 3.2.9
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/linkify-it@5.0.0': {}
 
@@ -7155,15 +7155,15 @@ snapshots:
 
   '@types/morgan@1.9.10':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/multer@1.4.13':
     dependencies:
       '@types/express': 5.0.6
 
-  '@types/node@24.19.2':
+  '@types/node@26.6.6':
     dependencies:
-      undici-types: 7.24.6
+      undici-types: 8.9.0
 
   '@types/path-browserify@1.0.3': {}
 
@@ -7173,7 +7173,7 @@ snapshots:
 
   '@types/resolve@1.17.1':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/retry@0.12.2': {}
 
@@ -7184,11 +7184,11 @@ snapshots:
   '@types/send@0.17.6':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/serialize-javascript@5.0.4': {}
 
@@ -7199,17 +7199,17 @@ snapshots:
   '@types/serve-static@1.15.10':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
       '@types/send': 0.17.6
 
   '@types/serve-static@2.2.0':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/sockjs@0.3.36':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/toastify-js@1.12.4': {}
 
@@ -7217,7 +7217,7 @@ snapshots:
 
   '@types/ws@8.18.2':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@typescript-eslint/eslint-plugin@8.72.1(@typescript-eslint/parser@8.72.1(@typescript/typescript6@6.0.2)(eslint@10.14.0(supports-color@8.1.1))(supports-color@8.1.1))(@typescript/typescript6@6.0.2)(eslint@10.14.0(supports-color@8.1.1))(supports-color@8.1.1)':
     dependencies:
@@ -7591,7 +7591,7 @@ snapshots:
       '@babel/core': 7.29.7(supports-color@8.1.1)
       find-up: 5.0.0
     optionalDependencies:
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   babel-plugin-inferno@10.0.0(@babel/core@7.29.7(supports-color@8.1.1)):
     dependencies:
@@ -7791,7 +7791,7 @@ snapshots:
   clean-webpack-plugin@4.0.0(webpack@5.112.2):
     dependencies:
       del: 4.1.1
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   clone-deep@4.0.1:
     dependencies:
@@ -7870,7 +7870,7 @@ snapshots:
       normalize-path: 3.0.0
       schema-utils: 4.8.1(webpack@5.112.2)
       serialize-javascript: 6.0.2
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   copy-webpack-plugin@14.0.0(webpack@5.112.2):
     dependencies:
@@ -7879,7 +7879,7 @@ snapshots:
       schema-utils: 4.8.1(webpack@5.112.2)
       serialize-javascript: 7.1.4
       tinyglobby: 0.2.17
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   core-js-compat@3.51.0:
     dependencies:
@@ -7913,7 +7913,7 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.8.5
     optionalDependencies:
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   cssesc@3.0.0: {}
 
@@ -9121,13 +9121,13 @@ snapshots:
 
   jest-worker@26.6.2:
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
       merge-stream: 2.0.0
       supports-color: 7.2.0
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -9338,7 +9338,7 @@ snapshots:
     dependencies:
       schema-utils: 4.8.1(webpack@5.112.2)
       tapable: 2.3.3
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   minimalistic-assert@1.0.1: {}
 
@@ -9359,16 +9359,16 @@ snapshots:
     dependencies:
       brace-expansion: 2.1.7
 
-  minimizer-webpack-plugin@5.13.1(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack@5.112.2):
+  minimizer-webpack-plugin@5.13.1(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack@5.112.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.8.1(webpack@5.112.2)
       terser: 5.51.2
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
     optionalDependencies:
       postcss: 8.5.32
-      sharp: 0.35.5(@types/node@24.19.2)
+      sharp: 0.35.5(@types/node@26.6.6)
 
   minipass@7.1.3: {}
 
@@ -9828,7 +9828,7 @@ snapshots:
 
   run-node-webpack-plugin@2.0.0(webpack@5.112.2):
     dependencies:
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   run-parallel@1.2.0:
     dependencies:
@@ -9875,7 +9875,7 @@ snapshots:
   sass-loader@17.1.0(sass@1.107.1)(webpack@5.112.2):
     optionalDependencies:
       sass: 1.107.1
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   sass@1.107.1:
     dependencies:
@@ -9892,7 +9892,7 @@ snapshots:
       ajv-formats: 3.0.1
       ajv-keywords: 5.1.0(ajv@8.20.0)
     optionalDependencies:
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   selderee@0.12.0:
     dependencies:
@@ -9987,7 +9987,7 @@ snapshots:
     dependencies:
       copy-webpack-plugin: 11.0.0(webpack@5.112.2)
       schema-utils: 4.8.1(webpack@5.112.2)
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
       webpack-inject-entry-plugin: 0.0.4(webpack@5.112.2)
       workbox-build: 6.6.0(supports-color@8.1.1)
       workbox-webpack-plugin: 6.6.0(supports-color@8.1.1)(webpack@5.112.2)
@@ -10057,7 +10057,7 @@ snapshots:
       '@img/sharp-win32-ia32': 0.34.5
       '@img/sharp-win32-x64': 0.34.5
 
-  sharp@0.35.5(@types/node@24.19.2):
+  sharp@0.35.5(@types/node@26.6.6):
     dependencies:
       '@img/colour': 1.1.0
       detect-libc: 2.1.2
@@ -10088,7 +10088,7 @@ snapshots:
       '@img/sharp-win32-arm64': 0.35.5
       '@img/sharp-win32-ia32': 0.35.5
       '@img/sharp-win32-x64': 0.35.5
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   shebang-command@2.0.0:
     dependencies:
@@ -10269,7 +10269,7 @@ snapshots:
 
   style-loader@4.0.0(webpack@5.112.2):
     dependencies:
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   supports-color@7.2.0:
     dependencies:
@@ -10454,7 +10454,7 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
-  undici-types@7.24.6: {}
+  undici-types@8.9.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
@@ -10549,7 +10549,7 @@ snapshots:
       envinfo: 7.21.0
       interpret: 3.1.1
       rechoir: 1.0.0
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
       webpack-merge: 6.0.1
     optionalDependencies:
       json5: 2.2.3
@@ -10565,7 +10565,7 @@ snapshots:
       range-parser: 1.3.0
       schema-utils: 4.8.1(webpack@5.112.2)
     optionalDependencies:
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   webpack-dev-server@5.2.7(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)(webpack-cli@7.3.1)(webpack@5.112.2):
     dependencies:
@@ -10598,7 +10598,7 @@ snapshots:
       webpack-dev-middleware: 7.4.6(webpack@5.112.2)
       ws: 8.22.0
     optionalDependencies:
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
       webpack-cli: 7.3.1(json5@2.2.3)(webpack-bundle-analyzer@5.4.0)(webpack-dev-server@5.2.7)(webpack@5.112.2)
     transitivePeerDependencies:
       - bufferutil
@@ -10609,7 +10609,7 @@ snapshots:
   webpack-inject-entry-plugin@0.0.4(webpack@5.112.2):
     dependencies:
       schema-utils: 4.8.1(webpack@5.112.2)
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
 
   webpack-merge@6.0.1:
     dependencies:
@@ -10626,7 +10626,7 @@ snapshots:
 
   webpack-sources@3.6.0: {}
 
-  webpack@5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1):
+  webpack@5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1):
     dependencies:
       '@types/estree': 1.0.9
       '@types/json-schema': 7.0.15
@@ -10640,7 +10640,7 @@ snapshots:
       events: 3.3.0
       graceful-fs: 4.2.11
       mime-db: 1.54.0
-      minimizer-webpack-plugin: 5.13.1(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack@5.112.2)
+      minimizer-webpack-plugin: 5.13.1(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack@5.112.2)
       schema-utils: 4.8.1(webpack@5.112.2)
       tapable: 2.3.3
       watchpack: 2.6.3
@@ -10835,7 +10835,7 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       pretty-bytes: 5.6.0
       upath: 1.2.0
-      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@24.19.2))(webpack-cli@7.3.1)
+      webpack: 5.112.2(postcss@8.5.32)(sharp@0.35.5(@types/node@26.6.6))(webpack-cli@7.3.1)
       webpack-sources: 1.4.3
       workbox-build: 6.6.0(supports-color@8.1.1)
     transitivePeerDependencies:
