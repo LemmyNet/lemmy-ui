@@ -69,7 +69,7 @@
     "html-to-text": "^10.0.1",
     "i18next": "^23.16.8",
     "idna-uts46-hx": "^6.2.4",
-    "inferno": "^9.1.0",
+    "inferno": "^10.0.0",
     "inferno-create-element": "^10.0.0",
     "inferno-helmet": "^5.2.1",
     "inferno-hydrate": "^10.0.0",
