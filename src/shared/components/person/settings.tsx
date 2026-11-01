@@ -391,34 +391,22 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             {
               key: "settings",
               label: I18NextService.i18n.t("settings"),
-              getNode: s => {
-                masonryUpdate("settings-grid");
-                return this.userSettings(s);
-              },
+              getNode: s => this.userSettings(s),
             },
             {
               key: "blocks",
               label: I18NextService.i18n.t("blocks"),
-              getNode: s => {
-                masonryUpdate("blocks-grid");
-                return this.blockCards(s);
-              },
+              getNode: s => this.blockCards(s),
             },
             {
               key: "authentication",
               label: I18NextService.i18n.t("authentication"),
-              getNode: s => {
-                masonryUpdate("authentication-grid");
-                return this.authentication(s);
-              },
+              getNode: s => this.authentication(s),
             },
             {
               key: "import_export",
               label: I18NextService.i18n.t("import_export"),
-              getNode: s => {
-                masonryUpdate("import-export-grid");
-                return this.importExport(s);
-              },
+              getNode: s => this.importExport(s),
             },
             ...(this.isoData.siteRes.site_view.local_site.registration_mode ===
             "require_invitation"
@@ -438,6 +426,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   userSettings(isSelected: boolean) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    masonryUpdate("settings-grid");
+
     return (
       <div
         className={classNames("tab-pane show", {
@@ -453,6 +444,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   blockCards(isSelected: boolean) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    masonryUpdate("blocks-grid");
+
     return (
       !userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
         <div
@@ -494,6 +488,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   authentication(isSelected: boolean) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    masonryUpdate("authentication-grid");
+
     return (
       !userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
         <div
@@ -526,6 +523,9 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   importExport(isSelected: boolean) {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    masonryUpdate("import-export-grid");
+
     return (
       !userNotLoggedInOrBanned(this.isoData.myUserInfo) && (
         <div
@@ -2298,7 +2298,7 @@ async function handleDeleteAccount(
   }
 }
 
-async function masonryUpdate(name_: string): void {
+async function masonryUpdate(name_: string) {
   if (isBrowser() && document.getElementsByClassName(name_)) {
     const Masonry = (await import("masonry-layout")).default;
     new Masonry(`.${name_}`, {
