@@ -404,9 +404,6 @@ importers:
       '@types/html-to-text':
         specifier: ^9.0.4
         version: 9.0.4
-      '@types/markdown-it':
-        specifier: ^14.2.0
-        version: 14.2.0
       '@types/markdown-it-container':
         specifier: ^4.0.1
         version: 4.0.1

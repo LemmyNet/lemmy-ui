@@ -26,16 +26,9 @@
     "translations:update": "git submodule update --remote --recursive"
   },
   "lint-staged": {
-    "*.{css, scss}": [
-      "prettier --write"
-    ],
-    "*.{ts,tsx,js}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "package.json": [
-      "prettier --write"
-    ]
+    "*.{css, scss}": ["prettier --write"],
+    "*.{ts,tsx,js}": ["prettier --write", "eslint --fix"],
+    "package.json": ["prettier --write"]
   },
   "browserslist": "fully supports es6 and supports async-functions",
   "dependencies": {
@@ -120,7 +113,6 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
     "@types/html-to-text": "^9.0.4",
-    "@types/markdown-it": "^14.2.0",
     "@types/markdown-it-container": "^4.0.1",
     "@types/masonry-layout": "^4.2.8",
     "@types/morgan": "^1.9.10",
