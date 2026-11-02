@@ -1040,6 +1040,20 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
             />
           </div>
         </div>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("listing_mode")}
+          </label>
+          <div className="col-sm-9">
+            <PostListingModeDropdown
+              currentOption={
+                this.state.saveUserSettingsForm.post_listing_mode ?? "list"
+              }
+              onSelect={val => handlePostListingModeChange(this, val)}
+              showLabel={false}
+            />
+          </div>
+        </div>
         <div className="row mb-3">
           <div className="col">
             <FilterChipCheckbox
@@ -1224,20 +1238,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
         </div>
         <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
-            {I18NextService.i18n.t("listing_mode")}
-          </label>
-          <div className="col-sm-9">
-            <PostListingModeDropdown
-              currentOption={
-                this.state.saveUserSettingsForm.post_listing_mode ?? "list"
-              }
-              onSelect={val => handlePostListingModeChange(this, val)}
-              showLabel={false}
-            />
-          </div>
-        </div>
-        <div className="mb-3 row align-items-center">
-          <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("post_sort_type")}
           </label>
           <div className="col-sm-9">
@@ -1400,7 +1400,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <div className="card-body">{this.votingCard()}</div>
             </div>
           </div>
-          <div className="col-12 col-md-6">
+          <div className="col-12">
             <div className="input-group d-grid mb-3">
               <button
                 type="submit"
