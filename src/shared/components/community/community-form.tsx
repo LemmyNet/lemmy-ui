@@ -325,6 +325,20 @@ export class CommunityForm extends Component<
             </div>
           </div>
         </div>
+        <details className="col-form-label mb-3">
+          <summary>{I18NextService.i18n.t("language_plural")}</summary>
+          <LanguageSelect
+            allLanguages={this.props.allLanguages}
+            siteLanguages={this.props.siteLanguages}
+            showSite
+            selectedLanguageIds={this.state.form.discussion_languages}
+            multiple
+            onChange={val => handleDiscussionLanguageChange(this, val)}
+            myUserInfo={this.props.myUserInfo}
+          />
+        </details>
+        <hr />
+        <h5 className="card-title mb-3">{I18NextService.i18n.t("voting")}</h5>
         <div className="mb-3 row align-items-center">
           {(
             [
@@ -349,16 +363,7 @@ export class CommunityForm extends Component<
             </>
           ))}
         </div>
-        <LanguageSelect
-          allLanguages={this.props.allLanguages}
-          siteLanguages={this.props.siteLanguages}
-          showSite
-          selectedLanguageIds={this.state.form.discussion_languages}
-          multiple
-          onChange={val => handleDiscussionLanguageChange(this, val)}
-          myUserInfo={this.props.myUserInfo}
-        />
-        <div className="mb-3 row">
+        <div className="row">
           <div className="col-12">
             <button
               type="submit"
