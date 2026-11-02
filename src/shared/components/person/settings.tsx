@@ -661,6 +661,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <button
                 className="btn btn-sm"
                 onClick={() => handleUnblockPerson(this, p.id)}
+                aria-label={I18NextService.i18n.t("unblock_user")}
                 data-tippy-content={I18NextService.i18n.t("unblock_user")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -706,6 +707,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <button
                 className="btn btn-sm"
                 onClick={() => handleUnblockCommunity(this, c.id)}
+                aria-label={I18NextService.i18n.t("unblock_community")}
                 data-tippy-content={I18NextService.i18n.t("unblock_community")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -765,6 +767,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <button
                 className="btn btn-sm"
                 onClick={() => handleUnblockInstanceCommunities(this, i.id)}
+                aria-label={I18NextService.i18n.t("unblock_instance")}
                 data-tippy-content={I18NextService.i18n.t("unblock_instance")}
               >
                 <Icon icon="x" classes="icon-inline" />
@@ -790,6 +793,7 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               <button
                 className="btn btn-sm"
                 onClick={() => handleUnblockInstancePersons(this, i.id)}
+                aria-label={I18NextService.i18n.t("unblock_instance")}
                 data-tippy-content={I18NextService.i18n.t("unblock_instance")}
               >
                 <Icon icon="x" classes="icon-inline" />
