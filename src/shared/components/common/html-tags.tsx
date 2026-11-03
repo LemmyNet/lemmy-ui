@@ -43,12 +43,6 @@ export function htmlTags(props: HtmlTagsProps) {
   useHead(head, {
     link,
     htmlAttrs: { lang },
-    meta: [
-      {
-        name: "description",
-        content: desc,
-      },
-    ],
   });
 
   useSeoMeta(head, {
