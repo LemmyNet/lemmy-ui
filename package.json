@@ -48,7 +48,7 @@
     "@babel/runtime": "^7.29.10",
     "autosize": "^6.0.1",
     "babel-loader": "^10.1.1",
-    "babel-plugin-inferno": "^10.0.0",
+    "babel-plugin-inferno": "^6.9.0",
     "bootstrap": "^5.3.8",
     "caniuse-lite": "^1.0.30001819",
     "check-password-strength": "^3.0.0",
