@@ -330,13 +330,6 @@ export class CommunitySettings extends Component<RouteProps, State> {
   }
 
   render() {
-    const { siteRes, myUserInfo } = this.isoData;
-    const getCommunityRes =
-      this.state.communityRes.state === "success" &&
-      this.state.communityRes.data;
-    const imageUploadDisabled =
-      this.isoData.siteRes.site_view.local_site.image_upload_disabled;
-
     return (
       <div className="community-settings container">
         <HtmlTags
@@ -347,7 +340,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
           tabs={[
             {
               key: "community",
-              label: I18NextService.i18n.t("community"),
+              label: I18NextService.i18n.t("settings"),
               getNode: isSelected => (
                 <div
                   className={classNames("tab-pane show", {
@@ -356,48 +349,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                   role="tabpanel"
                   id="community-tab-pane"
                 >
-                  {getCommunityRes && (
-                    <>
-                      <div className="row justify-content-md-center">
-                        <h1 className="col-12 col-md-6 h4 mb-4">
-                          <T i18nKey="x_settings">
-                            <CommunityLink
-                              community={
-                                getCommunityRes.community_view.community
-                              }
-                              myUserInfo={myUserInfo}
-                              muted={false}
-                            />
-                          </T>
-                        </h1>
-                      </div>
-                      <div className="row justify-content-md-center">
-                        <div className="col-12 col-md-6">
-                          <CommunityForm
-                            communityView={getCommunityRes.community_view}
-                            allLanguages={siteRes.all_languages}
-                            siteLanguages={siteRes.discussion_languages}
-                            communityLanguages={
-                              getCommunityRes.discussion_languages
-                            }
-                            onEdit={form => handleEditCommunity(this, form)}
-                            createOrEditLoading={
-                              this.state.editCommunityRes.state === "loading"
-                            }
-                            onDelete={deleted =>
-                              handleDeleteCommunity(this, deleted)
-                            }
-                            deleteLoading={
-                              this.state.deleteCommunityRes.state === "loading"
-                            }
-                            enableNsfw={enableNsfw(siteRes)}
-                            myUserInfo={myUserInfo}
-                            imageUploadDisabled={imageUploadDisabled}
-                          />
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  {this.settingsTab()}
                 </div>
               ),
             },
@@ -449,6 +401,60 @@ export class CommunitySettings extends Component<RouteProps, State> {
             },
           ]}
         />
+      </div>
+    );
+  }
+
+  mainCommunitySettingsCard() {
+    const { siteRes, myUserInfo } = this.isoData;
+    const getCommunityRes =
+      this.state.communityRes.state === "success" &&
+      this.state.communityRes.data;
+    const imageUploadDisabled =
+      this.isoData.siteRes.site_view.local_site.image_upload_disabled;
+
+    return (
+      getCommunityRes && (
+        <>
+          <h5 className="card-title mb-3">
+            <T i18nKey="x_settings">
+              <CommunityLink
+                community={getCommunityRes.community_view.community}
+                myUserInfo={myUserInfo}
+                muted={false}
+              />
+            </T>
+          </h5>
+          <div className="mb-3 row">
+            <CommunityForm
+              communityView={getCommunityRes.community_view}
+              allLanguages={siteRes.all_languages}
+              siteLanguages={siteRes.discussion_languages}
+              communityLanguages={getCommunityRes.discussion_languages}
+              onEdit={form => handleEditCommunity(this, form)}
+              createOrEditLoading={
+                this.state.editCommunityRes.state === "loading"
+              }
+              onDelete={deleted => handleDeleteCommunity(this, deleted)}
+              deleteLoading={this.state.deleteCommunityRes.state === "loading"}
+              enableNsfw={enableNsfw(siteRes)}
+              myUserInfo={myUserInfo}
+              imageUploadDisabled={imageUploadDisabled}
+            />
+          </div>
+        </>
+      )
+    );
+  }
+
+  settingsTab() {
+    return (
+      <div className="row justify-content-md-center">
+        <div className="col-12 col-md-6">
+          <div className="card mb-3">
+            <div className="card-body">{this.mainCommunitySettingsCard()}</div>
+          </div>
+        </div>
       </div>
     );
   }

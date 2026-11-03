@@ -39,7 +39,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { PostForm } from "./post-form";
 import { PostListingList } from "./post-listing-list";
 import { PostListingCard } from "./post-listing-card";
-import { masonryUpdate } from "@utils/browser";
+import { masonryUpdatePostListings } from "@utils/browser";
 import { RouterContext } from "inferno-router";
 import Viewer from "viewerjs";
 import { viewerJsFullSizeImageUrl } from "@components/common/pictrs-image";
@@ -276,10 +276,10 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
 
 async function handleEditClick(i: PostListing) {
   i.setState({ showEdit: true });
-  await masonryUpdate();
+  await masonryUpdatePostListings();
 }
 
 async function handleEditCancel(i: PostListing) {
   i.setState({ showEdit: false });
-  await masonryUpdate();
+  await masonryUpdatePostListings();
 }

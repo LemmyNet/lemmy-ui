@@ -200,7 +200,7 @@ export class AdminSettings extends Component<
           tabs={[
             {
               key: "site",
-              label: I18NextService.i18n.t("site"),
+              label: I18NextService.i18n.t("settings"),
               getNode: isSelected => (
                 <div
                   className={classNames("tab-pane show", {
