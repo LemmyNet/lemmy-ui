@@ -72,7 +72,7 @@
     "inferno": "^9.1.0",
     "inferno-create-element": "^10.0.0",
     "inferno-helmet": "^5.2.1",
-    "inferno-hydrate": "^10.0.0",
+    "inferno-hydrate": "^9.1.0",
     "inferno-i18next-dess": "0.0.2",
     "inferno-router": "^9.1.0",
     "inferno-server": "^10.0.0",
