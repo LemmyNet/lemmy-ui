@@ -14,6 +14,7 @@ import {
   updateMyUserInfo,
   updatePersonBlock,
   userNotLoggedInOrBanned,
+  WithHead,
 } from "@utils/app";
 import { capitalizeFirstLetter, debounce } from "@utils/helpers";
 import { Choice, RouteDataResponse } from "@utils/types";
@@ -57,7 +58,7 @@ import {
 import { I18NextService } from "../../services/I18NextService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ImageUploadForm } from "../common/image-upload-form";
 import { LanguageSelect } from "../common/language-select";
@@ -179,7 +180,8 @@ const Filter = ({
 );
 
 type SettingsRouteProps = RouteComponentProps<Record<string, never>> &
-  Record<string, never>;
+  Record<string, never> &
+  WithHead;
 export type SettingsFetchConfig = IRoutePropsWithFetch<
   SettingsData,
   Record<string, never>,
@@ -368,6 +370,14 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+      description: this.documentTitle,
+      image: this.state.avatar,
+    });
+
     /* eslint-disable jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid */
     return (
       <div className="person-settings container-lg">
@@ -379,12 +389,6 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           className="d-none"
           href="javascript:void(0)"
           aria-hidden="true"
-        />
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-          description={this.documentTitle}
-          image={this.state.avatar}
         />
         <Tabs
           tabs={[

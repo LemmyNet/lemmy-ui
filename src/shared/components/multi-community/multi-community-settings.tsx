@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, WithHead } from "@utils/app";
 import { resourcesSettled, bareRoutePush } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
@@ -28,7 +28,7 @@ import { toast } from "@utils/app";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
-import { HtmlTags } from "@components/common/html-tags";
+import { htmlTags } from "@components/common/html-tags";
 import { MultiCommunityForm } from "./multi-community-form";
 import {
   MultiCommunityEntryForm,
@@ -53,7 +53,7 @@ interface Props {
 }
 
 type PathProps = { name: string };
-type RouteProps = RouteComponentProps<PathProps> & Props;
+type RouteProps = RouteComponentProps<PathProps> & Props & WithHead;
 export type MultiCommunitySettingsFetchConfig = IRoutePropsWithFetch<
   MultiCommunitySettingsData,
   PathProps,
@@ -163,13 +163,15 @@ export class MultiCommunitySettings extends Component<RouteProps, State> {
       this.state.multiRes.state === "success" && this.state.multiRes.data;
     const myUserInfo = this.isoData.myUserInfo;
 
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       getMultiRes && (
         <div className="multi-community-settings container">
-          <HtmlTags
-            title={this.documentTitle}
-            context={this.context as RouterContext}
-          />
           <div className="row">
             <div className="col-12 col-md-6">
               <h1 className="h4 mb-4">

@@ -8,6 +8,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  WithHead,
 } from "@utils/app";
 import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -67,7 +68,7 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ListView } from "../common/list-view";
 import { PrivateMessage } from "../private_message/private-message";
@@ -123,7 +124,8 @@ interface NotificationsState {
 }
 
 type NotificationsRouteProps = RouteComponentProps<Record<string, never>> &
-  Record<string, never>;
+  Record<string, never> &
+  WithHead;
 export type NotificationsFetchConfig = IRoutePropsWithFetch<
   NotificationsData,
   Record<string, never>,
@@ -203,14 +205,17 @@ export class Notifications extends Component<
   render() {
     const feedToken = this.isoData.siteRes?.my_feed_token;
     const notifsRss = feedToken ? notificationsRSSUrl(feedToken) : undefined;
+
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="notifications container-lg d-flex flex-column fl-1">
         <div className="row fl-1">
           <div className="col-12 d-flex flex-column fl-1">
-            <HtmlTags
-              title={this.documentTitle}
-              context={this.context as RouterContext}
-            />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("notifications")}
               {notifsRss && (

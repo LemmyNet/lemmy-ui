@@ -1,52 +1,48 @@
+import { WithHead } from "@utils/app";
 import { dataBsTheme } from "@utils/browser";
 import { getStaticDir } from "@utils/env";
-import { Component } from "inferno";
-import { Helmet } from "inferno-helmet";
+import { useHead } from "unhead";
 
-interface CodeThemeProps {
+type CodeThemeProps = {
   theme: string;
-}
+} & WithHead;
 
-export class CodeTheme extends Component<CodeThemeProps, never> {
-  render() {
-    const { theme } = this.props;
-    const hasTheme = theme !== "browser" && theme !== "browser-compact";
+export function codeTheme(props: CodeThemeProps) {
+  const { theme, head } = props;
+  const hasTheme = theme !== "browser" && theme !== "browser-compact";
 
-    if (!hasTheme) {
-      return (
-        <Helmet>
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href={`${getStaticDir()}/assets/css/code-themes/atom-one-light.css`}
-            media="(prefers-color-scheme: light)"
-          />
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href={`${getStaticDir()}/assets/css/code-themes/atom-one-dark.css`}
-            media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
-          />
-        </Helmet>
-      );
-    }
+  if (!hasTheme) {
+    useHead(head, {
+      link: [
+        {
+          rel: "stylesheet",
+          type: "text/css",
+          href: `${getStaticDir()}/assets/css/code-themes/atom-one-light.css`,
+          media: "(prefers-color-scheme: light)",
+        },
+        {
+          rel: "stylesheet",
+          type: "text/css",
+          href: `${getStaticDir()}/assets/css/code-themes/atom-one-dark.css`,
+          media:
+            "(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)",
+        },
+      ],
+    });
+  } else {
+    const dataBsCodeTheme =
+      dataBsTheme(theme) === "dark"
+        ? "atom-one-dark.css"
+        : "atom-one-light.css";
 
-    return (
-      <Helmet>
-        {dataBsTheme(theme) === "dark" ? (
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href={`${getStaticDir()}/assets/css/code-themes/atom-one-dark.css`}
-          />
-        ) : (
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href={`${getStaticDir()}/assets/css/code-themes/atom-one-light.css`}
-          />
-        )}
-      </Helmet>
-    );
+    useHead(head, {
+      link: [
+        {
+          rel: "stylesheet",
+          type: "text/css",
+          href: `${getStaticDir()}/assets/css/code-themes/${dataBsCodeTheme}`,
+        },
+      ],
+    });
   }
 }

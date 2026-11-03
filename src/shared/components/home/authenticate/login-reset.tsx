@@ -1,10 +1,10 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, WithHead } from "@utils/app";
 import { capitalizeFirstLetter, validEmail } from "@utils/helpers";
 import { Component, FormEvent, InfernoMouseEvent } from "inferno";
 import { I18NextService } from "@services/I18NextService";
 import { HttpService } from "@services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../../common/html-tags";
+import { htmlTags } from "../../common/html-tags";
 import { Spinner } from "../../common/icon";
 import { simpleScrollMixin } from "../../mixins/scroll-mixin";
 import { RouteComponentProps, RouterContext } from "inferno-router";
@@ -16,11 +16,10 @@ interface State {
   };
 }
 
+type RouteProps = RouteComponentProps<Record<string, never>> & WithHead;
+
 @simpleScrollMixin
-export class LoginReset extends Component<
-  RouteComponentProps<Record<string, never>>,
-  State
-> {
+export class LoginReset extends Component<RouteProps, State> {
   private isoData = setIsoData(this.context);
 
   state: State = {
@@ -37,12 +36,13 @@ export class LoginReset extends Component<
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
     return (
       <div className="container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <div className="col-12 col-lg-6 col-md-8 m-auto">
           {this.loginResetForm()}
         </div>

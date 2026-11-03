@@ -1,16 +1,15 @@
 import { getStaticDir } from "@utils/env";
-import { Helmet } from "inferno-helmet";
 import { renderToString } from "inferno-server";
 import serialize from "serialize-javascript";
 import sharp from "sharp";
 import { favIconPngUrl, favIconUrl } from "@utils/config";
 import { IsoDataOptionalSite } from "@utils/types";
-import { buildThemeList } from "./build-themes-list";
 import { fetchIconPng } from "./fetch-icon-png";
 import { findLanguageChunkNames } from "@services/I18NextService";
 import path from "path";
 import { readFileSync, existsSync } from "node:fs";
 import { enableEruda } from "./dev-env";
+import { ServerUnhead } from "unhead/server";
 
 const customHtmlHeader = process.env["LEMMY_UI_CUSTOM_HTML_HEADER"] || "";
 
@@ -29,7 +28,7 @@ let embeddedScript = readEmbeddedScript();
 
 export async function createSsrHtml(
   root: string,
-  helmet: Helmet,
+  head: ServerUnhead,
   isoData: IsoDataOptionalSite,
   cspNonce: string,
   languages: readonly string[],
@@ -40,10 +39,6 @@ export async function createSsrHtml(
   if (process.env["NODE_ENV"] === "development") {
     embeddedScript = readEmbeddedScript();
   }
-
-  const fallbackTheme = `<link rel="stylesheet" type="text/css" href="${getStaticDir()}/assets/css/themes/${
-    (await buildThemeList())[0]
-  }.css" />`;
 
   const customHtmlHeaderScriptTag = new RegExp("<script", "g");
 
@@ -96,20 +91,11 @@ export async function createSsrHtml(
     .map(x => `<link rel="preload" as="script" href="${x}" />`)
     .join("");
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-  const helmetAttr = helmet.htmlAttributes.toString();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-  const helmetTitle = helmet.title.toString();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-  const helmetMeta = helmet.meta.toString();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-  const helmetLink = helmet.link.toString();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment
-  const helmetBodyAttr = helmet.bodyAttributes.toString();
+  const headPayload = head.render();
 
   return `
     <!DOCTYPE html>
-    <html ${helmetAttr}>
+    <html ${headPayload.htmlAttrs}>
     <head>
     <script nonce="${cspNonce}">
     window.isoData = ${serialize(isoData)};
@@ -124,8 +110,7 @@ export async function createSsrHtml(
     <!-- Custom injected script -->
     ${customHtmlHeaderWithNonce}
   
-    ${helmetTitle}
-    ${helmetMeta}
+    ${headPayload.headTags}
   
     <style nonce="${cspNonce}">
     #app[data-adult-consent] {
@@ -157,12 +142,9 @@ export async function createSsrHtml(
     <!-- Styles -->
     <link rel="stylesheet" type="text/css" href="${getStaticDir()}/styles/styles.css" />
   
-    <!-- Current theme and more -->
-    ${helmetLink || fallbackTheme}
-    
     </head>
   
-    <body ${helmetBodyAttr}>
+    <body ${headPayload.bodyAttrs}>
       <noscript>
         <div class="alert alert-danger rounded-0" role="alert">
           <b>Javascript is disabled. Actions will not work.</b>

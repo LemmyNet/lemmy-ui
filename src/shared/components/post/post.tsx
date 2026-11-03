@@ -15,6 +15,7 @@ import {
   reportToast,
   handleWarnComment,
   handleWarnPost,
+  WithHead,
 } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import {
@@ -108,7 +109,7 @@ import {
 import { toast } from "@utils/app";
 import { CommentForm } from "@components/comment/comment-form";
 import { CommentNodes } from "@components/comment/comment-nodes";
-import { HtmlTags } from "@components/common/html-tags";
+import { htmlTags } from "@components/common/html-tags";
 import { Icon, Spinner } from "@components/common/icon";
 import { CommunitySidebar } from "@components/community/community-sidebar";
 import { PostListing } from "./post-listing";
@@ -263,7 +264,7 @@ export function getPostQueryParams(
 }
 
 type PostPathProps = { post_id?: string; comment_id?: string };
-type PostRouteProps = RouteComponentProps<PostPathProps> & PostProps;
+type PostRouteProps = RouteComponentProps<PostPathProps> & PostProps & WithHead;
 type PartialPostRouteProps = Partial<
   PostProps & { match: { params: PostPathProps } }
 >;
@@ -593,16 +594,19 @@ export class Post extends Component<PostRouteProps, PostState> {
         const imageUploadDisabled =
           siteRes.site_view.local_site.image_upload_disabled;
         const context = this.context as RouterContext;
+
+        htmlTags({
+          head: this.props.head,
+          title: this.documentTitle,
+          context: this.context as RouterContext,
+          canonicalPath: res.post_view.post.ap_id,
+          image: this.imageTag,
+          description: res.post_view.post.body,
+        });
+
         return (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9 mb-3">
-              <HtmlTags
-                title={this.documentTitle}
-                context={this.context as RouterContext}
-                canonicalPath={res.post_view.post.ap_id}
-                image={this.imageTag}
-                description={res.post_view.post.body}
-              />
               <PostListing
                 postView={res.post_view}
                 crossPosts={res.cross_posts}

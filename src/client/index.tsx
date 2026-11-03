@@ -8,6 +8,7 @@ import { setupMarkdown } from "@utils/markdown";
 import "bootstrap/js/dist/collapse";
 import "bootstrap/js/dist/dropdown";
 import "bootstrap/js/dist/modal";
+import { createHead } from "unhead/client";
 
 window.addEventListener("unhandledrejection", (ev: PromiseRejectionEvent) => {
   ev.preventDefault();
@@ -34,10 +35,12 @@ async function startClient() {
     loadLanguageInstances(fallbackLanguages, interfaceLanguage),
   ]);
 
+  const head = createHead();
+
   const wrapper = (
     // @ts-expect-error BrowserRouter uses a different type for children
     <BrowserRouter>
-      <App dateFnsLocale={dateFnsLocale} i18n={i18n} />
+      <App dateFnsLocale={dateFnsLocale} i18n={i18n} head={head} />
     </BrowserRouter>
   );
 

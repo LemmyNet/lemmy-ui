@@ -3,6 +3,7 @@ import {
   searchUsers,
   personToChoice,
   setIsoData,
+  WithHead,
 } from "@utils/app";
 import {
   resourcesSettled,
@@ -61,7 +62,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import classNames from "classnames";
-import { HtmlTags } from "@components/common/html-tags";
+import { htmlTags } from "@components/common/html-tags";
 import Tabs from "@components/common/tabs";
 import { CommunityForm } from "./community-form";
 import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
@@ -108,7 +109,7 @@ interface Props {
 }
 
 type PathProps = { name: string };
-type RouteProps = RouteComponentProps<PathProps> & Props;
+type RouteProps = RouteComponentProps<PathProps> & Props & WithHead;
 export type CommunitySettingsFetchConfig = IRoutePropsWithFetch<
   CommunitySettingsData,
   PathProps,
@@ -118,7 +119,7 @@ export type CommunitySettingsFetchConfig = IRoutePropsWithFetch<
 type FollowersListProps = {
   followers: PersonView[];
   myUserInfo?: MyUserInfo;
-};
+} & WithHead;
 
 function FollowersList({ followers, myUserInfo }: FollowersListProps) {
   const nameCols = "col-6 col-md-3";
@@ -315,6 +316,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
             <FollowersList
               followers={this.state.followersRes.data.items}
               myUserInfo={this.isoData.myUserInfo}
+              head={this.props.head}
             />
             <PaginatorCursor
               current={this.state.followersCursor}
@@ -337,12 +339,14 @@ export class CommunitySettings extends Component<RouteProps, State> {
     const imageUploadDisabled =
       this.isoData.siteRes.site_view.local_site.image_upload_disabled;
 
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="community-settings container">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <Tabs
           tabs={[
             {

@@ -1,4 +1,4 @@
-import { editCommunity, setIsoData, showLocal } from "@utils/app";
+import { editCommunity, setIsoData, showLocal, WithHead } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
@@ -30,7 +30,7 @@ import {
   RequestState,
   wrapClient,
 } from "@services/HttpService";
-import { HtmlTags } from "@components/common/html-tags";
+import { htmlTags } from "@components/common/html-tags";
 import { Spinner } from "@components/common/icon";
 import { CommunitiesSortDropdown } from "@components/common/sort-dropdown";
 import { SubscribeButton } from "@components/common/subscribe-button";
@@ -84,7 +84,8 @@ export function getCommunitiesQueryParams(source?: string): CommunitiesProps {
 
 type CommunitiesPathProps = Record<string, never>;
 type CommunitiesRouteProps = RouteComponentProps<CommunitiesPathProps> &
-  CommunitiesProps;
+  CommunitiesProps &
+  WithHead;
 export type CommunitiesFetchConfig = IRoutePropsWithFetch<
   CommunitiesData,
   CommunitiesPathProps,
@@ -224,16 +225,18 @@ export class Communities extends Component<
   }
 
   render() {
-    const { listingType, sort } = this.props;
+    const { listingType, sort, head } = this.props;
     const myUserInfo = this.isoData.myUserInfo;
     const localSite = this.isoData.siteRes.site_view.local_site;
 
+    htmlTags({
+      head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="communities container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("list_of_communities")}

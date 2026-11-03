@@ -1,4 +1,4 @@
-import { setIsoData, updateMyUserInfo } from "@utils/app";
+import { setIsoData, updateMyUserInfo, WithHead } from "@utils/app";
 import { isBrowser, refreshTheme } from "@utils/browser";
 import { resourcesSettled, validEmail } from "@utils/helpers";
 import { Component, FormEvent, InfernoNode } from "inferno";
@@ -19,7 +19,7 @@ import {
   RequestState,
 } from "@services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../../common/html-tags";
+import { htmlTags } from "../../common/html-tags";
 import { Icon, Spinner } from "../../common/icon";
 import PasswordInput from "../../common/password-input";
 import { scrollMixin } from "@components/mixins/scroll-mixin";
@@ -51,7 +51,7 @@ interface State {
   captchaPlaying: boolean;
 }
 
-type SignupRouteProps = RouteComponentProps<Record<string, never>>;
+type SignupRouteProps = RouteComponentProps<Record<string, never>> & WithHead;
 export type SignupFetchConfig = IRoutePropsWithFetch<
   RouteData,
   Record<string, never>,
@@ -109,12 +109,13 @@ export class Signup extends Component<SignupRouteProps, State> {
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
     return (
       <div className="home-signup container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">
             {this.registerForm()}

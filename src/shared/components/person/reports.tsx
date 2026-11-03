@@ -4,6 +4,7 @@ import {
   getUncombinedReport,
   setIsoData,
   toast,
+  WithHead,
 } from "@utils/app";
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -44,7 +45,7 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { CommentReport } from "../comment/comment-report";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { ListView } from "../common/list-view";
 import { PostReport } from "../post/post-report";
@@ -90,7 +91,8 @@ interface ReportsState {
 }
 
 type ReportsRouteProps = RouteComponentProps<Record<string, never>> &
-  Record<string, never>;
+  Record<string, never> &
+  WithHead;
 export type ReportsFetchConfig = IRoutePropsWithFetch<
   ReportsData,
   Record<string, never>,
@@ -176,6 +178,12 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   render() {
     const banFromCommunityForm = this.state.banFromCommunityForm;
     const adminBanForm = this.state.adminBanForm;
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="person-reports container-lg d-flex flex-column fl-1">
         {banFromCommunityForm && (
@@ -203,10 +211,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         )}
         <div className="row fl-1">
           <div className="col-12 d-flex flex-column fl-1">
-            <HtmlTags
-              title={this.documentTitle}
-              context={this.context as RouterContext}
-            />
             <h1 className="h4 mb-4">{I18NextService.i18n.t("reports")}</h1>
             {this.selects()}
             {this.section}
