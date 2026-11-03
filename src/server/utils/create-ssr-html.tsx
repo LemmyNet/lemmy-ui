@@ -124,7 +124,6 @@ export async function createSsrHtml(
     </style>
 
     <!-- Required meta tags -->
-    <meta name="Description" content="Lemmy">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link
