@@ -162,11 +162,11 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             !this.state.submitted
           }
         />
-        <h2 className="h5">
+        <h5 className="card-title mb-3">
           {siteSetup
             ? capitalizeFirstLetter(I18NextService.i18n.t("edit_your_site"))
             : capitalizeFirstLetter(I18NextService.i18n.t("setup_your_site"))}
-        </h2>
+        </h5>
         <div className="mb-3 row">
           <label className="col-12 col-form-label" htmlFor="create-site-name">
             {I18NextService.i18n.t("name")}
@@ -262,25 +262,110 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <div className="mb-3 row">
-          <label
-            className="col-12 col-form-label"
-            htmlFor="default-items-per-page"
-          >
-            {I18NextService.i18n.t("posts_per_page")}
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("suggested_multi_community")}
           </label>
-          <div className="col-12">
-            <input
-              id="items-per-page"
-              type="number"
-              className="form-control"
-              value={this.state.siteForm.default_items_per_page}
-              onInput={e => handleDefaultItemsPerPageChange(this, e)}
-              min={1}
-              max={50}
+          <div className="col-sm-9">
+            <MultiCommunitySelect
+              value={this.state.siteForm.suggested_multi_community_id}
+              onSelect={val => handleSelectSuggestedMultiComm(this, val)}
             />
           </div>
         </div>
+        <hr />
+        <h5 className="card-title mb-3">{I18NextService.i18n.t("content")}</h5>
+        <div className="mb-3 row">
+          <div className="col-12">
+            <FilterChipCheckbox
+              option={"community_creation_admin_only"}
+              isChecked={
+                this.state.siteForm.community_creation_admin_only ?? false
+              }
+              onCheck={val => handleSiteCommunityCreationAdminOnly(this, val)}
+            />
+          </div>
+        </div>
+        <div className="col-12">
+          <FilterChipCheckbox
+            option={"private_instance"}
+            isChecked={this.state.siteForm.private_instance ?? false}
+            onCheck={val => handleSitePrivateInstance(this, val)}
+            description="private_instance_description"
+          />
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"disallow_nsfw_content"}
+              isChecked={this.state.siteForm.nsfw_content_disallowed ?? false}
+              onCheck={val => handleSiteEnableNsfwChange(this, val)}
+            />
+          </div>
+        </div>
+        {!this.state.siteForm.nsfw_content_disallowed && (
+          <div className="mb-3 row">
+            <div className="col">
+              <div className="alert small alert-info" role="alert">
+                <Icon icon="info" classes="icon-inline me-2" />
+                {I18NextService.i18n.t("content_warning_setting_blurb")}
+              </div>
+              <label className="col-12 col-form-label">
+                {I18NextService.i18n.t("content_warning")}
+              </label>
+              <div className="col-12">
+                <MarkdownTextArea
+                  initialContent={this.state.siteForm.content_warning}
+                  onContentChange={val =>
+                    handleSiteContentWarningChange(this, val)
+                  }
+                  hideNavigationWarnings
+                  allLanguages={[]}
+                  siteLanguages={[]}
+                  myUserInfo={this.props.myUserInfo}
+                  imageUploadDisabled={imageUploadDisabled}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+        <details className="col-form-label mb-3">
+          <summary>{I18NextService.i18n.t("language_plural")}</summary>
+          <LanguageSelect
+            allLanguages={this.props.siteRes?.all_languages}
+            siteLanguages={this.props.siteRes?.discussion_languages}
+            selectedLanguageIds={this.state.siteForm.discussion_languages}
+            multiple
+            onChange={val => handleDiscussionLanguageChange(this, val)}
+            showAll
+            myUserInfo={this.props.myUserInfo}
+          />
+        </details>
+        <div className="mb-3 row">
+          <label
+            className="col-12 col-form-label"
+            htmlFor="create-site-slur-filter-regex"
+          >
+            {I18NextService.i18n.t("slur_filter_regex")}
+          </label>
+          <div className="col-12">
+            <input
+              type="text"
+              id="create-site-slur-filter-regex"
+              placeholder="(word1|word2)"
+              className="form-control"
+              value={this.state.siteForm.slur_filter_regex}
+              onInput={e => handleSiteSlurFilterRegex(this, e)}
+              minLength={3}
+            />
+          </div>
+        </div>
+        <UrlListTextarea
+          urls={this.state.siteForm.blocked_urls ?? []}
+          onUpdate={urls => handleBlockedUrlsUpdate(this, urls)}
+        />
+        <hr />
+        <h5 className="card-title mb-3">{I18NextService.i18n.t("voting")}</h5>
         <div className="mb-3 row align-items-center">
           {(
             [
@@ -314,39 +399,10 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </>
           ))}
         </div>
-        <div className="row mb-3">
-          <div className="col">
-            <FilterChipCheckbox
-              option={"disallow_nsfw_content"}
-              isChecked={this.state.siteForm.nsfw_content_disallowed ?? false}
-              onCheck={val => handleSiteEnableNsfwChange(this, val)}
-            />
-          </div>
-        </div>
-        {!this.state.siteForm.nsfw_content_disallowed && (
-          <div className="mb-3 row">
-            <div className="alert small alert-info" role="alert">
-              <Icon icon="info" classes="icon-inline me-2" />
-              {I18NextService.i18n.t("content_warning_setting_blurb")}
-            </div>
-            <label className="col-12 col-form-label">
-              {I18NextService.i18n.t("content_warning")}
-            </label>
-            <div className="col-12">
-              <MarkdownTextArea
-                initialContent={this.state.siteForm.content_warning}
-                onContentChange={val =>
-                  handleSiteContentWarningChange(this, val)
-                }
-                hideNavigationWarnings
-                allLanguages={[]}
-                siteLanguages={[]}
-                myUserInfo={this.props.myUserInfo}
-                imageUploadDisabled={imageUploadDisabled}
-              />
-            </div>
-          </div>
-        )}
+        <hr />
+        <h5 className="card-title mb-3">
+          {I18NextService.i18n.t("registration")}
+        </h5>
         <div className="mb-3 row">
           <div className="col-12">
             <RegistrationModeDropdown
@@ -405,37 +461,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         <div className="mb-3 row">
           <div className="col-12">
             <FilterChipCheckbox
-              option={"oauth_registration"}
-              isChecked={this.state.siteForm.oauth_registration ?? false}
-              onCheck={val => handleSiteOauthRegistration(this, val)}
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <div className="col-12">
-            <FilterChipCheckbox
-              option={"community_creation_admin_only"}
-              isChecked={
-                this.state.siteForm.community_creation_admin_only ?? false
-              }
-              onCheck={val => handleSiteCommunityCreationAdminOnly(this, val)}
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <div className="col-12">
-            <FilterChipCheckbox
-              option={"disable_email_notifications"}
-              isChecked={
-                this.state.siteForm.email_notifications_disabled ?? false
-              }
-              onCheck={val => handleSiteDisableEmailNotifications(this, val)}
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <div className="col-12">
-            <FilterChipCheckbox
               option={"require_email_verification"}
               isChecked={
                 this.state.siteForm.email_verification_required ?? false
@@ -447,31 +472,16 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         <div className="mb-3 row">
           <div className="col-12">
             <FilterChipCheckbox
-              option={"application_email_admins"}
-              isChecked={this.state.siteForm.application_email_admins ?? false}
-              onCheck={val => handleSiteApplicationEmailAdmins(this, val)}
+              option={"oauth_registration"}
+              isChecked={this.state.siteForm.oauth_registration ?? false}
+              onCheck={val => handleSiteOauthRegistration(this, val)}
             />
           </div>
         </div>
-        <div className="mb-3 row">
-          <div className="col-12">
-            <FilterChipCheckbox
-              option={"reports_email_admins"}
-              isChecked={this.state.siteForm.reports_email_admins ?? false}
-              onCheck={val => handleSiteReportsEmailAdmins(this, val)}
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <div className="col-12">
-            <FilterChipCheckbox
-              option={"private_instance"}
-              isChecked={this.state.siteForm.private_instance ?? false}
-              onCheck={val => handleSitePrivateInstance(this, val)}
-              description="private_instance_description"
-            />
-          </div>
-        </div>
+        <hr />
+        <h5 className="card-title mb-3">
+          {I18NextService.i18n.t("look_and_feel")}
+        </h5>
         <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("default_theme")}
@@ -485,6 +495,168 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
+        <div className="mb-3 row align-items-center">
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("listing_mode")}
+          </label>
+          <div className="col-sm-9">
+            <PostListingModeDropdown
+              currentOption={
+                this.state.siteForm.default_post_listing_mode ?? "list"
+              }
+              onSelect={val => handlePostListingModeChange(this, val)}
+              showLabel={false}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <FilterChipDropdown
+            label="image_mode"
+            allOptions={IMAGE_MODE_OPTIONS}
+            currentOption={
+              this.state.siteForm.image_mode && {
+                value: this.state.siteForm.image_mode,
+                i18n: this.state.siteForm.image_mode,
+              }
+            }
+            onSelect={choice => handleChangeImageMode(this, choice)}
+          />
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"image_allow_video_uploads"}
+              isChecked={this.state.siteForm.image_allow_video_uploads ?? false}
+              onCheck={val => handleImageAllowVideoUploads(this, val)}
+            />
+          </div>
+        </div>
+        <div className="row mb-3">
+          <div className="col">
+            <FilterChipCheckbox
+              option={"image_upload_disabled"}
+              isChecked={this.state.siteForm.image_upload_disabled ?? false}
+              onCheck={val => handleImageUploadsDisabled(this, val)}
+            />
+          </div>
+        </div>
+        {!this.state.siteForm.image_upload_disabled && (
+          <>
+            <div className="mb-3 row">
+              <label
+                className="col-12 col-form-label"
+                htmlFor="image_proxy_bypass_domains"
+              >
+                {I18NextService.i18n.t("image_proxy_bypass_domains")}
+              </label>
+              <div className="col-12">
+                <input
+                  type="text"
+                  id="image_proxy_bypass_domains"
+                  placeholder="example.com,sample.org"
+                  className="form-control"
+                  value={this.state.siteForm.image_proxy_bypass_domains}
+                  onInput={e => handleImageProxyBypassDomains(this, e)}
+                  minLength={3}
+                />
+              </div>
+            </div>
+            <div className="mb-3 row">
+              <label
+                className="col-12 col-form-label"
+                htmlFor="image_upload_timeout_seconds"
+              >
+                {I18NextService.i18n.t("image_upload_timeout_seconds")}
+              </label>
+              <div className="col-12">
+                <input
+                  type="number"
+                  id="image_upload_timeout_seconds"
+                  className="form-control"
+                  value={this.state.siteForm.image_upload_timeout_seconds}
+                  onInput={e => handleImageUploadTimeout(this, e)}
+                  min="0"
+                />
+              </div>
+            </div>
+            <div className="mb-3 row">
+              <label
+                className="col-12 col-form-label"
+                htmlFor="image_max_thumbnail_size"
+              >
+                {I18NextService.i18n.t("image_max_thumbnail_size")}
+              </label>
+              <div className="col-12">
+                <input
+                  type="number"
+                  id="image_max_thumbnail_size"
+                  className="form-control"
+                  value={this.state.siteForm.image_max_thumbnail_size}
+                  onInput={e => handleImageMaxThumbnailSize(this, e)}
+                  min="0"
+                />
+              </div>
+            </div>
+            <div className="mb-3 row">
+              <label
+                className="col-12 col-form-label"
+                htmlFor="image_max_avatar_size"
+              >
+                {I18NextService.i18n.t("image_max_avatar_size")}
+              </label>
+              <div className="col-12">
+                <input
+                  type="number"
+                  id="image_max_avatar_size"
+                  className="form-control"
+                  value={this.state.siteForm.image_max_avatar_size}
+                  onInput={e => handleImageMaxAvatarSize(this, e)}
+                  min="0"
+                />
+              </div>
+            </div>
+            <div className="mb-3 row">
+              <label
+                className="col-12 col-form-label"
+                htmlFor="image_max_banner_size"
+              >
+                {I18NextService.i18n.t("image_max_banner_size")}
+              </label>
+              <div className="col-12">
+                <input
+                  type="number"
+                  id="image_max_banner_size"
+                  className="form-control"
+                  value={this.state.siteForm.image_max_banner_size}
+                  onInput={e => handleImageMaxBannerSize(this, e)}
+                  min="0"
+                />
+              </div>
+            </div>
+            <div className="mb-3 row">
+              <label
+                className="col-12 col-form-label"
+                htmlFor="image_max_upload_size"
+              >
+                {I18NextService.i18n.t("image_max_upload_size")}
+              </label>
+              <div className="col-12">
+                <input
+                  type="number"
+                  id="image_max_upload_size"
+                  className="form-control"
+                  value={this.state.siteForm.image_max_upload_size}
+                  onInput={e => handleImageMaxUploadSize(this, e)}
+                  min="0"
+                />
+              </div>
+            </div>
+          </>
+        )}
+        <hr />
+        <h5 className="card-title mb-3">
+          {I18NextService.i18n.t("sorting_and_filtering")}
+        </h5>
         {this.props.showLocal && (
           <div className="mb-3 row align-items-center">
             <label className="col-sm-3 col-form-label">
@@ -505,20 +677,6 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </div>
         )}
-        <div className="mb-3 row align-items-center">
-          <label className="col-sm-3 col-form-label">
-            {I18NextService.i18n.t("listing_mode")}
-          </label>
-          <div className="col-sm-9">
-            <PostListingModeDropdown
-              currentOption={
-                this.state.siteForm.default_post_listing_mode ?? "list"
-              }
-              onSelect={val => handlePostListingModeChange(this, val)}
-              showLabel={false}
-            />
-          </div>
-        </div>
         <div className="mb-3 row align-items-center">
           <label className="col-sm-3 col-form-label">
             {I18NextService.i18n.t("post_sort_type")}
@@ -565,192 +723,65 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
         <div className="mb-3 row">
           <label
             className="col-12 col-form-label"
-            htmlFor="create-site-slur-filter-regex"
+            htmlFor="default-items-per-page"
           >
-            {I18NextService.i18n.t("slur_filter_regex")}
+            {I18NextService.i18n.t("posts_per_page")}
           </label>
           <div className="col-12">
             <input
-              type="text"
-              id="create-site-slur-filter-regex"
-              placeholder="(word1|word2)"
+              id="items-per-page"
+              type="number"
               className="form-control"
-              value={this.state.siteForm.slur_filter_regex}
-              onInput={e => handleSiteSlurFilterRegex(this, e)}
-              minLength={3}
+              value={this.state.siteForm.default_items_per_page}
+              onInput={e => handleDefaultItemsPerPageChange(this, e)}
+              min={1}
+              max={50}
             />
           </div>
         </div>
-        <LanguageSelect
-          allLanguages={this.props.siteRes?.all_languages}
-          siteLanguages={this.props.siteRes?.discussion_languages}
-          selectedLanguageIds={this.state.siteForm.discussion_languages}
-          multiple
-          onChange={val => handleDiscussionLanguageChange(this, val)}
-          showAll
-          myUserInfo={this.props.myUserInfo}
-        />
-        <UrlListTextarea
-          urls={this.state.siteForm.blocked_urls ?? []}
-          onUpdate={urls => handleBlockedUrlsUpdate(this, urls)}
-        />
+        <hr />
+        <h5 className="card-title mb-3">
+          {I18NextService.i18n.t("notifications")}
+        </h5>
+        <div className="mb-3 row">
+          <div className="col-12">
+            <FilterChipCheckbox
+              option={"disable_email_notifications"}
+              isChecked={
+                this.state.siteForm.email_notifications_disabled ?? false
+              }
+              onCheck={val => handleSiteDisableEmailNotifications(this, val)}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <div className="col-12">
+            <FilterChipCheckbox
+              option={"application_email_admins"}
+              isChecked={this.state.siteForm.application_email_admins ?? false}
+              onCheck={val => handleSiteApplicationEmailAdmins(this, val)}
+            />
+          </div>
+        </div>
+        <div className="mb-3 row">
+          <div className="col-12">
+            <FilterChipCheckbox
+              option={"reports_email_admins"}
+              isChecked={this.state.siteForm.reports_email_admins ?? false}
+              onCheck={val => handleSiteReportsEmailAdmins(this, val)}
+            />
+          </div>
+        </div>
+        <hr />
+        <h5 className="card-title mb-3">
+          {I18NextService.i18n.t("federation")}
+        </h5>
         <div className="mb-3 row">
           <div className="col-12">
             <FilterChipCheckbox
               option={"federation_enabled"}
               isChecked={this.state.siteForm.federation_enabled ?? false}
               onCheck={val => handleSiteFederationEnabled(this, val)}
-            />
-          </div>
-        </div>
-        <div className="mb-3 row align-items-center">
-          <label className="col-sm-3 col-form-label">
-            {I18NextService.i18n.t("suggested_multi_community")}
-          </label>
-          <div className="col-sm-9">
-            <MultiCommunitySelect
-              value={this.state.siteForm.suggested_multi_community_id}
-              onSelect={val => handleSelectSuggestedMultiComm(this, val)}
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <FilterChipDropdown
-            label="image_mode"
-            allOptions={IMAGE_MODE_OPTIONS}
-            currentOption={
-              this.state.siteForm.image_mode && {
-                value: this.state.siteForm.image_mode,
-                i18n: this.state.siteForm.image_mode,
-              }
-            }
-            onSelect={choice => handleChangeImageMode(this, choice)}
-          />
-        </div>
-        <div className="mb-3 row">
-          <label
-            className="col-12 col-form-label"
-            htmlFor="image_proxy_bypass_domains"
-          >
-            {I18NextService.i18n.t("image_proxy_bypass_domains")}
-          </label>
-          <div className="col-12">
-            <input
-              type="text"
-              id="image_proxy_bypass_domains"
-              placeholder="example.com,sample.org"
-              className="form-control"
-              value={this.state.siteForm.image_proxy_bypass_domains}
-              onInput={e => handleImageProxyBypassDomains(this, e)}
-              minLength={3}
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <label
-            className="col-12 col-form-label"
-            htmlFor="image_upload_timeout_seconds"
-          >
-            {I18NextService.i18n.t("image_upload_timeout_seconds")}
-          </label>
-          <div className="col-12">
-            <input
-              type="number"
-              id="image_upload_timeout_seconds"
-              className="form-control"
-              value={this.state.siteForm.image_upload_timeout_seconds}
-              onInput={e => handleImageUploadTimeout(this, e)}
-              min="0"
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <label
-            className="col-12 col-form-label"
-            htmlFor="image_max_thumbnail_size"
-          >
-            {I18NextService.i18n.t("image_max_thumbnail_size")}
-          </label>
-          <div className="col-12">
-            <input
-              type="number"
-              id="image_max_thumbnail_size"
-              className="form-control"
-              value={this.state.siteForm.image_max_thumbnail_size}
-              onInput={e => handleImageMaxThumbnailSize(this, e)}
-              min="0"
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <label
-            className="col-12 col-form-label"
-            htmlFor="image_max_avatar_size"
-          >
-            {I18NextService.i18n.t("image_max_avatar_size")}
-          </label>
-          <div className="col-12">
-            <input
-              type="number"
-              id="image_max_avatar_size"
-              className="form-control"
-              value={this.state.siteForm.image_max_avatar_size}
-              onInput={e => handleImageMaxAvatarSize(this, e)}
-              min="0"
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <label
-            className="col-12 col-form-label"
-            htmlFor="image_max_banner_size"
-          >
-            {I18NextService.i18n.t("image_max_banner_size")}
-          </label>
-          <div className="col-12">
-            <input
-              type="number"
-              id="image_max_banner_size"
-              className="form-control"
-              value={this.state.siteForm.image_max_banner_size}
-              onInput={e => handleImageMaxBannerSize(this, e)}
-              min="0"
-            />
-          </div>
-        </div>
-        <div className="mb-3 row">
-          <label
-            className="col-12 col-form-label"
-            htmlFor="image_max_upload_size"
-          >
-            {I18NextService.i18n.t("image_max_upload_size")}
-          </label>
-          <div className="col-12">
-            <input
-              type="number"
-              id="image_max_upload_size"
-              className="form-control"
-              value={this.state.siteForm.image_max_upload_size}
-              onInput={e => handleImageMaxUploadSize(this, e)}
-              min="0"
-            />
-          </div>
-        </div>
-        <div className="row mb-3">
-          <div className="col">
-            <FilterChipCheckbox
-              option={"image_allow_video_uploads"}
-              isChecked={this.state.siteForm.image_allow_video_uploads ?? false}
-              onCheck={val => handleImageAllowVideoUploads(this, val)}
-            />
-          </div>
-        </div>
-        <div className="row mb-3">
-          <div className="col">
-            <FilterChipCheckbox
-              option={"image_upload_disabled"}
-              isChecked={this.state.siteForm.image_upload_disabled ?? false}
-              onCheck={val => handleImageUploadsDisabled(this, val)}
             />
           </div>
         </div>

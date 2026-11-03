@@ -393,6 +393,14 @@ br.big {
   left: 10px;
 }
 
+.icon-without-banner {
+  max-width: 72px;
+}
+
+.icon-with-banner {
+  max-width: 80px;
+}
+
 .avatar {
   max-width: 120px;
   max-height: 120px;
