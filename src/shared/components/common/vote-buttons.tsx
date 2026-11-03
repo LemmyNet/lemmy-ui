@@ -337,6 +337,18 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
       voteContentType,
       subject: { creator_id },
     } = this.props;
+
+    // For the post-listing view type, show the score either if showScore is true, or showUpvotes is true
+    const showScore_ = showScore(localUser);
+    const showUpvotes_ = showUpvotes(
+      localUser,
+      community,
+      myUserInfo,
+      voteContentType,
+    );
+
+    const showScores = showScore_ || showUpvotes_;
+
     return (
       <div className="vote-bar small text-center">
         {enableUpvotes(community, myUserInfo, voteContentType) && (
@@ -361,7 +373,7 @@ export class VoteButtons extends Component<VoteButtonsProps, VoteButtonsState> {
             <Icon icon="arrow-up1" classes="upvote" />
           </button>
         )}
-        {showScore(localUser) ? (
+        {showScores ? (
           <div
             className="unselectable pointer text-muted post-score"
             data-tippy-content={tippy(
