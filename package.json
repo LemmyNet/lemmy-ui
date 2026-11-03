@@ -75,7 +75,7 @@
     "inferno-hydrate": "^10.0.0",
     "inferno-i18next-dess": "0.0.2",
     "inferno-router": "^9.1.0",
-    "inferno-server": "^10.0.0",
+    "inferno-server": "^9.1.0",
     "jwt-decode": "^4.0.0",
     "lemmy-js-client": "1.0.0-feed-only-jwt.0",
     "markdown-it": "^14.3.3",
