@@ -1,6 +1,5 @@
-import { fetchThemeList, setIsoData } from "@utils/app";
+import { fetchThemeList, setIsoData, WithHead } from "@utils/app";
 import { Component, FormEvent } from "inferno";
-import { Helmet } from "inferno-helmet";
 import { CreateSite, LoginResponse, Register } from "lemmy-js-client";
 import { I18NextService, UserService } from "../../services";
 import {
@@ -13,9 +12,10 @@ import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import { SiteForm } from "./site-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
-import { RouteComponentProps } from "inferno-router";
+import { RouteComponentProps, RouterContext } from "inferno-router";
 import { isBrowser } from "@utils/browser";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { htmlTags } from "@components/common/html-tags";
 
 interface State {
   form: {
@@ -36,7 +36,7 @@ interface State {
 
 @simpleScrollMixin
 export class Setup extends Component<
-  RouteComponentProps<Record<string, never>>,
+  RouteComponentProps<Record<string, never>> & WithHead,
   State
 > {
   private isoData = setIsoData(this.context);
@@ -61,9 +61,13 @@ export class Setup extends Component<
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
     return (
       <div className="home-setup container-lg">
-        <Helmet title={this.documentTitle} />
         <div className="row">
           <div className="col-12 offset-lg-3 col-lg-6">
             <h1 className="h4 mb-4">

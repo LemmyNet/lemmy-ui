@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, WithHead } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
@@ -35,7 +35,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { ListView } from "../common/list-view";
 import { RegistrationApplication } from "../common/registration-application";
@@ -101,7 +101,8 @@ export type RegistrationApplicationsFetchConfig = IRoutePropsWithFetch<
 type RegistrationApplicationsRouteProps = RouteComponentProps<
   Record<string, never>
 > &
-  RegistrationApplicationsProps;
+  RegistrationApplicationsProps &
+  WithHead;
 
 @scrollMixin
 export class RegistrationApplications extends Component<
@@ -162,13 +163,15 @@ export class RegistrationApplications extends Component<
     const appsState = this.state.appsRes.state;
     const apps = appsState === "success" && this.state.appsRes.data.items;
 
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="row fl-1">
         <div className="col-12 d-flex flex-column fl-1">
-          <HtmlTags
-            title={this.documentTitle}
-            context={this.context as RouterContext}
-          />
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("registration_applications")}
           </h1>

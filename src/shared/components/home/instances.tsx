@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, WithHead } from "@utils/app";
 import { QueryParams, RouteDataResponse } from "@utils/types";
 import { Component, FormEvent, createRef, InfernoNode } from "inferno";
 import {
@@ -19,7 +19,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { getHttpBaseInternal } from "../../utils/env";
 import { RouteComponentProps, RouterContext } from "inferno-router";
@@ -70,7 +70,8 @@ interface InstancesProps {
 }
 
 type InstancesRouteProps = RouteComponentProps<Record<string, never>> &
-  InstancesProps;
+  InstancesProps &
+  WithHead;
 export type InstancesFetchConfig = IRoutePropsWithFetch<
   InstancesData,
   Record<string, never>,
@@ -181,12 +182,13 @@ export class Instances extends Component<InstancesRouteProps, InstancesState> {
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
     return (
       <div className="home-instances container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         {this.renderFilters()}
         {this.renderInstances()}
         <PaginatorCursor

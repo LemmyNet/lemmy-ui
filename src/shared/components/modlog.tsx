@@ -4,6 +4,7 @@ import {
   searchUsers,
   personToChoice,
   setIsoData,
+  WithHead,
 } from "@utils/app";
 import {
   debounce,
@@ -47,7 +48,7 @@ import {
   RequestState,
   wrapClient,
 } from "../services/HttpService";
-import { HtmlTags } from "./common/html-tags";
+import { htmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
 import { communityLink, CommunityLink } from "./community/community-link";
@@ -693,7 +694,9 @@ async function createNewOptions({
 }
 
 type ModlogPathProps = Record<string, never>;
-type ModlogRouteProps = RouteComponentProps<ModlogPathProps> & ModlogProps;
+type ModlogRouteProps = RouteComponentProps<ModlogPathProps> &
+  ModlogProps &
+  WithHead;
 export type ModlogFetchConfig = IRoutePropsWithFetch<
   ModlogData,
   ModlogPathProps,
@@ -896,13 +899,13 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const communityResp =
       communityState === "success" && this.state.communityRes.data;
 
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
     return (
       <div className="modlog container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
-
         <h1 className="h4 mb-4">{I18NextService.i18n.t("modlog")}</h1>
 
         <div

@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, WithHead } from "@utils/app";
 import { Component } from "inferno";
 import {
   CreateMultiCommunity as CreateMultiCommunityI,
@@ -6,7 +6,7 @@ import {
   MyUserInfo,
 } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { MultiCommunityForm } from "./multi-community-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps, RouterContext } from "inferno-router";
@@ -18,15 +18,13 @@ import {
   RequestState,
 } from "@services/HttpService";
 
+type RouteProps = RouteComponentProps<Record<string, never>> & WithHead;
 interface State {
   createRes: RequestState<MultiCommunityResponse>;
 }
 
 @simpleScrollMixin
-export class CreateMultiCommunity extends Component<
-  RouteComponentProps<Record<string, never>>,
-  State
-> {
+export class CreateMultiCommunity extends Component<RouteProps, State> {
   private isoData = setIsoData(this.context);
   state: State = { createRes: EMPTY_REQUEST };
 
@@ -39,12 +37,13 @@ export class CreateMultiCommunity extends Component<
   render() {
     const myUserInfo = this.isoData.myUserInfo;
 
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
     return (
       <div className="create-multi-community container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">

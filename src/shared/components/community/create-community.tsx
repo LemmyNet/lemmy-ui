@@ -1,4 +1,4 @@
-import { enableNsfw, setIsoData } from "@utils/app";
+import { enableNsfw, setIsoData, WithHead } from "@utils/app";
 import { Component } from "inferno";
 import {
   CommunityResponse,
@@ -6,7 +6,7 @@ import {
   MyUserInfo,
 } from "lemmy-js-client";
 import { HttpService, I18NextService } from "../../services";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { CommunityForm } from "./community-form";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps, RouterContext } from "inferno-router";
@@ -23,9 +23,11 @@ interface CreateCommunityState {
   createCommunityRes: RequestState<CommunityResponse>;
 }
 
+type RouteProps = RouteComponentProps<Record<string, never>> & WithHead;
+
 @simpleScrollMixin
 export class CreateCommunity extends Component<
-  RouteComponentProps<Record<string, never>>,
+  RouteProps,
   CreateCommunityState
 > {
   private isoData = setIsoData(this.context);
@@ -42,12 +44,15 @@ export class CreateCommunity extends Component<
   render() {
     const imageUploadDisabled =
       this.isoData.siteRes.site_view.local_site.image_upload_disabled;
+
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="create-community container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">

@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, WithHead } from "@utils/app";
 import { Component } from "inferno";
 import { SuccessResponse } from "lemmy-js-client";
 import { I18NextService } from "../../services";
@@ -10,20 +10,19 @@ import {
   RequestState,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { Link, RouteComponentProps, RouterContext } from "inferno-router";
+
+type RouteProps = RouteComponentProps<{ token: string }> & WithHead;
 
 interface State {
   verifyRes: RequestState<SuccessResponse>;
 }
 
 @simpleScrollMixin
-export class VerifyEmail extends Component<
-  RouteComponentProps<{ token: string }>,
-  State
-> {
+export class VerifyEmail extends Component<RouteProps, State> {
   private isoData = setIsoData(this.context);
 
   state: State = {
@@ -61,12 +60,14 @@ export class VerifyEmail extends Component<
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="verify-email container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">{I18NextService.i18n.t("verify_email")}</h1>

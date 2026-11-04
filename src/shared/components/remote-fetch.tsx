@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, WithHead } from "@utils/app";
 import { getQueryParams, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
@@ -17,7 +17,7 @@ import {
   RequestState,
   wrapClient,
 } from "../services/HttpService";
-import { HtmlTags } from "./common/html-tags";
+import { htmlTags } from "./common/html-tags";
 import { Spinner } from "./common/icon";
 import { LoadingEllipses } from "./common/loading-ellipses";
 import { PictrsImage } from "./common/pictrs-image";
@@ -85,7 +85,8 @@ async function handleToggleFollow(i: RemoteFetch, follow: boolean) {
 
 type RemoteFetchPathProps = Record<string, never>;
 type RemoteFetchRouteProps = RouteComponentProps<RemoteFetchPathProps> &
-  RemoteFetchProps;
+  RemoteFetchProps &
+  WithHead;
 export type RemoteFetchFetchConfig = IRoutePropsWithFetch<
   RemoteFetchData,
   RemoteFetchPathProps,
@@ -138,12 +139,14 @@ export class RemoteFetch extends Component<
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="remote-fetch container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 text-center">
             {this.content}

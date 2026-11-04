@@ -1,4 +1,4 @@
-import { setIsoData, updateMyUserInfo } from "@utils/app";
+import { setIsoData, updateMyUserInfo, WithHead } from "@utils/app";
 import { refreshTheme } from "@utils/browser";
 import { getQueryParams, validEmail } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
@@ -13,7 +13,7 @@ import {
   RequestState,
 } from "../../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../../common/html-tags";
+import { htmlTags } from "../../common/html-tags";
 import { Spinner } from "../../common/icon";
 import PasswordInput from "../../common/password-input";
 import TotpModal from "../../common/modal/totp-modal";
@@ -50,7 +50,9 @@ interface State {
   showResendVerificationEmailBtn: boolean;
 }
 
-type LoginRouteProps = RouteComponentProps<Record<string, never>> & LoginProps;
+type LoginRouteProps = RouteComponentProps<Record<string, never>> &
+  LoginProps &
+  WithHead;
 export type LoginFetchConfig = IRoutePropsWithFetch<
   RouteData,
   Record<string, never>,
@@ -80,12 +82,14 @@ export class Login extends Component<LoginRouteProps, State> {
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="login container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <TotpModal
           type="login"
           onSubmit={totp => handleSubmitTotp(this, totp)}

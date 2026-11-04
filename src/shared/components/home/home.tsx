@@ -17,6 +17,7 @@ import {
   subscribedRSSUrl,
   updateCommunityBlock,
   updatePersonBlock,
+  WithHead,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -97,7 +98,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostOrCommentTypeDropdown } from "../common/post-or-comment-type-dropdown";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { CommentSortDropdown, PostSortDropdown } from "../common/sort-dropdown";
 import { CommunityLink } from "../community/community-link";
@@ -282,7 +283,7 @@ export function getHomeQueryParams(
 }
 
 type HomePathProps = Record<string, never>;
-type HomeRouteProps = RouteComponentProps<HomePathProps> & HomeProps;
+type HomeRouteProps = RouteComponentProps<HomePathProps> & HomeProps & WithHead;
 export type HomeFetchConfig = IRoutePropsWithFetch<
   HomeData,
   HomePathProps,
@@ -426,12 +427,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     } = this.state;
     const myUserInfo = this.isoData.myUserInfo;
 
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="home container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         {site_setup && (
           <div className="row">
             <div className="col-12 col-md-8 col-lg-9">

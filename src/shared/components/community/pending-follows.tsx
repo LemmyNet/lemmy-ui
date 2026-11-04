@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, WithHead } from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
@@ -33,7 +33,7 @@ import {
   RequestState,
   wrapClient,
 } from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { getHttpBaseInternal } from "../../utils/env";
 import { isBrowser } from "@utils/browser";
@@ -97,7 +97,8 @@ export type PendingFollowsFetchConfig = IRoutePropsWithFetch<
 >;
 
 type PendingFollowsRouteProps = RouteComponentProps<Record<string, never>> &
-  PendingFollowsProps;
+  PendingFollowsProps &
+  WithHead;
 
 @scrollMixin
 export class PendingFollows extends Component<
@@ -154,14 +155,17 @@ export class PendingFollows extends Component<
   render() {
     const state = this.state.appsRes.state;
     const pending = state === "success" && this.state.appsRes.data.items;
+
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="container-lg">
         <div className="row">
           <div className="col-12">
-            <HtmlTags
-              title={this.documentTitle}
-              context={this.context as RouterContext}
-            />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("community_pending_follows")}
             </h1>

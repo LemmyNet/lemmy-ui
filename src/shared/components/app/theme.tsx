@@ -1,19 +1,20 @@
 import { Component } from "inferno";
-import { Helmet } from "inferno-helmet";
 import { dataBsTheme, isBrowser } from "@utils/browser";
 import { getStaticDir } from "@utils/env";
-import { CodeTheme } from "./code-theme";
+import { codeTheme } from "./code-theme";
 import { MyUserInfo } from "lemmy-js-client";
+import { useHead } from "unhead";
+import { WithHead } from "@utils/app";
 
-interface Props {
+type Props = {
   defaultTheme: string;
   myUserInfo: MyUserInfo | undefined;
-}
+} & WithHead;
 
-interface State {
+type State = {
   themeOverride?: string;
   graceTheme?: string;
-}
+};
 
 export class Theme extends Component<Props, State> {
   private lightQuery?: MediaQueryList;
@@ -79,99 +80,93 @@ export class Theme extends Component<Props, State> {
   }
 
   renderTheme(theme: string) {
+    const head = this.props.head;
     const hasTheme =
       theme !== "instance" &&
       theme !== "instance-compact" &&
       theme !== "browser";
 
-    const detectedBsTheme = {};
-    if (this.lightQuery) {
-      detectedBsTheme["data-bs-theme"] = this.lightQuery.matches
+    const detectedBsTheme = this.lightQuery
+      ? this.lightQuery.matches
         ? "light"
-        : "dark";
-    }
+        : "dark"
+      : "light";
 
     if (theme && hasTheme) {
-      return (
-        <>
-          <Helmet htmlAttributes={{ "data-bs-theme": dataBsTheme(theme) }}>
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href={`${getStaticDir()}/assets/css/themes/${theme}.css`}
-            />
-          </Helmet>
-          <CodeTheme theme={theme} />
-        </>
-      );
+      useHead(head, {
+        htmlAttrs: { "data-bs-theme": dataBsTheme(theme) },
+        link: [
+          {
+            rel: "stylesheet",
+            type: "text/css",
+            href: `${getStaticDir()}/assets/css/themes/${theme}.css`,
+          },
+        ],
+      });
+      codeTheme({ theme, head });
     } else if (
       this.props.defaultTheme !== "instance" &&
       this.props.defaultTheme !== "instance-compact" &&
       this.props.defaultTheme !== "browser"
     ) {
-      return (
-        <>
-          <Helmet
-            htmlAttributes={{
-              "data-bs-theme": dataBsTheme(this.props.defaultTheme),
-            }}
-          >
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href={`${getStaticDir()}/assets/css/themes/${this.props.defaultTheme}.css`}
-            />
-          </Helmet>
-          <CodeTheme theme={this.props.defaultTheme} />
-        </>
-      );
+      useHead(head, {
+        htmlAttrs: { "data-bs-theme": dataBsTheme(this.props.defaultTheme) },
+        link: [
+          {
+            rel: "stylesheet",
+            type: "text/css",
+            href: `${getStaticDir()}/assets/css/themes/${this.props.defaultTheme}.css`,
+          },
+        ],
+      });
+      codeTheme({ theme: this.props.defaultTheme, head });
     } else if (
       this.props.defaultTheme === "instance-compact" ||
       theme === "instance-compact"
     ) {
-      return (
-        <>
-          <Helmet htmlAttributes={detectedBsTheme}>
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href={`${getStaticDir()}/assets/css/themes/litely-compact.css`}
-              id="default-light"
-              media="(prefers-color-scheme: light)"
-            />
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href={`${getStaticDir()}/assets/css/themes/darkly-compact.css`}
-              id="default-dark"
-              media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
-            />
-          </Helmet>
-          <CodeTheme theme="instance-compact" />
-        </>
-      );
+      useHead(head, {
+        htmlAttrs: { "data-bs-theme": detectedBsTheme },
+        link: [
+          {
+            rel: "stylesheet",
+            type: "text/css",
+            href: `${getStaticDir()}/assets/css/themes/litely-compact.css`,
+            id: "default-light",
+            media: "(prefers-color-scheme: light)",
+          },
+          {
+            rel: "stylesheet",
+            type: "text/css",
+            href: `${getStaticDir()}/assets/css/themes/darkly-compact.css`,
+            id: "default-dark",
+            media:
+              "(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)",
+          },
+        ],
+      });
+      codeTheme({ theme: "instance-compact", head });
     } else {
-      return (
-        <>
-          <Helmet htmlAttributes={detectedBsTheme}>
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href={`${getStaticDir()}/assets/css/themes/litely.css`}
-              id="default-light"
-              media="(prefers-color-scheme: light)"
-            />
-            <link
-              rel="stylesheet"
-              type="text/css"
-              href={`${getStaticDir()}/assets/css/themes/darkly.css`}
-              id="default-dark"
-              media="(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)"
-            />
-          </Helmet>
-          <CodeTheme theme="instance" />
-        </>
-      );
+      useHead(head, {
+        htmlAttrs: { "data-bs-theme": detectedBsTheme },
+        link: [
+          {
+            rel: "stylesheet",
+            type: "text/css",
+            href: `${getStaticDir()}/assets/css/themes/litely.css`,
+            id: "default-light",
+            media: "(prefers-color-scheme: light)",
+          },
+          {
+            rel: "stylesheet",
+            type: "text/css",
+            href: `${getStaticDir()}/assets/css/themes/darkly.css`,
+            id: "default-dark",
+            media:
+              "(prefers-color-scheme: no-preference), (prefers-color-scheme: dark)",
+          },
+        ],
+      });
+      codeTheme({ theme: "instance", head });
     }
   }
 }

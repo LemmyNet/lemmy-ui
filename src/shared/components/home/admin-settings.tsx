@@ -1,4 +1,4 @@
-import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
+import { fetchThemeList, setIsoData, showLocal, WithHead } from "@utils/app";
 import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
@@ -38,7 +38,7 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
@@ -99,7 +99,8 @@ interface AdminSettingsState {
 }
 
 type AdminSettingsRouteProps = RouteComponentProps<Record<string, never>> &
-  Record<string, never>;
+  Record<string, never> &
+  WithHead;
 export type AdminSettingsFetchConfig = IRoutePropsWithFetch<
   AdminSettingsData,
   Record<string, never>,
@@ -190,12 +191,13 @@ export class AdminSettings extends Component<
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
     return (
       <div className="admin-settings container">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <Tabs
           tabs={[
             {
