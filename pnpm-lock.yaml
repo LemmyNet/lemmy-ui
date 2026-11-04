@@ -266,8 +266,8 @@ importers:
         specifier: ^10.0.0
         version: 10.0.0
       inferno-i18next-dess:
-        specifier: 0.0.2
-        version: 0.0.2
+        specifier: 0.0.3
+        version: 0.0.3
       inferno-router:
         specifier: ^10.0.0
         version: 10.0.0(history@5.3.0)
@@ -3402,20 +3402,17 @@ packages:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==}
     engines: {node: '>=0.8.19'}
 
-  inferno-clone-vnode@8.2.3:
-    resolution: {integrity: sha512-ufPf+jfp+ozozyHRJpNtTgVRVzltF8/qjqrIU8Xyoj7SSKIqyHj8Zh13frEA9aNGb8e9Kknax2A1QAXc8ENp6Q==}
+  inferno-clone-vnode@10.0.0:
+    resolution: {integrity: sha512-StpcjO8ikYZrcOuHLaZqx2p62kTPwVDLCY/jPyLYAgl8EbNBzy4VI/Xl7Vocuhtl2ZBVMxBFAdB4IR2jeRDr8A==}
 
   inferno-create-element@10.0.0:
     resolution: {integrity: sha512-Ov2D7+lRjsbnKmtasVg57AGx1N1SXhpUk3pxC2AAAoDq9wXlHV+NzzUKFNDUJHKzuYqYcod2IfOjgRY5wDs9XA==}
 
-  inferno-create-element@8.2.3:
-    resolution: {integrity: sha512-YEwX4OiFlgeTutvE16uCGxkaSVwZ1DklpAPX8okjVsGaLIWQrM8QIQFxn3mTLWSu70Uea+afQfKL5wE4hxn39Q==}
-
   inferno-hydrate@10.0.0:
     resolution: {integrity: sha512-MHq5xb41Ue8lO/Td89lo8CXBD5bASU9CvzrZj6XVEhU16UuV8argBrxK/5J6xfwoheWjkq0FIYbQ1RNCuSNtjg==}
 
-  inferno-i18next-dess@0.0.2:
-    resolution: {integrity: sha512-TkpBTZzfqgK7O8gIJ7gLB9CvP1bEOfO8OA7vUfJpd2kgGom9eoj6xbAMUPk5BNH6nBN5Y+mCaG/dInQjW5Jkug==}
+  inferno-i18next-dess@0.0.3:
+    resolution: {integrity: sha512-uz5FoliXReyCatbkDITrWVb35b0xBV7JzWRJv7xAfSV1L2NKy3FMHvBDeqQYNu2hkqKa5hatASClPsjbuYGUcw==}
 
   inferno-router@10.0.0:
     resolution: {integrity: sha512-12RCZqLipwvi76t0vY0O1RRS9Ho38e8tXakS9l1k9G0KWwvGavuXjVOda/4KcIrR+qGy5L533eOCAnI7ngJzDg==}
@@ -3426,20 +3423,14 @@ packages:
     resolution: {integrity: sha512-ikMDTQbuQrY7eYPlS5YaIjU0I69fss05db/dmynunydnxPxARsfWCpksoWTAWMXFsb30aPLs2jZY3kYndNk6Cg==}
     engines: {node: '>=8'}
 
-  inferno-shared@8.2.3:
-    resolution: {integrity: sha512-fwKcEzLjtmjP056ppKbjUk2vt/Hd5ruCuou2DqZDHp71PfhmLIfxiihj97XUlA3ANpsY+wyi3crG6XBn3e++7A==}
+  inferno-shared@10.0.0:
+    resolution: {integrity: sha512-4aQh+y/X2ttF75PwEsiAE0jhUkz5xFHB8ninAEyM84Y7Rqr4xRAQl9yrkSaX1c2/s0XUkdvFbl5/iuT0IMIOsA==}
 
   inferno-vnode-flags@10.0.0:
     resolution: {integrity: sha512-BvHztsE+5XdD/5+gCnyeg/f2zpiNfYMnZfNL53xmGQY8EPIApr0w+TX3fcmz3Y0ObPWa8HuRxnlZTMeZocGKNw==}
 
-  inferno-vnode-flags@8.2.3:
-    resolution: {integrity: sha512-dfC0MIwFv9PCbZCUsuk9ISejFS3fKJODC0rZ/LjxxzE+OrCk+PMwPLsUnGU6O9/jbBnPACVz1BkACDf5LWgU5Q==}
-
   inferno@10.0.0:
     resolution: {integrity: sha512-R9IIOzV7sqAKKdO+/BUNvvfkui8A5kzkJD2Yice+o12qp5qH61u3PieTQFvLPxKIFn0DlmLc9X8PXmTG2Ck+PA==}
-
-  inferno@8.2.3:
-    resolution: {integrity: sha512-LMeRlCe+RlXw8kHCLyOWRk2PsZ3Fo4jkESyAR1g4FfPT48N78i11YhTVXW2ukCx5MFjv+qrfa73JzJWU9sg4CQ==}
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
@@ -8475,30 +8466,26 @@ snapshots:
 
   imurmurhash@0.1.4: {}
 
-  inferno-clone-vnode@8.2.3:
+  inferno-clone-vnode@10.0.0:
     dependencies:
-      inferno: 8.2.3
+      inferno: 10.0.0
 
   inferno-create-element@10.0.0:
     dependencies:
       inferno: 10.0.0
 
-  inferno-create-element@8.2.3:
-    dependencies:
-      inferno: 8.2.3
-
   inferno-hydrate@10.0.0:
     dependencies:
       inferno: 10.0.0
 
-  inferno-i18next-dess@0.0.2:
+  inferno-i18next-dess@0.0.3:
     dependencies:
       html-parse-stringify2: 2.0.2
-      inferno: 8.2.3
-      inferno-clone-vnode: 8.2.3
-      inferno-create-element: 8.2.3
-      inferno-shared: 8.2.3
-      inferno-vnode-flags: 8.2.3
+      inferno: 10.0.0
+      inferno-clone-vnode: 10.0.0
+      inferno-create-element: 10.0.0
+      inferno-shared: 10.0.0
+      inferno-vnode-flags: 10.0.0
 
   inferno-router@10.0.0(history@5.3.0):
     dependencies:
@@ -8511,22 +8498,14 @@ snapshots:
       inferno: 10.0.0
       inferno-vnode-flags: 10.0.0
 
-  inferno-shared@8.2.3: {}
+  inferno-shared@10.0.0: {}
 
   inferno-vnode-flags@10.0.0: {}
-
-  inferno-vnode-flags@8.2.3: {}
 
   inferno@10.0.0:
     dependencies:
       csstype: 3.2.3
       inferno-vnode-flags: 10.0.0
-      opencollective-postinstall: 2.0.3
-
-  inferno@8.2.3:
-    dependencies:
-      csstype: 3.2.3
-      inferno-vnode-flags: 8.2.3
       opencollective-postinstall: 2.0.3
 
   inflight@1.0.6:
