@@ -4,3 +4,4 @@ allowBuilds:
   sharp: true
 minimumReleaseAgeExclude:
   - lemmy-js-client
+  - inferno-i18next-dess@0.0.3

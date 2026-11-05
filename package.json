@@ -72,7 +72,7 @@
     "inferno": "^10.0.0",
     "inferno-create-element": "^10.0.0",
     "inferno-hydrate": "^10.0.0",
-    "inferno-i18next-dess": "0.0.2",
+    "inferno-i18next-dess": "0.0.3",
     "inferno-router": "^10.0.0",
     "inferno-server": "^10.0.0",
     "jwt-decode": "^4.0.0",
