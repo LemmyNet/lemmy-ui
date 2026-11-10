@@ -42,7 +42,7 @@ export function tagColorToColorClass(tagColor: TagColor): string {
 function tagColorToBtnClasses(tagColor: TagColor): string {
   const colorClass = tagColorToColorClass(tagColor);
 
-  return `btn btn-sm bg-${colorClass}-subtle border-${colorClass}-subtle`;
+  return `btn btn-sm btn-${colorClass}`;
 }
 
 export function TagColorDropdown({
