@@ -58,7 +58,7 @@ export class MomentTime extends Component<MomentTimeProps, never> {
       return (
         <span
           data-tippy-content={sanitize(this.createdAndModifiedTimes())}
-          data-tippy-allowHtml={"true"}
+          data-tippy-allowHtml
           className="moment-time fst-italic pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline me-1" />
