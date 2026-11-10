@@ -5,6 +5,7 @@ import { Component } from "inferno";
 import { I18NextService } from "../../services";
 import { Icon } from "./icon";
 import { tippyMixin } from "../mixins/tippy-mixin";
+import sanitize from "sanitize-html";
 
 interface MomentTimeProps {
   published: string;
@@ -26,9 +27,9 @@ export class MomentTime extends Component<MomentTimeProps, never> {
       I18NextService.i18n.t("created"),
     )}: ${formatDate(this.props.published)}`;
     if (updated) {
-      line += `\n\n\n${capitalizeFirstLetter(
+      line += `<br />${capitalizeFirstLetter(
         I18NextService.i18n.t("modified"),
-      )} ${formatDate(updated)}`;
+      )}: ${formatDate(updated)}`;
     }
     return line;
   }
@@ -56,7 +57,8 @@ export class MomentTime extends Component<MomentTimeProps, never> {
     if (!this.props.ignoreUpdated && this.updatedTime) {
       return (
         <span
-          data-tippy-content={this.createdAndModifiedTimes()}
+          data-tippy-content={sanitize(this.createdAndModifiedTimes())}
+          data-tippy-allowHtml={"true"}
           className="moment-time fst-italic pointer unselectable"
         >
           <Icon icon="edit-2" classes="icon-inline me-1" />
