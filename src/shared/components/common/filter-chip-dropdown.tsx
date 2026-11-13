@@ -11,6 +11,8 @@ export type FilterOption<T extends string> = {
   i18n?: NoOptionI18nKeys;
   // Use this to override i18n
   noI18n?: string;
+  // An optional background-color
+  bgColor?: string;
 };
 
 type FilterChipDropdownProps<T extends string> = {
@@ -65,9 +67,13 @@ export function FilterChipDropdown<T extends string>({
           {allOptions.map(opt => (
             <li>
               <button
-                className={classNames("dropdown-item", {
-                  "fw-bold": currentOption?.value === opt.value,
-                })}
+                className={classNames(
+                  "dropdown-item",
+                  opt.bgColor && `bg-${opt.bgColor}`,
+                  {
+                    "fw-bold": currentOption?.value === opt.value,
+                  },
+                )}
                 id={`${id}-${opt.value}`}
                 value={opt.value}
                 type="button"
