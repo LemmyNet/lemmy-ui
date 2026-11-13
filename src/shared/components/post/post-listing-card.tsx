@@ -151,7 +151,11 @@ export class PostListingCard extends Component<
             <div className="col flex-grow-1">
               <PostName post={p.postView.post} showBody={p.showBody} />
               <div className="small">
-                <UrlLine postView={p.postView} myUserInfo={p.myUserInfo} />
+                <UrlLine
+                  postView={p.postView}
+                  myUserInfo={p.myUserInfo}
+                  includeDot={false}
+                />
                 <span> </span>
                 <PostBadges
                   post={p.postView.post}
