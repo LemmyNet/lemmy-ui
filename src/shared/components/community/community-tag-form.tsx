@@ -117,6 +117,7 @@ export class CommunityTagForm extends Component<
                   required
                   minLength={3}
                   pattern={validActorRegexPattern}
+                  title={I18NextService.i18n.t("community_reqs")}
                   onInput={e => handleNameChange(this, e)}
                 />
               </>
