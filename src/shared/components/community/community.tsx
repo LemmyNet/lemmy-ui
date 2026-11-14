@@ -18,6 +18,7 @@ import {
   WithHead,
 } from "@utils/app";
 import { T } from "inferno-i18next-dess";
+import classNames from "classnames";
 import {
   getQueryParams,
   getQueryString,
@@ -90,7 +91,7 @@ import {
   ModEditPost,
   CommunityTagId,
 } from "lemmy-js-client";
-import { relTags } from "@utils/config";
+import { offcanvasTransitionDurationMs, relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
@@ -159,6 +160,7 @@ interface State {
   votePostRes: ItemIdAndRes<PostId, PostResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
+  isSidebarAnimating: boolean;
   isIsomorphic: boolean;
   markPageAsReadLoading: boolean;
   postListingMode: PostListingMode;
@@ -541,7 +543,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               <>
                 {this.renderCommunity()}
                 {this.selects()}
-                {this.mobileSidebar(canViewCommunity_)}
+                {this.mobileSidebar()}
                 {this.listings()}
                 <div className="row">
                   <div className="col">
@@ -586,12 +588,64 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   mobileSidebar(forceShow?: boolean) {
-    const showSidebar = forceShow || this.state.showSidebarMobile;
+    if (forceShow) {
+      return (
+        <div className="d-block d-md-none">
+          <div className="row">
+            <div className="col-12">{this.sidebar()}</div>
+          </div>
+        </div>
+      );
+    }
+
+    const { showSidebarMobile, isSidebarAnimating } = this.state;
+    const isVisible = showSidebarMobile || isSidebarAnimating;
+
+    const handleClose = () => {
+      this.setState({ showSidebarMobile: false, isSidebarAnimating: true });
+
+      setTimeout(() => {
+        this.setState({ isSidebarAnimating: false });
+      }, offcanvasTransitionDurationMs);
+    };
+
+    const offcanvasClasses = classNames("offcanvas offcanvas-end", {
+      show: showSidebarMobile,
+      hiding: isSidebarAnimating,
+      visible: isVisible,
+      hidden: !isVisible,
+    });
+
+    const backdropClasses = classNames("offcanvas-backdrop fade", {
+      show: showSidebarMobile,
+    });
+
     return (
       <div className="d-block d-md-none">
-        <div className="row">
-          <div className="col-12">{showSidebar && this.sidebar()}</div>
+        <div
+          className={offcanvasClasses}
+          tabIndex={-1}
+          id="communitySidebarOffcanvas"
+          aria-labelledby="communitySidebarOffcanvasLabel"
+        >
+          <div className="offcanvas-header">
+            <button
+              type="button"
+              className="btn-close"
+              aria-label={I18NextService.i18n.t("close")}
+              onClick={handleClose}
+            />
+          </div>
+          <div className="offcanvas-body">{this.sidebar()}</div>
         </div>
+        {isVisible && (
+          <button
+            type="button"
+            className={classNames(backdropClasses, "border-0 p-0")}
+            aria-label={I18NextService.i18n.t("close")}
+            onClick={handleClose}
+          />
+        )}
       </div>
     );
   }
@@ -1054,7 +1108,14 @@ function handlePostsWithMediaChange(i: Community, hidePostsWithMedia: boolean) {
 }
 
 function handleShowSidebarMobile(i: Community, show: boolean) {
-  i.setState({ showSidebarMobile: show });
+  if (show) {
+    i.setState({ showSidebarMobile: true, isSidebarAnimating: false });
+  } else {
+    i.setState({ showSidebarMobile: false, isSidebarAnimating: true });
+    setTimeout(() => {
+      i.setState({ isSidebarAnimating: false });
+    }, offcanvasTransitionDurationMs);
+  }
 }
 
 async function handleAddModToCommunity(i: Community, form: AddModToCommunity) {

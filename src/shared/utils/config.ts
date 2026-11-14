@@ -55,3 +55,5 @@ export const testHost = "localhost:8536";
 
 export const validActorRegexPattern =
   "^\\w+|[\\p{Script=Arabic}\\d_]+|[\\p{Script=Cyrillic}\\d_]+$";
+
+export const offcanvasTransitionDurationMs = 300;
