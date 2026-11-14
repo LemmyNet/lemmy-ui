@@ -152,7 +152,7 @@ export function processModlogEntry(
         moderator,
         data: (
           <>
-            <span>Allowed instance</span>
+            <span>Allowed instance </span>
             <span>{target_instance?.domain}</span>
           </>
         ),
@@ -165,7 +165,7 @@ export function processModlogEntry(
         moderator,
         data: (
           <>
-            <span>Blocked Instance</span>
+            <span>Blocked Instance </span>
             <span>{target_instance?.domain}</span>
           </>
         ),
@@ -232,7 +232,7 @@ export function processModlogEntry(
         moderator,
         data: target_community && (
           <>
-            <span>Purged Post From</span>
+            <span>Purged Post From </span>
             <CommunityLink
               community={target_community}
               myUserInfo={myUserInfo}
@@ -385,7 +385,7 @@ export function processModlogEntry(
         moderator,
         data: target_community && (
           <>
-            <span>Change visibility of</span>
+            <span>Changed visibility of </span>
             <span>
               <CommunityLink
                 community={target_community}
@@ -575,7 +575,7 @@ export function processModlogEntry(
         moderator,
         data: target_community && target_person && (
           <>
-            <span>Transferred</span>
+            <span>Transferred </span>
             <span>
               <CommunityLink
                 community={target_community}

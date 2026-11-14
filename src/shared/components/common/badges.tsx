@@ -108,64 +108,28 @@ function LocalSiteCommunityCommonBadges({
   return (
     !lessBadges && (
       <>
-        <span
-          className="badge text-bg-light pointer"
-          data-tippy-content={I18NextService.i18n.t(
-            "active_users_in_the_last_day",
-            {
-              count: Number(subject.users_active_day),
-              formattedCount: numToSI(subject.users_active_day),
-            },
-          )}
-        >
+        <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_users", {
             count: Number(subject.users_active_day),
             formattedCount: numToSI(subject.users_active_day),
           })}{" "}
           / {I18NextService.i18n.t("day")}
         </span>
-        <span
-          className="badge text-bg-light pointer"
-          data-tippy-content={I18NextService.i18n.t(
-            "active_users_in_the_last_week",
-            {
-              count: Number(subject.users_active_week),
-              formattedCount: numToSI(subject.users_active_week),
-            },
-          )}
-        >
+        <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_users", {
             count: Number(subject.users_active_week),
             formattedCount: numToSI(subject.users_active_week),
           })}{" "}
           / {I18NextService.i18n.t("week")}
         </span>
-        <span
-          className="badge text-bg-light pointer"
-          data-tippy-content={I18NextService.i18n.t(
-            "active_users_in_the_last_month",
-            {
-              count: Number(subject.users_active_month),
-              formattedCount: numToSI(subject.users_active_month),
-            },
-          )}
-        >
+        <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_users", {
             count: Number(subject.users_active_month),
             formattedCount: numToSI(subject.users_active_month),
           })}{" "}
           / {I18NextService.i18n.t("month")}
         </span>
-        <span
-          className="badge text-bg-light pointer"
-          data-tippy-content={I18NextService.i18n.t(
-            "active_users_in_the_last_six_months",
-            {
-              count: Number(subject.users_active_half_year),
-              formattedCount: numToSI(subject.users_active_half_year),
-            },
-          )}
-        >
+        <span className="badge text-bg-light">
           {I18NextService.i18n.t("number_of_users", {
             count: Number(subject.users_active_half_year),
             formattedCount: numToSI(subject.users_active_half_year),

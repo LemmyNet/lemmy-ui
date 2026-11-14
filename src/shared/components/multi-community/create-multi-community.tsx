@@ -46,9 +46,8 @@ export class CreateMultiCommunity extends Component<RouteProps, State> {
       <div className="create-multi-community container-lg">
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
-            <h1 className="h4 mb-4">
-              {I18NextService.i18n.t("create_multi_community")}
-            </h1>
+            <h4>{I18NextService.i18n.t("create_multi_community")}</h4>
+            <p>{I18NextService.i18n.t("multi_community_desc")}</p>
             <MultiCommunityForm
               onCreate={form => handleCreate(this, form, myUserInfo)}
               createOrEditLoading={this.state.createRes.state === "loading"}
