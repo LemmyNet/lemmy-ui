@@ -110,8 +110,9 @@ import { toast } from "@utils/app";
 import { CommentForm } from "@components/comment/comment-form";
 import { CommentNodes } from "@components/comment/comment-nodes";
 import { htmlTags } from "@components/common/html-tags";
-import { Icon, Spinner } from "@components/common/icon";
+import { Spinner } from "@components/common/icon";
 import { CommunitySidebar } from "@components/community/community-sidebar";
+import { ExpandChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { PostListing } from "./post-listing";
 import { getHttpBaseInternal } from "@utils/env";
 import { RouteComponentProps, RouterContext } from "inferno-router";
@@ -125,6 +126,7 @@ import { Action } from "history";
 import { CommentSortDropdown } from "@components/common/sort-dropdown";
 import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dropdown";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { Offcanvas } from "../common/offcanvas/offcanvas";
 
 const commentsShownInterval = 15;
 
@@ -699,21 +701,18 @@ export class Post extends Component<PostRouteProps, PostState> {
                 />
               )}
               <div className="d-block d-md-none">
-                <button
-                  className="btn btn-light border-light-subtle d-inline-block mb-2 me-3"
-                  onClick={() => handleShowSidebarMobile(this)}
+                <ExpandChipCheckbox
+                  option="sidebar"
+                  isChecked={this.state.showSidebarMobile}
+                  onCheck={show => handleShowSidebarMobile(this, show)}
+                />
+                <Offcanvas
+                  id="post-sidebar-offcanvas"
+                  show={this.state.showSidebarMobile}
+                  onClose={() => handleShowSidebarMobile(this, false)}
                 >
-                  {I18NextService.i18n.t("sidebar")}{" "}
-                  <Icon
-                    icon={
-                      this.state.showSidebarMobile
-                        ? `minus-square`
-                        : `plus-square`
-                    }
-                    classes="icon-inline"
-                  />
-                </button>
-                {this.state.showSidebarMobile && this.sidebar()}
+                  {this.sidebar()}
+                </Offcanvas>
               </div>
               <hr />
               <div className="row row-cols-auto align-items-center g-2 g-sm-3 mb-2 mb-sm-3">
@@ -1154,8 +1153,8 @@ function handleCommentViewTypeChange(i: Post, view: CommentViewType) {
   }
 }
 
-function handleShowSidebarMobile(i: Post) {
-  i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
+function handleShowSidebarMobile(i: Post, show?: boolean) {
+  i.setState({ showSidebarMobile: show ?? !i.state.showSidebarMobile });
 }
 
 function handleViewAllComments(i: Post): string {
