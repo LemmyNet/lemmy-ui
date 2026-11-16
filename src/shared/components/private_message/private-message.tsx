@@ -286,7 +286,7 @@ export class PrivateMessage extends Component<
         icon="flag"
         iconClass="text-muted"
         inline
-        label={I18NextService.i18n.t("show_report_dialog")}
+        label={I18NextService.i18n.t("create_report")}
         noLoading
       />
     );
