@@ -30,9 +30,30 @@ import ProgressBar from "./progress-bar";
 import { validURL } from "@utils/helpers";
 import { createRef, RefObject } from "inferno";
 
-const LOCAL_STORAGE_KEY = "lemmy-markdown";
+type MarkdownTextAreaType =
+  | "post"
+  | "comment"
+  | "community"
+  | "site_sidebar"
+  | "site_legal"
+  | "site_content_warning"
+  | "site_application_question"
+  | "tagline"
+  | "local_user_bio"
+  | "private_message"
+  | "registration_application"
+  | "registration_application_deny";
+
+type TypeAndId = {
+  type_: MarkdownTextAreaType;
+  id?: number;
+};
 
 interface MarkdownTextAreaProps {
+  /**
+   * A type and ID, necessary for saving / retrieving drafts
+   */
+  typeAndId: TypeAndId;
   /**
    * Initial content inside the textarea
    */
@@ -89,6 +110,7 @@ export class MarkdownTextArea extends Component<
 > {
   textAreaRef: RefObject<HTMLTextAreaElement> = createRef();
   state: MarkdownTextAreaState = {
+    // These two must be random for html purposes
     id: `markdown-textarea-${randomStr()}`,
     formId: `markdown-form-${randomStr()}`,
     content: undefined,
@@ -103,7 +125,7 @@ export class MarkdownTextArea extends Component<
       if (textarea) {
         const content: string | undefined =
           this.props.initialContent ??
-          localStorage.getItem(LOCAL_STORAGE_KEY) ??
+          localStorage.getItem(localStorageKey(this.props.typeAndId)) ??
           undefined;
         this.setState({ content });
         autosize(textarea);
@@ -579,7 +601,7 @@ function handleContentChange(
   event: FormEvent<HTMLTextAreaElement>,
 ) {
   i.setState({ content: event.target.value });
-  localStorage.setItem(LOCAL_STORAGE_KEY, event.target.value);
+  localStorage.setItem(localStorageKey(i.props.typeAndId), event.target.value);
   handleSubmitContentChange(i);
 }
 
@@ -647,7 +669,7 @@ function handleSubmit(i: MarkdownTextArea, event: KeyboardEvent) {
 }
 
 function handleReplyCancel(i: MarkdownTextArea) {
-  localStorage.removeItem(LOCAL_STORAGE_KEY);
+  localStorage.removeItem(localStorageKey(i.props.typeAndId));
   i.props.onReplyCancel?.();
 }
 
@@ -826,6 +848,10 @@ function handleQuoteInsert(i: MarkdownTextArea) {
   }
 }
 
+function localStorageKey(typeAndId: TypeAndId): string {
+  return `lemmy-markdown-${typeAndId.type_}-${typeAndId.id ?? "unknown"}`;
+}
+
 export function removeLocalStorageMarkdown() {
-  localStorage.removeItem(LOCAL_STORAGE_KEY);
+  localStorage.clear();
 }

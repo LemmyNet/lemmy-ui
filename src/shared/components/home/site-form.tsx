@@ -236,6 +236,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </label>
           <div className="col-12">
             <MarkdownTextArea
+              typeAndId={{ type_: "site_sidebar" }}
               initialContent={this.state.siteForm.sidebar}
               onContentChange={val => handleSiteSidebarChange(this, val)}
               hideNavigationWarnings
@@ -252,6 +253,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </label>
           <div className="col-12">
             <MarkdownTextArea
+              typeAndId={{ type_: "site_legal" }}
               initialContent={this.state.siteForm.legal_information}
               onContentChange={val => handleSiteLegalInfoChange(this, val)}
               hideNavigationWarnings
@@ -315,6 +317,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </label>
               <div className="col-12">
                 <MarkdownTextArea
+                  typeAndId={{ type_: "site_content_warning" }}
                   initialContent={this.state.siteForm.content_warning}
                   onContentChange={val =>
                     handleSiteContentWarningChange(this, val)
@@ -420,6 +423,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </label>
             <div className="col-12">
               <MarkdownTextArea
+                typeAndId={{
+                  type_: "site_application_question",
+                }}
                 initialContent={this.state.siteForm.application_question}
                 onContentChange={val =>
                   handleSiteApplicationQuestionChange(this, val)
