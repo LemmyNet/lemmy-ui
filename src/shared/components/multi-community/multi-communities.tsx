@@ -198,7 +198,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
                     />
                   </div>
                 </div>
-                <hr />
+                <hr className="border" />
               </>
             ))}
           </div>

@@ -337,7 +337,7 @@ export class CommunityForm extends Component<
             myUserInfo={this.props.myUserInfo}
           />
         </details>
-        <hr />
+        <hr className="border" />
         <h5 className="card-title mb-3">{I18NextService.i18n.t("voting")}</h5>
         <div className="mb-3 row align-items-center">
           {(

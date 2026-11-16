@@ -61,7 +61,7 @@ function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
             </div>
             <div className="col-2">{scoreToIcon(v.is_upvote)}</div>
           </div>
-          <hr />
+          <hr className="border" />
         </>
       ))}
     </div>

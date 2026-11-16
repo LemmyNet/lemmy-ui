@@ -227,7 +227,7 @@ export class RegistrationApplications extends Component<
         items={apps}
         renderItem={ra => (
           <>
-            <hr />
+            <hr className="border" />
             <RegistrationApplication
               application={ra}
               onApproveApplication={form =>

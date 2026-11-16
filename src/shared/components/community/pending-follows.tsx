@@ -213,7 +213,7 @@ export class PendingFollows extends Component<
       <div>
         {pendingFollows.map(pendingFollow => (
           <>
-            <hr />
+            <hr className="border" />
             <PendingFollow
               pending_follow={pendingFollow}
               myUserInfo={this.isoData.myUserInfo}

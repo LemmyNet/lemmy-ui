@@ -715,7 +715,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                 </button>
                 {this.state.showSidebarMobile && this.sidebar()}
               </div>
-              <hr />
+              <hr className="border" />
               <div className="row row-cols-auto align-items-center g-2 g-sm-3 mb-2 mb-sm-3">
                 <div className="col">
                   <CommentSortDropdown

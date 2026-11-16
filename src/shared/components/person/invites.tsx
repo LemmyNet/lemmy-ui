@@ -89,7 +89,7 @@ export class Invites extends Component<InvitesProps, InvitesState> {
             {I18NextService.i18n.t("invites")}
           </h5>
           {this.createForm(maxAllowed)}
-          <hr className="my-4" />
+          <hr className="border my-4" />
           {this.invitesList()}
         </div>
       </div>
@@ -300,7 +300,7 @@ export class Invites extends Component<InvitesProps, InvitesState> {
                       </button>
                     </div>
                   </div>
-                  <hr className="my-3" />
+                  <hr className="border my-3" />
                 </div>
               );
             })}

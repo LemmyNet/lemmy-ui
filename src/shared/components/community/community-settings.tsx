@@ -173,7 +173,7 @@ function FollowersList({ followers, myUserInfo }: FollowersListProps) {
               )}
             </div>
           </div>
-          <hr key={person.person.id + "hr"} />
+          <hr className="border" key={person.person.id + "hr"} />
         </>
       ))}
     </div>
@@ -384,7 +384,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                   id="followers-tab-pane"
                 >
                   {this.followersList()}
-                  <hr />
+                  <hr className="border" />
                 </div>
               ),
             },
@@ -651,7 +651,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
               </div>
             ))}
         </div>
-        <hr />
+        <hr className="border" />
         <div className="row mb-4">
           <div className="col-12 col-md-4">
             <FilterChipSelect

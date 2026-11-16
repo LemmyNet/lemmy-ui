@@ -372,7 +372,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         state={reportsRes}
         renderItem={i => (
           <>
-            <hr />
+            <hr className="border" />
             {this.renderItemType(i)}
           </>
         )}
@@ -403,7 +403,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(cr => (
               <>
-                <hr />
+                <hr className="border" />
                 <CommentReport
                   key={cr.comment_report.id}
                   report={cr}
@@ -447,7 +447,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(pr => (
               <>
-                <hr />
+                <hr className="border" />
                 <PostReport
                   key={pr.post_report.id}
                   enableNsfw={enableNsfw(siteRes)}
@@ -491,7 +491,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(pmr => (
               <>
-                <hr />
+                <hr className="border" />
                 <PrivateMessageReport
                   key={pmr.private_message_report.id}
                   report={pmr}
@@ -527,7 +527,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(cr => (
               <>
-                <hr />
+                <hr className="border" />
                 <CommunityReport
                   key={cr.community_report.id}
                   report={cr}

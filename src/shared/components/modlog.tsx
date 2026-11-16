@@ -859,7 +859,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <MomentTime published={published_at} />
             </div>
           </div>
-          <hr />
+          <hr className="border" />
         </>
       );
     });

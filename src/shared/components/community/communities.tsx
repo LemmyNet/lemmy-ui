@@ -215,7 +215,7 @@ export class Communities extends Component<
                     />
                   </div>
                 </div>
-                <hr />
+                <hr className="border" />
               </>
             ))}
           </div>

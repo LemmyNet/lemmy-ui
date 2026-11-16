@@ -73,7 +73,7 @@ export class MediaUploads extends Component<Props, never> {
               <div className={classNames(imageCols, "my-2 my-md-0")}>
                 {this.deleteImageBtn(i.local_image)}
               </div>
-              <hr />
+              <hr className="border" />
             </div>
           </>
         ))}

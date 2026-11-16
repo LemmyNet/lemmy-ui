@@ -323,7 +323,7 @@ export function InstanceList({
               ) && " 💀"}
             </div>
           </div>
-          <hr key={i.instance.domain + "hr"} />
+          <hr className="border" key={i.instance.domain + "hr"} />
         </>
       ))}
     </div>

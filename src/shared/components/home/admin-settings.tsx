@@ -257,7 +257,7 @@ export class AdminSettings extends Component<
                 >
                   {this.userListTitleAndSelects()}
                   {this.userList()}
-                  <hr />
+                  <hr className="border" />
                   {this.admins()}
                 </div>
               ),
@@ -518,7 +518,7 @@ export class AdminSettings extends Component<
                 <ResponsiveTableRowHeader title={"comments"} />
                 <div className={dataCols}>{admin.person.comment_count}</div>
               </div>
-              <hr key={admin.person.id + "hr"} />
+              <hr className="border" key={admin.person.id + "hr"} />
             </>
           ))}
         </div>
@@ -634,7 +634,7 @@ export class AdminSettings extends Component<
                     {local_user.person.comment_count}
                   </div>
                 </div>
-                <hr key={local_user.person.id + "hr"} />
+                <hr className="border" key={local_user.person.id + "hr"} />
               </>
             ))}
             <PaginatorCursor
@@ -820,14 +820,14 @@ export class AdminSettings extends Component<
               resource={this.state.instancesRes}
               onPageChange={cursor => handleInstancesPageChange(this, cursor)}
             />
-            <hr />
+            <hr className="border" />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("block_instance")}
             </h1>
             <InstanceBlockForm
               onCreate={form => handleInstanceBlockCreate(this, form)}
             />
-            <hr />
+            <hr className="border" />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("allow_instance")}
             </h1>

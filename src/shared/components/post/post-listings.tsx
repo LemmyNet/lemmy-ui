@@ -149,7 +149,9 @@ export class PostListings extends Component<PostListingsProps, never> {
                     this.props.onScrollIntoCommentsClick
                   }
                 />
-                {idx + 1 !== this.posts.length && <hr className="my-2" />}
+                {idx + 1 !== this.posts.length && (
+                  <hr className="border my-2" />
+                )}
               </div>
             ))}
           </div>
