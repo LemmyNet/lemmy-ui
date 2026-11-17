@@ -51,6 +51,9 @@ export class RegistrationApplicationInput extends Component<
             </label>
             <div className="col-sm-10">
               <MarkdownTextArea
+                typeAndId={{
+                  type_: "registration_application",
+                }}
                 initialContent=""
                 onContentChange={answer => onAnswerChange(answer)}
                 hideNavigationWarnings

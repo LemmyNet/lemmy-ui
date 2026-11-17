@@ -63,6 +63,7 @@ import { NoOptionI18nKeys } from "i18next";
 import { ModlogKindFilterDropdown } from "./common/modlog-kind-filter-dropdown";
 import { FilterChipSelect } from "./common/filter-chip-select";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
+import { Separator } from "./common/separators";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
@@ -859,7 +860,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <MomentTime published={published_at} />
             </div>
           </div>
-          <hr />
+          <Separator />
         </>
       );
     });

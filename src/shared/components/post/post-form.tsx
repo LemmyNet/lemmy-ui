@@ -517,6 +517,10 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
               </label>
               <div className="col-sm-10">
                 <MarkdownTextArea
+                  typeAndId={{
+                    type_: "post",
+                    id: this.props.post_view?.post.id,
+                  }}
                   initialContent={this.state.form.body}
                   placeholder={I18NextService.i18n.t("optional")}
                   onContentChange={val => handlePostBodyChange(this, val)}

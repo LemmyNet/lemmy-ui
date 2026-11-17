@@ -41,7 +41,7 @@ export class MultiCommunitySidebar extends Component<Props, never> {
         <div id="sidebarContainer">
           {!hideButtons && (
             <section id="sidebarMain" className="card mb-3">
-              <div className="card-body">
+              <div className="card-body d-flex flex-column gap-2">
                 {this.multiCommunityTitle()}
                 {mv.multi.summary && <h6>{mv.multi.summary}</h6>}
                 <SubscribeButton

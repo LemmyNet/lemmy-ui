@@ -894,6 +894,10 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
           </label>
           <div className="col-sm-9">
             <MarkdownTextArea
+              typeAndId={{
+                type_: "local_user_bio",
+                id: myUserInfo?.local_user_view.local_user.id,
+              }}
               initialContent={this.state.saveUserSettingsForm.bio}
               onContentChange={val => handleBioChange(this, val)}
               maxLength={1000}

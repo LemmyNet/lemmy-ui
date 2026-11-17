@@ -107,6 +107,10 @@ export class PrivateMessageForm extends Component<
           </label>
           <div className="col-sm-10">
             <MarkdownTextArea
+              typeAndId={{
+                type_: "private_message",
+                id: this.props.privateMessageView?.private_message.id,
+              }}
               onSubmit={() => handlePrivateMessageSubmit(this)}
               initialContent={this.state.content}
               onContentChange={val => handleContentChange(this, val)}

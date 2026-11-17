@@ -52,6 +52,7 @@ export class TaglineForm extends Component<TaglineFormProps, TaglineFormState> {
           <div className="col-12">
             {!this.state.clearMarkdown && (
               <MarkdownTextArea
+                typeAndId={{ type_: "tagline", id: this.props.tagline?.id }}
                 initialContent={this.state.content}
                 focus
                 onContentChange={s => this.handleTaglineChange(this, s)}

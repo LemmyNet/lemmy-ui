@@ -127,6 +127,7 @@ import { CommentSortDropdown } from "@components/common/sort-dropdown";
 import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dropdown";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 import { Offcanvas } from "../common/offcanvas/offcanvas";
+import { Separator } from "@components/common/separators";
 
 const commentsShownInterval = 15;
 
@@ -714,7 +715,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   {this.sidebar()}
                 </Offcanvas>
               </div>
-              <hr />
+              <Separator />
               <div className="row row-cols-auto align-items-center g-2 g-sm-3 mb-2 mb-sm-3">
                 <div className="col">
                   <CommentSortDropdown
