@@ -89,6 +89,9 @@ import {
 } from "@components/common/filter-chip-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import classNames from "classnames";
+import { NotificationStatusIndicator } from "../notifications/notification-status-indicator";
+import { NotificationTypeIcon } from "../notifications/notification-type-icon";
 
 const messageTypeOptions: FilterOption<NotificationTypeFilter>[] = [
   { value: "all", i18n: "all" },
@@ -296,9 +299,12 @@ export class Notifications extends Component<
     const siteRes = this.state.siteRes;
     const data = item.data;
     const myUserInfo = this.isoData.myUserInfo;
+
+    let content: InfernoNode = null;
+
     switch (data.type_) {
       case "comment":
-        return (
+        content = (
           <CommentNode
             key={item.notification.id}
             node={commentToFlatNode(data)}
@@ -316,6 +322,7 @@ export class Notifications extends Component<
             mutePersonName={false}
             muteCommunityName
             hideAvatar
+            noBorder
             markReadLoading={itemLoading(this.state.markCommentReadLoadingRes)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
@@ -348,8 +355,9 @@ export class Notifications extends Component<
             onFetchChildren={() => {}}
           />
         );
+        break;
       case "private_message":
-        return (
+        content = (
           <PrivateMessage
             key={item.notification.id}
             private_message_view={data}
@@ -377,66 +385,66 @@ export class Notifications extends Component<
             }
           />
         );
+        break;
       case "post":
-        return (
-          myUserInfo && (
-            <PostListing
-              postView={data}
-              notificationRead={item.notification.read}
-              markReadLoading={
-                itemLoading(this.state.markPostReadLoadingRes) === data.post.id
-              }
-              topBorder
-              voteLoading={false}
-              showCommunity
-              showCrossPosts="show_separately"
-              enableNsfw={enableNsfw(this.isoData.siteRes)}
-              showAdultConsentModal={this.isoData.showAdultConsentModal}
-              communityTags={[]}
-              allLanguages={[]}
-              siteLanguages={[]}
-              hideImage
-              myUserInfo={myUserInfo}
-              localSite={this.isoData.siteRes.site_view.local_site}
-              admins={this.isoData.siteRes.admins}
-              postListingMode="small_card"
-              crossPosts={[]}
-              showBody={"preview"}
-              editLoading={false}
-              mutePersonName={false}
-              muteCommunityName
-              hideAvatar={false}
-              viewOnly // TODO: comments do allow edits and moderation
-              onPostEdit={() => {}}
-              onPostModEdit={() => {}}
-              onPostVote={() => {}}
-              onPostReport={() => {}}
-              onBlockPerson={() => {}}
-              onBlockCommunity={() => {}}
-              onLockPost={() => {}}
-              onWarnPost={form => handleWarnPost(form)}
-              onDeletePost={() => {}}
-              onRemovePost={() => {}}
-              onSavePost={() => {}}
-              onFeaturePost={() => {}}
-              onPurgePerson={() => {}}
-              onPurgePost={() => {}}
-              onBanPersonFromCommunity={() => {}}
-              onBanPerson={() => {}}
-              onAddModToCommunity={() => {}}
-              onAddAdmin={() => {}}
-              onTransferCommunity={() => {}}
-              onHidePost={() => {}}
-              showMarkRead="main_bar"
-              disableAutoMarkAsRead
-              onMarkPostAsRead={form => handleMarkPostAsRead(this, form)}
-              onPersonNote={form => handlePersonNote(this, form)}
-              onScrollIntoCommentsClick={() => {}}
-            />
-          )
+        content = myUserInfo && (
+          <PostListing
+            postView={data}
+            notificationRead={item.notification.read}
+            markReadLoading={
+              itemLoading(this.state.markPostReadLoadingRes) === data.post.id
+            }
+            topBorder
+            voteLoading={false}
+            showCommunity
+            showCrossPosts="show_separately"
+            enableNsfw={enableNsfw(this.isoData.siteRes)}
+            showAdultConsentModal={this.isoData.showAdultConsentModal}
+            communityTags={[]}
+            allLanguages={[]}
+            siteLanguages={[]}
+            hideImage
+            myUserInfo={myUserInfo}
+            localSite={this.isoData.siteRes.site_view.local_site}
+            admins={this.isoData.siteRes.admins}
+            postListingMode="small_card"
+            crossPosts={[]}
+            showBody={"preview"}
+            editLoading={false}
+            mutePersonName={false}
+            muteCommunityName
+            hideAvatar={false}
+            viewOnly
+            onPostEdit={() => {}}
+            onPostModEdit={() => {}}
+            onPostVote={() => {}}
+            onPostReport={() => {}}
+            onBlockPerson={() => {}}
+            onBlockCommunity={() => {}}
+            onLockPost={() => {}}
+            onWarnPost={form => handleWarnPost(form)}
+            onDeletePost={() => {}}
+            onRemovePost={() => {}}
+            onSavePost={() => {}}
+            onFeaturePost={() => {}}
+            onPurgePerson={() => {}}
+            onPurgePost={() => {}}
+            onBanPersonFromCommunity={() => {}}
+            onBanPerson={() => {}}
+            onAddModToCommunity={() => {}}
+            onAddAdmin={() => {}}
+            onTransferCommunity={() => {}}
+            onHidePost={() => {}}
+            showMarkRead="main_bar"
+            disableAutoMarkAsRead
+            onMarkPostAsRead={form => handleMarkPostAsRead(this, form)}
+            onPersonNote={form => handlePersonNote(this, form)}
+            onScrollIntoCommentsClick={() => {}}
+          />
         );
+        break;
       case "mod_action": {
-        return (
+        content = (
           <NotificationModlogItem
             notification={item.notification}
             modlog_view={data}
@@ -444,8 +452,29 @@ export class Notifications extends Component<
             onMarkRead={form => handleMarkNotificationAsRead(this, form)}
           />
         );
+        break;
       }
     }
+
+    const isSentByMe =
+      data.type_ === "private_message" &&
+      myUserInfo?.local_user_view.person.id === data.creator.id;
+    const isUnread = !item.notification.read && !isSentByMe;
+
+    return (
+      <div
+        className={classNames(
+          "notification-row d-flex gap-3 py-2 px-3 border-bottom border-light-subtle",
+          isUnread && "bg-body-tertiary",
+        )}
+      >
+        <NotificationStatusIndicator
+          icon={<NotificationTypeIcon item={item} isSentByMe={isSentByMe} />}
+          isUnread={isUnread}
+        />
+        <div className="flex-grow-1 min-w-0">{content}</div>
+      </div>
+    );
   }
 
   all(): InfernoNode {
