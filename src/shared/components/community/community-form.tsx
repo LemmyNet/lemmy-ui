@@ -261,6 +261,7 @@ export class CommunityForm extends Component<
               </div>
             )}
             <MarkdownTextArea
+              typeAndId={{ type_: "community", id: cv?.community?.id }}
               initialContent={this.state.form.sidebar}
               placeholder={I18NextService.i18n.t("sidebar") ?? undefined}
               onContentChange={val => handleCommunitySidebarChange(this, val)}

@@ -52,6 +52,11 @@ export class CommentForm extends Component<CommentFormProps, never> {
         ? this.props.node.view.comment_view.comment.language_id
         : undefined;
 
+    const comment_id =
+      typeof this.props.node !== "number"
+        ? this.props.node.view.comment_view.comment.id
+        : undefined;
+
     return (
       <div
         className={["comment-form", "mb-3", this.props.containerClass].join(
@@ -60,6 +65,7 @@ export class CommentForm extends Component<CommentFormProps, never> {
       >
         {this.props.myUserInfo ? (
           <MarkdownTextArea
+            typeAndId={{ type_: "comment", id: comment_id }}
             initialContent={initialContent}
             initialLanguageId={initialLanguageId}
             showLanguage
