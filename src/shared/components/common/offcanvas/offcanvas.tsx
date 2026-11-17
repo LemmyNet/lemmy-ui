@@ -93,9 +93,8 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
     this.clearCloseTimer();
     this.previousBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", this.handleKeyDown);
+    document.addEventListener("keydown", this.keyDownHandler);
 
-    // Allow next tick for CSS enter transition
     this.closeTimer = setTimeout(() => {
       this.setState({ isShown: true });
     }, 0);
@@ -112,7 +111,7 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
 
   private restoreScroll() {
     document.body.style.overflow = this.previousBodyOverflow;
-    document.removeEventListener("keydown", this.handleKeyDown);
+    document.removeEventListener("keydown", this.keyDownHandler);
   }
 
   private clearCloseTimer() {
@@ -122,10 +121,12 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
     }
   }
 
-  private handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === "Escape") {
-      event.stopPropagation();
-      this.props.onClose();
-    }
-  };
+  private keyDownHandler = (event: KeyboardEvent) => handleKeyDown(this, event);
+}
+
+function handleKeyDown(offcanvas: Offcanvas, event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    event.stopPropagation();
+    offcanvas.props.onClose();
+  }
 }
