@@ -7,6 +7,7 @@ import { toast } from "@utils/app";
 import { I18NextService } from "./I18NextService";
 import { HttpService } from ".";
 import { authCookieName } from "@utils/config";
+import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 
 interface Claims {
   sub: number;
@@ -54,6 +55,7 @@ export class UserService {
     }
 
     await HttpService.client.logout();
+    removeLocalStorageMarkdown();
 
     if (isAuthPath(location.pathname)) {
       location.replace("/");
