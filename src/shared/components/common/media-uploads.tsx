@@ -14,6 +14,7 @@ import { httpBackendUrl } from "@utils/env";
 import { toast } from "@utils/app";
 import { ResponsiveTableRowHeader, TableHr } from "./tables";
 import classNames from "classnames";
+import { Separator } from "./separators";
 
 interface Props {
   uploads: PagedResponse<LocalImageView>;
@@ -73,7 +74,7 @@ export class MediaUploads extends Component<Props, never> {
               <div className={classNames(imageCols, "my-2 my-md-0")}>
                 {this.deleteImageBtn(i.local_image)}
               </div>
-              <hr className="border" />
+              <Separator />
             </div>
           </>
         ))}

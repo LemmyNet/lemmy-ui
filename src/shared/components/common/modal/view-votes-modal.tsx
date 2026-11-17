@@ -20,6 +20,7 @@ import { modalMixin } from "../../mixins/modal-mixin";
 import { UserBadges } from "../user-badges";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "../paginator-cursor";
+import { Separator } from "../separators";
 
 interface ViewVotesModalProps {
   children?: InfernoNode;
@@ -61,7 +62,7 @@ function voteViewTable(votes: VoteView[], myUserInfo: MyUserInfo | undefined) {
             </div>
             <div className="col-2">{scoreToIcon(v.is_upvote)}</div>
           </div>
-          <hr className="border" />
+          <Separator />
         </>
       ))}
     </div>

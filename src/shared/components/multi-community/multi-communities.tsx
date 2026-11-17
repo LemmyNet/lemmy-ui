@@ -50,6 +50,7 @@ import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { MultiCommunityLink } from "./multi-community-link";
 import { MultiCommunityListingTypeDropdown } from "@components/common/multi-community-listing-type-dropdown";
 import { CreateMultiCommunityButton } from "@components/common/content-actions/create-item-buttons";
+import { Separator } from "@components/common/separators";
 
 type MultiCommunitiesData = RouteDataResponse<{
   listMultiCommunitiesRes: PagedResponse<MultiCommunityView>;
@@ -198,7 +199,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
                     />
                   </div>
                 </div>
-                <hr className="border" />
+                <Separator />
               </>
             ))}
           </div>

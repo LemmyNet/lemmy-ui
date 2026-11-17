@@ -69,6 +69,7 @@ import {
 } from "@components/common/all-or-banned-dropdown";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { Separator } from "@components/common/separators";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: PagedResponse<LocalUserView>;
@@ -257,7 +258,7 @@ export class AdminSettings extends Component<
                 >
                   {this.userListTitleAndSelects()}
                   {this.userList()}
-                  <hr className="border" />
+                  <Separator />
                   {this.admins()}
                 </div>
               ),
@@ -518,7 +519,7 @@ export class AdminSettings extends Component<
                 <ResponsiveTableRowHeader title={"comments"} />
                 <div className={dataCols}>{admin.person.comment_count}</div>
               </div>
-              <hr className="border" key={admin.person.id + "hr"} />
+              <Separator key={admin.person.id + "hr"} />
             </>
           ))}
         </div>
@@ -634,7 +635,7 @@ export class AdminSettings extends Component<
                     {local_user.person.comment_count}
                   </div>
                 </div>
-                <hr className="border" key={local_user.person.id + "hr"} />
+                <Separator key={local_user.person.id + "hr"} />
               </>
             ))}
             <PaginatorCursor
@@ -820,14 +821,14 @@ export class AdminSettings extends Component<
               resource={this.state.instancesRes}
               onPageChange={cursor => handleInstancesPageChange(this, cursor)}
             />
-            <hr className="border" />
+            <Separator />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("block_instance")}
             </h1>
             <InstanceBlockForm
               onCreate={form => handleInstanceBlockCreate(this, form)}
             />
-            <hr className="border" />
+            <Separator />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("allow_instance")}
             </h1>

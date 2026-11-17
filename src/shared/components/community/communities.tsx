@@ -46,6 +46,7 @@ import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { CreateCommunityButton } from "@components/common/content-actions/create-item-buttons";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
+import { Separator } from "@components/common/separators";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: PagedResponse<CommunityView>;
@@ -215,7 +216,7 @@ export class Communities extends Component<
                     />
                   </div>
                 </div>
-                <hr className="border" />
+                <Separator />
               </>
             ))}
           </div>

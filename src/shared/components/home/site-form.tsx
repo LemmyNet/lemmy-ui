@@ -44,6 +44,7 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
+import { Separator } from "@components/common/separators";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -273,7 +274,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <hr className="border" />
+        <Separator />
         <h5 className="card-title mb-3">{I18NextService.i18n.t("content")}</h5>
         <div className="mb-3 row">
           <div className="col-12">
@@ -364,7 +365,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           urls={this.state.siteForm.blocked_urls ?? []}
           onUpdate={urls => handleBlockedUrlsUpdate(this, urls)}
         />
-        <hr className="border" />
+        <Separator />
         <h5 className="card-title mb-3">{I18NextService.i18n.t("voting")}</h5>
         <div className="mb-3 row align-items-center">
           {(
@@ -399,7 +400,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </>
           ))}
         </div>
-        <hr className="border" />
+        <Separator />
         <h5 className="card-title mb-3">
           {I18NextService.i18n.t("registration")}
         </h5>
@@ -478,7 +479,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <hr className="border" />
+        <Separator />
         <h5 className="card-title mb-3">
           {I18NextService.i18n.t("look_and_feel")}
         </h5>
@@ -653,7 +654,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </>
         )}
-        <hr className="border" />
+        <Separator />
         <h5 className="card-title mb-3">
           {I18NextService.i18n.t("sorting_and_filtering")}
         </h5>
@@ -739,7 +740,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <hr className="border" />
+        <Separator />
         <h5 className="card-title mb-3">
           {I18NextService.i18n.t("notifications")}
         </h5>
@@ -772,7 +773,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <hr className="border" />
+        <Separator />
         <h5 className="card-title mb-3">
           {I18NextService.i18n.t("federation")}
         </h5>

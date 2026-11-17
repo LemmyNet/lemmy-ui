@@ -37,6 +37,7 @@ import { PaginatorCursor } from "@components/common/paginator-cursor";
 import { Action } from "history";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
 import classNames from "classnames";
+import { Separator } from "@components/common/separators";
 
 function getKindFromQuery(kind?: string): GetFederatedInstancesKind {
   return kind ? (kind as GetFederatedInstancesKind) : "all";
@@ -323,7 +324,7 @@ export function InstanceList({
               ) && " 💀"}
             </div>
           </div>
-          <hr className="border" key={i.instance.domain + "hr"} />
+          <Separator key={i.instance.domain + "hr"} />
         </>
       ))}
     </div>

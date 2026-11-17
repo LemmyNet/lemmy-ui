@@ -36,6 +36,7 @@ import {
 import { I18NextService } from "../../services";
 import { PostListing } from "./post-listing";
 import { ShowCrossPostsType, ShowMarkReadType } from "@utils/types";
+import { Separator } from "@components/common/separators";
 
 interface PostListingsProps {
   posts: PostView[];
@@ -149,9 +150,7 @@ export class PostListings extends Component<PostListingsProps, never> {
                     this.props.onScrollIntoCommentsClick
                   }
                 />
-                {idx + 1 !== this.posts.length && (
-                  <hr className="border my-2" />
-                )}
+                {idx + 1 !== this.posts.length && <Separator classes="my-2" />}
               </div>
             ))}
           </div>
