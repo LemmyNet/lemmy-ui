@@ -54,7 +54,7 @@ export default class ActionButton extends Component<
           <Spinner />
         ) : (
           <>
-            <Icon classes={classNames(iconClass, "me-1")} icon={icon} inline />
+            <Icon classes={classNames(iconClass)} icon={icon} inline />
             {(!inline || inlineWithText) && label}
           </>
         )}
