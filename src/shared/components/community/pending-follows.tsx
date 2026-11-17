@@ -46,6 +46,7 @@ import {
   RegistrationState,
   RegistrationStateDropdown,
 } from "@components/common/registration-state-dropdown";
+import { Separator } from "@components/common/separators";
 
 type PendingFollowsData = RouteDataResponse<{
   listPendingFollowsResponse: PagedResponse<PendingFollowerView>;
@@ -213,7 +214,7 @@ export class PendingFollows extends Component<
       <div>
         {pendingFollows.map(pendingFollow => (
           <>
-            <hr />
+            <Separator />
             <PendingFollow
               pending_follow={pendingFollow}
               myUserInfo={this.isoData.myUserInfo}

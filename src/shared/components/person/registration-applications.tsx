@@ -50,6 +50,7 @@ import {
   RegistrationStateDropdown,
 } from "@components/common/registration-state-dropdown";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { Separator } from "@components/common/separators";
 
 type RegistrationApplicationsData = RouteDataResponse<{
   listRegistrationApplicationsResponse: PagedResponse<RegistrationApplicationView>;
@@ -227,7 +228,7 @@ export class RegistrationApplications extends Component<
         items={apps}
         renderItem={ra => (
           <>
-            <hr />
+            <Separator />
             <RegistrationApplication
               application={ra}
               onApproveApplication={form =>

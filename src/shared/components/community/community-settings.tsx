@@ -77,6 +77,7 @@ import { NoOptionI18nKeys } from "i18next";
 import { CommunityLink } from "./community-link";
 import { FilterChipSelect } from "@components/common/filter-chip-select";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { Separator } from "@components/common/separators";
 type CommunitySettingsData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
   followersRes: PagedResponse<PersonView>;
@@ -173,7 +174,7 @@ function FollowersList({ followers, myUserInfo }: FollowersListProps) {
               )}
             </div>
           </div>
-          <hr key={person.person.id + "hr"} />
+          <Separator key={person.person.id + "hr"} />
         </>
       ))}
     </div>
@@ -384,7 +385,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                   id="followers-tab-pane"
                 >
                   {this.followersList()}
-                  <hr />
+                  <Separator />
                 </div>
               ),
             },
@@ -651,7 +652,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
               </div>
             ))}
         </div>
-        <hr />
+        <Separator />
         <div className="row mb-4">
           <div className="col-12 col-md-4">
             <FilterChipSelect

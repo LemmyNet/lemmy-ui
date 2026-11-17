@@ -18,6 +18,7 @@ import { Icon, Spinner } from "@components/common/icon";
 import { MomentTime } from "@components/common/moment-time";
 import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { fetchLimit } from "@utils/config";
+import { Separator } from "@components/common/separators";
 
 const UNLIMITED = "unlimited";
 const NEVER = "never";
@@ -89,7 +90,7 @@ export class Invites extends Component<InvitesProps, InvitesState> {
             {I18NextService.i18n.t("invites")}
           </h5>
           {this.createForm(maxAllowed)}
-          <hr className="my-4" />
+          <Separator classes="my-4" />
           {this.invitesList()}
         </div>
       </div>
@@ -300,7 +301,7 @@ export class Invites extends Component<InvitesProps, InvitesState> {
                       </button>
                     </div>
                   </div>
-                  <hr className="my-3" />
+                  <Separator classes="my-3" />
                 </div>
               );
             })}

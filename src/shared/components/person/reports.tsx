@@ -66,6 +66,7 @@ import {
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { Separator } from "@components/common/separators";
 
 type ReportsData = RouteDataResponse<{
   reportsRes: PagedResponse<ReportCombinedView>;
@@ -372,7 +373,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         state={reportsRes}
         renderItem={i => (
           <>
-            <hr />
+            <Separator />
             {this.renderItemType(i)}
           </>
         )}
@@ -403,7 +404,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(cr => (
               <>
-                <hr />
+                <Separator />
                 <CommentReport
                   key={cr.comment_report.id}
                   report={cr}
@@ -447,7 +448,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(pr => (
               <>
-                <hr />
+                <Separator />
                 <PostReport
                   key={pr.post_report.id}
                   enableNsfw={enableNsfw(siteRes)}
@@ -491,7 +492,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(pmr => (
               <>
-                <hr />
+                <Separator />
                 <PrivateMessageReport
                   key={pmr.private_message_report.id}
                   report={pmr}
@@ -527,7 +528,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(cr => (
               <>
-                <hr />
+                <Separator />
                 <CommunityReport
                   key={cr.community_report.id}
                   report={cr}

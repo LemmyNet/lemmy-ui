@@ -73,6 +73,7 @@ import { SearchTypeDropdown } from "./common/search-type-dropdown";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 import { NoOptionI18nKeys } from "i18next";
 import { FilterChipSelect } from "./common/filter-chip-select";
+import { Separator } from "./common/separators";
 
 interface SearchProps {
   q?: string;
@@ -186,7 +187,7 @@ const communityListing = (
             />
           </div>
         ))}
-        <hr className="border m-2" />
+        <Separator classes="m-2" />
       </>
     )
   );
@@ -214,7 +215,7 @@ const multiCommunityListing = (
             />
           </div>
         ))}
-        <hr className="border m-2" />
+        <Separator classes="m-2" />
       </>
     )
   );
@@ -248,7 +249,7 @@ const personListing = (
             />
           </div>
         ))}
-        <hr className="border m-2" />
+        <Separator classes="m-2" />
       </>
     )
   );
@@ -319,7 +320,7 @@ const postListing = (
             />
           </div>
         ))}
-        <hr className="border m-2" />
+        <Separator classes="m-2" />
       </>
     )
   );
@@ -388,7 +389,7 @@ const commentListing = (
             />
           </div>
         ))}
-        <hr className="border m-2" />
+        <Separator classes="m-2" />
       </>
     )
   );
