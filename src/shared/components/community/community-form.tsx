@@ -21,6 +21,7 @@ import { validActorRegexPattern } from "@utils/config";
 import { userNotLoggedInOrBanned } from "@utils/app";
 import { CommunityVisibilityDropdown } from "@components/common/community-visibility-dropdown";
 import { VoteSettingsDropdown } from "@components/common/vote-settings-dropdown";
+import { Separator } from "@components/common/separators";
 
 interface CommunityFormProps {
   communityView?: CommunityView; // If a community is given, that means this is an edit
@@ -338,7 +339,7 @@ export class CommunityForm extends Component<
             myUserInfo={this.props.myUserInfo}
           />
         </details>
-        <hr />
+        <Separator />
         <h5 className="card-title mb-3">{I18NextService.i18n.t("voting")}</h5>
         <div className="mb-3 row align-items-center">
           {(
