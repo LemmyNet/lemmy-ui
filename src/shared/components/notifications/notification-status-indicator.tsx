@@ -1,3 +1,5 @@
+import type { InfernoNode } from 'inferno';
+
 const unreadDotStyle = { width: "10px", height: "10px" };
 
 interface NotificationStatusIndicatorProps {
