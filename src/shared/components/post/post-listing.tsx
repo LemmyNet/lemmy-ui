@@ -137,11 +137,11 @@ export class PostListing extends Component<PostListingProps, PostListingState> {
   loadViewerJsForImages() {
     this.unloadViewerJs();
     const id = this.props.postView.post.id;
-    const images = document.querySelectorAll(
-      `#post-listing-${id} > div > article > div > article > div > div > p > img`,
+    const imageContainers = document.querySelectorAll(
+      `#post-listing-${id} > div > article > div > article > div > div`,
     );
-    // Load the image viewer for every image in the post body
-    images.forEach((i: HTMLElement) => {
+    // Load the image viewer for every image in the post body into the same viewer instance
+    imageContainers.forEach((i: HTMLElement) => {
       this.viewerjss.push(
         new Viewer(i, {
           url: (image: { src: string }) => viewerJsFullSizeImageUrl(image),
