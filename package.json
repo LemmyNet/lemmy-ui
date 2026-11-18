@@ -17,6 +17,7 @@
     "prepare": "husky",
     "prettier:check": "pnpm prettier --check \"src/**/*.{ts,tsx,js,mjs,css,scss}\" README.md package.json webpack.config.js tsconfig.json eslint.config.mjs generate_translations.js .prettierrc.json",
     "prettier:write": "pnpm prettier --write \"src/**/*.{ts,tsx,js,mjs,css,scss}\" README.md package.json webpack.config.js tsconfig.json eslint.config.mjs generate_translations.js .prettierrc.json",
+    "run": "source .env && npm exec --yes --package=pnpm@12.16.1 -- pnpm dev",
     "run:prod": "node generate_translations.js && pnpm build:prod && node --enable-source-maps dist/js/server.js",
     "test": "node --test \"src/**/*.test.ts\"",
     "themes:build": "sass src/assets/css/themes/:src/assets/css/themes --embed-sources",
