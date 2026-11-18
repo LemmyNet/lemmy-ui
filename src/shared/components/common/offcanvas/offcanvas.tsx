@@ -103,6 +103,8 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
   private close() {
     this.restoreScroll();
     this.clearCloseTimer();
+
+    // Delay hiding the component to allow the CSS close transition to finish
     this.closeTimer = setTimeout(
       () => this.setState({ isShown: false }),
       transitionMS,
