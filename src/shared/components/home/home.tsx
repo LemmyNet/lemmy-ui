@@ -1,23 +1,23 @@
 import {
-  allRSSUrl,
   commentsToFlatNodes,
   defaultPostListingMode,
+  defaultListingType,
   editComment,
   editPersonNotes,
   editPost,
   enableNsfw,
   handleWarnComment,
   handleWarnPost,
-  localRSSUrl,
+  hasFollows,
+  hasMultiFollows,
   mixedToCommentSortType,
   mixedToPostSortType,
   reportToast,
   setIsoData,
-  showLocal,
-  subscribedRSSUrl,
   updateCommunityBlock,
   updatePersonBlock,
   WithHead,
+  defaultPostSortType,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -83,7 +83,6 @@ import {
   PostId,
   ModEditPost,
 } from "lemmy-js-client";
-import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
 import { mdToHtml } from "@utils/markdown";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -100,7 +99,6 @@ import { CommentNodes } from "../comment/comment-nodes";
 import { PostOrCommentTypeDropdown } from "../common/post-or-comment-type-dropdown";
 import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
-import { CommentSortDropdown, PostSortDropdown } from "../common/sort-dropdown";
 import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
@@ -116,13 +114,7 @@ import { isBrowser } from "@utils/browser";
 import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
 import { BannedDialog } from "./banned-dialog";
-import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
-import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
-import {
-  ExpandChipCheckbox,
-  FilterChipCheckbox,
-} from "@components/common/filter-chip-checkbox";
 import {
   ALL_TIME_INTERVAL,
   Interval,
@@ -130,9 +122,10 @@ import {
   intervalToQuery,
   intervalToSeconds,
   secondsToLargestInterval,
-  TimeIntervalFilter,
 } from "@components/common/time-interval-filter";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { GetPostsFilterBar } from "@components/common/get-posts-filter-bar";
+import { GetCommentsFilterBar } from "@components/common/get-comments-filter-bar";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -154,6 +147,7 @@ interface HomeState {
 }
 
 interface HomeProps {
+  // TODO does this need to be undefined?
   listingType?: ListingType;
   postOrCommentType: PostOrCommentType;
   sort: PostSortType | CommentSortType;
@@ -168,41 +162,6 @@ type HomeData = RouteDataResponse<{
   postsRes: PagedResponse<PostView>;
   commentsRes: PagedResponse<CommentView>;
 }>;
-
-function getRss(
-  listingType: ListingType,
-  sort: PostSortType,
-  feedToken: string | undefined,
-) {
-  let rss: string | undefined = undefined;
-
-  const queryString = getQueryString({ sort });
-  switch (listingType) {
-    case "all": {
-      rss = allRSSUrl(queryString);
-      break;
-    }
-    case "local": {
-      rss = localRSSUrl(queryString);
-      break;
-    }
-    case "subscribed": {
-      rss = feedToken ? subscribedRSSUrl(feedToken, queryString) : undefined;
-      break;
-    }
-  }
-
-  return (
-    rss && (
-      <>
-        <a href={rss} rel={relTags} title="RSS">
-          <Icon icon="rss" classes="text-muted small" />
-        </a>
-        <link rel="alternate" type="application/atom+xml" href={rss} />
-      </>
-    )
-  );
-}
 
 function getPostOrCommentTypeFromQuery(type?: string): PostOrCommentType {
   return type ? (type as PostOrCommentType) : "post";
@@ -254,7 +213,6 @@ export function getHomeQueryParams(
   myUserInfo?: MyUserInfo,
 ): HomeProps {
   const local_user = myUserInfo?.local_user_view.local_user;
-  const local_site = siteRes.site_view.local_site;
   return getQueryParams<HomeProps, Fallbacks>(
     {
       sort: getSortTypeFromQuery,
@@ -268,11 +226,8 @@ export function getHomeQueryParams(
     },
     source,
     {
-      sort:
-        local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
-      listingType:
-        local_user?.default_listing_type ??
-        local_site.default_post_listing_type,
+      sort: defaultPostSortType(siteRes, myUserInfo),
+      listingType: defaultListingType(siteRes, myUserInfo),
       time:
         secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
         ALL_TIME_INTERVAL,
@@ -308,7 +263,10 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     subscribedMultisCollapsed: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
-    postListingMode: defaultPostListingMode(this.isoData),
+    postListingMode: defaultPostListingMode(
+      this.isoData.siteRes,
+      this.isoData.myUserInfo,
+    ),
     selectButtonsHidden: true,
   };
 
@@ -467,16 +425,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     );
   }
 
-  get hasFollows(): boolean {
-    const mui = this.isoData.myUserInfo;
-    return !!mui && mui.follows.length > 0;
-  }
-
-  get hasMultiFollows(): boolean {
-    const mui = this.isoData.myUserInfo;
-    return !!mui && mui.multi_community_follows.length > 0;
-  }
-
   get mobileSidebarAndSubscribed() {
     const {
       siteRes: {
@@ -526,6 +474,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         admins,
       },
     } = this.state;
+    const myUserInfo = this.isoData.myUserInfo;
 
     return (
       <div id="sidebarContainer">
@@ -538,14 +487,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           siteLanguages={this.state.siteRes.discussion_languages}
           activePlugins={this.state.siteRes.active_plugins}
         />
-        {this.hasFollows && (
+        {hasFollows(myUserInfo) && (
           <div className="accordion">
             <section id="sidebarSubscribed" className="card mb-3">
               {this.subscribedCommunities(false)}
             </section>
           </div>
         )}
-        {this.hasMultiFollows && (
+        {hasMultiFollows(myUserInfo) && (
           <div className="accordion">
             <section id="sidebarSubscribedMultis" className="card mb-3">
               {this.subscribedMultiCommunities(false)}
@@ -899,151 +848,80 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   get selects() {
     const {
-      listingType,
       postOrCommentType,
+      listingType,
       sort,
       time,
       showHidden,
       showRead,
       hidePostsWithMedia,
     } = this.props;
+    const {
+      siteRes,
+      postListingMode,
+      showSubscribedMobile,
+      showSidebarMobile,
+      selectButtonsHidden,
+    } = this.state;
+    const myUserInfo = this.isoData.myUserInfo;
+    const defaultListingType =
+      siteRes.site_view.local_site.default_post_listing_type;
 
-    const { showSubscribedMobile, showSidebarMobile, selectButtonsHidden } =
-      this.state;
-    const { myUserInfo } = this.isoData;
-
-    const hideTimeSelect = sort === "new" || sort === "old";
     return (
-      <div className="mb-3">
-        <div className="row row-cols-auto align-items-center g-1 ">
-          {/* Only show these two selects on mobile */}
-          {this.hasFollows && (
-            <div className="d-block d-md-none col">
-              <ExpandChipCheckbox
-                option="subscribed"
-                isChecked={showSubscribedMobile}
-                onCheck={show => handleShowSubscribedMobile(this, show)}
-              />
-            </div>
-          )}
-          <div className="d-block d-md-none col">
-            <ExpandChipCheckbox
-              option="sidebar"
-              isChecked={showSidebarMobile}
-              onCheck={show => handleShowSidebarMobile(this, show)}
-            />
-          </div>
-          {this.props.postOrCommentType === "post" ? (
-            <>
-              <div className="col">
-                <PostSortDropdown
-                  currentOption={mixedToPostSortType(sort)}
-                  onSelect={val => handleSortChange(this, val)}
-                  showLabel
-                />
-              </div>
-            </>
-          ) : (
-            <div className="col">
-              <CommentSortDropdown
-                currentOption={mixedToCommentSortType(sort)}
-                onSelect={val => handleCommentSortChange(this, val)}
-                showLabel
-              />
-            </div>
-          )}
-          {/** TODO add show read posts also **/}
-          <div className="col">
-            <ListingTypeDropdown
-              currentOption={
-                listingType ??
-                this.state.siteRes.site_view.local_site
-                  .default_post_listing_type
-              }
-              showLocal={showLocal(this.isoData)}
-              showSubscribed
-              showSuggested={
-                !!this.isoData.siteRes.site_view.local_site
-                  .suggested_multi_community_id
-              }
-              showLabel
-              myUserInfo={myUserInfo}
-              onSelect={val => handleListingTypeChange(this, val)}
-            />
-          </div>
-          <div className="col">
-            <PostListingModeDropdown
-              currentOption={this.state.postListingMode}
-              onSelect={val => handlePostListingModeChange(this, val)}
-              showLabel
-            />
-          </div>
-          <div className="col">
-            <PostOrCommentTypeDropdown
-              currentOption={postOrCommentType}
-              onSelect={val => handlePostOrCommentTypeChange(this, val)}
-            />
-          </div>
-          {!hideTimeSelect && (
-            <div className="col">
-              <TimeIntervalFilter
-                interval={time}
-                onChange={val => handleTimeChange(this, val)}
-              />
-            </div>
-          )}
-          <div className="col">
-            {getRss(
-              listingType ??
-                this.state.siteRes.site_view.local_site
-                  .default_post_listing_type,
-              sort,
-              this.state.siteRes.my_feed_token,
-            )}
-          </div>
-          {myUserInfo && (
-            <button
-              className="col btn btn-ghost"
-              aria-label={I18NextService.i18n.t(
-                selectButtonsHidden ? "expand" : "collapse",
-              )}
-              onClick={_ => handleHideSelectButtons(this)}
-            >
-              <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />
-            </button>
-          )}
+      <div className="row row-cols-auto align-items-center g-1 mb-3">
+        <div className="col">
+          <PostOrCommentTypeDropdown
+            currentOption={postOrCommentType}
+            onSelect={val => handlePostOrCommentTypeChange(this, val)}
+          />
         </div>
-        {postOrCommentType === "post" && myUserInfo && !selectButtonsHidden && (
-          <div className="row row-cols-auto g-3 mt-1">
-            <div className="col mt-0">
-              <FilterChipCheckbox
-                option={"show_hidden_posts"}
-                isChecked={showHidden ?? false}
-                onCheck={hidden => handleShowHiddenChange(this, hidden)}
-              />
-            </div>
-            <div className="col mt-0">
-              <FilterChipCheckbox
-                option={"hide_read_posts"}
-                isChecked={!(showRead ?? false)}
-                onCheck={hideRead => handleHideReadChange(this, hideRead)}
-              />
-            </div>
-            <div
-              className="col mt-0"
-              data-tippy-content={I18NextService.i18n.t(
-                "hide_memes_description",
-              )}
-            >
-              <FilterChipCheckbox
-                option={"hide_memes"}
-                isChecked={hidePostsWithMedia ?? false}
-                onCheck={hidePostsWithMedia =>
-                  handlePostsWithMediaChange(this, hidePostsWithMedia)
-                }
-              />
-            </div>
-          </div>
+        {postOrCommentType === "post" && (
+          <GetPostsFilterBar
+            listingType={listingType ?? defaultListingType}
+            listingMode={postListingMode}
+            sort={sort}
+            time={time}
+            siteRes={siteRes}
+            showSubscribedMobile={showSubscribedMobile}
+            showSidebarMobile={showSidebarMobile}
+            myUserInfo={myUserInfo}
+            showHidden={showHidden}
+            showRead={showRead}
+            hidePostsWithMedia={hidePostsWithMedia}
+            selectButtonsHidden={selectButtonsHidden}
+            onShowSubscribedMobile={show =>
+              handleShowSubscribedMobile(this, show)
+            }
+            onShowSidebarMobile={show => handleShowSidebarMobile(this, show)}
+            onSortChange={sort => handleSortChange(this, sort)}
+            onListingTypeChange={listingType =>
+              handleListingTypeChange(this, listingType)
+            }
+            onListingModeChange={listingMode =>
+              handlePostListingModeChange(this, listingMode)
+            }
+            onTimeIntervalChange={time => handleTimeChange(this, time)}
+            onHideSelectButtons={() => handleHideSelectButtons(this)}
+            onShowHiddenChange={hidden => handleShowHiddenChange(this, hidden)}
+            onHideReadChange={hideRead => handleHideReadChange(this, hideRead)}
+            onHidePostsWithMediaChange={hidePostsWithMedia =>
+              handleHidePostsWithMediaChange(this, hidePostsWithMedia)
+            }
+          />
+        )}
+        {postOrCommentType === "comment" && (
+          <GetCommentsFilterBar
+            listingType={listingType ?? defaultListingType}
+            sort={mixedToCommentSortType(sort)}
+            time={time}
+            siteRes={siteRes}
+            myUserInfo={myUserInfo}
+            onSortChange={sort => handleCommentSortChange(this, sort)}
+            onListingTypeChange={listingType =>
+              handleListingTypeChange(this, listingType)
+            }
+            onTimeIntervalChange={time => handleTimeChange(this, time)}
+          />
         )}
       </div>
     );
@@ -1263,7 +1141,7 @@ function handleHideReadChange(i: Home, hideRead: boolean) {
   });
 }
 
-function handlePostsWithMediaChange(i: Home, hidePostsWithMedia: boolean) {
+function handleHidePostsWithMediaChange(i: Home, hidePostsWithMedia: boolean) {
   i.updateUrl({
     hidePostsWithMedia,
     cursor: undefined,

@@ -38,6 +38,7 @@ import {
   ListMultiCommunities,
   CreateCommentWarning,
   CreatePostWarning,
+  ListingType,
 } from "lemmy-js-client";
 import {
   CommentNodeI,
@@ -647,8 +648,16 @@ export function showMedia(myUserInfo: MyUserInfo | undefined): boolean {
   return myUserInfo?.local_user_view.local_user.show_media ?? true;
 }
 
-export function showLocal(isoData: IsoData): boolean {
-  return isoData.siteRes.site_view.local_site.federation_enabled;
+export function showLocal(siteRes: GetSiteResponse): boolean {
+  return siteRes.site_view.local_site.federation_enabled;
+}
+
+export function hasFollows(myUserInfo: MyUserInfo | undefined): boolean {
+  return !!myUserInfo && myUserInfo.follows.length > 0;
+}
+
+export function hasMultiFollows(myUserInfo: MyUserInfo | undefined): boolean {
+  return !!myUserInfo && myUserInfo.multi_community_follows.length > 0;
 }
 
 export function siteBannerCss(banner: string): string {
@@ -929,10 +938,38 @@ export function hideAnimatedImage(
 /**
  * Sets the default post listing mode from either your user settings, or the site default.
  **/
-export function defaultPostListingMode(isoData: IsoData): PostListingMode {
+export function defaultPostListingMode(
+  siteRes: GetSiteResponse,
+  myUserInfo: MyUserInfo | undefined,
+): PostListingMode {
   return (
-    isoData.myUserInfo?.local_user_view.local_user.post_listing_mode ??
-    isoData.siteRes.site_view.local_site.default_post_listing_mode
+    myUserInfo?.local_user_view.local_user.post_listing_mode ??
+    siteRes.site_view.local_site.default_post_listing_mode
+  );
+}
+
+/**
+ * Sets the default post listing type from either your user settings, or the site default
+ **/
+export function defaultListingType(
+  siteRes: GetSiteResponse,
+  myUserInfo: MyUserInfo | undefined,
+): ListingType {
+  return (
+    myUserInfo?.local_user_view.local_user.default_listing_type ??
+    siteRes.site_view.local_site.default_post_listing_type
+  );
+}
+/**
+ * Sets the default post sort type from either your user settings, or the site default
+ **/
+export function defaultPostSortType(
+  siteRes: GetSiteResponse,
+  myUserInfo: MyUserInfo | undefined,
+): PostSortType {
+  return (
+    myUserInfo?.local_user_view.local_user.default_post_sort_type ??
+    siteRes.site_view.local_site.default_post_sort_type
   );
 }
 
