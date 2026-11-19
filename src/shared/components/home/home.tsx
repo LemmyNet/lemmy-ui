@@ -133,6 +133,7 @@ import {
   TimeIntervalFilter,
 } from "@components/common/time-interval-filter";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { Offcanvas } from "../common/offcanvas/offcanvas";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -141,7 +142,6 @@ interface HomeState {
   editCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   voteCommentRes: ItemIdAndRes<CommentId, CommentResponse>;
   votePostRes: ItemIdAndRes<PostId, PostResponse>;
-  showSubscribedMobile: boolean;
   showSidebarMobile: boolean;
   subscribedCollapsed: boolean;
   subscribedMultisCollapsed: boolean;
@@ -302,7 +302,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     voteCommentRes: { id: 0, res: EMPTY_REQUEST },
     votePostRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
-    showSubscribedMobile: false,
     showSidebarMobile: false,
     subscribedCollapsed: false,
     subscribedMultisCollapsed: false,
@@ -483,38 +482,35 @@ export class Home extends Component<HomeRouteProps, HomeState> {
         site_view: { local_site, site },
         admins,
       },
-      showSubscribedMobile,
       showSidebarMobile,
     } = this.state;
 
     return (
       <div className="d-block d-md-none">
-        <div className="row">
-          <div className="col-12">
-            {showSidebarMobile && (
-              <SiteSidebar
-                site={site}
-                admins={admins}
-                localSite={local_site}
-                isMobile
-                myUserInfo={this.isoData.myUserInfo}
-                allLanguages={this.state.siteRes.all_languages}
-                siteLanguages={this.state.siteRes.discussion_languages}
-                activePlugins={this.state.siteRes.active_plugins}
-              />
-            )}
-            {showSubscribedMobile && (
-              <>
-                <div className="card mb-3">
-                  {this.subscribedCommunities(true)}
-                </div>
-                <div className="card mb-3">
-                  {this.subscribedMultiCommunities(true)}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <Offcanvas
+          id="home-sidebar-offcanvas"
+          show={showSidebarMobile}
+          onClose={() => handleShowSidebarMobile(this, false)}
+        >
+          <SiteSidebar
+            site={site}
+            admins={admins}
+            localSite={local_site}
+            isMobile
+            myUserInfo={this.isoData.myUserInfo}
+            allLanguages={this.state.siteRes.all_languages}
+            siteLanguages={this.state.siteRes.discussion_languages}
+            activePlugins={this.state.siteRes.active_plugins}
+          />
+          {this.hasFollows && (
+            <div className="card mb-3">{this.subscribedCommunities(true)}</div>
+          )}
+          {this.hasMultiFollows && (
+            <div className="card mb-3">
+              {this.subscribedMultiCommunities(true)}
+            </div>
+          )}
+        </Offcanvas>
       </div>
     );
   }
@@ -908,24 +904,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       hidePostsWithMedia,
     } = this.props;
 
-    const { showSubscribedMobile, showSidebarMobile, selectButtonsHidden } =
-      this.state;
+    const { showSidebarMobile, selectButtonsHidden } = this.state;
     const { myUserInfo } = this.isoData;
 
     const hideTimeSelect = sort === "new" || sort === "old";
     return (
       <div className="mb-3">
         <div className="row row-cols-auto align-items-center g-1 ">
-          {/* Only show these two selects on mobile */}
-          {this.hasFollows && (
-            <div className="d-block d-md-none col">
-              <ExpandChipCheckbox
-                option="subscribed"
-                isChecked={showSubscribedMobile}
-                onCheck={show => handleShowSubscribedMobile(this, show)}
-              />
-            </div>
-          )}
           <div className="d-block d-md-none col">
             <ExpandChipCheckbox
               option="sidebar"
@@ -1190,10 +1175,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       return s;
     });
   }
-}
-
-function handleShowSubscribedMobile(i: Home, show: boolean) {
-  i.setState({ showSubscribedMobile: show });
 }
 
 function handleShowSidebarMobile(i: Home, show: boolean) {

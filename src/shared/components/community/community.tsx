@@ -138,6 +138,7 @@ import {
 } from "@components/common/filter-chip-checkbox";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 import { CommunityTagDropdown } from "@components/common/community-tag-dropdown";
+import { Offcanvas } from "../common/offcanvas/offcanvas";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -541,7 +542,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               <>
                 {this.renderCommunity()}
                 {this.selects()}
-                {this.mobileSidebar(canViewCommunity_)}
+                {this.mobileSidebar()}
                 {this.listings()}
                 <div className="row">
                   <div className="col">
@@ -586,12 +587,27 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   mobileSidebar(forceShow?: boolean) {
-    const showSidebar = forceShow || this.state.showSidebarMobile;
+    if (forceShow) {
+      return (
+        <div className="d-block d-md-none">
+          <div className="row">
+            <div className="col-12">{this.sidebar()}</div>
+          </div>
+        </div>
+      );
+    }
+
+    const { showSidebarMobile } = this.state;
+
     return (
       <div className="d-block d-md-none">
-        <div className="row">
-          <div className="col-12">{showSidebar && this.sidebar()}</div>
-        </div>
+        <Offcanvas
+          id="community-sidebar-offcanvas"
+          show={showSidebarMobile}
+          onClose={() => handleShowSidebarMobile(this, false)}
+        >
+          {this.sidebar()}
+        </Offcanvas>
       </div>
     );
   }
