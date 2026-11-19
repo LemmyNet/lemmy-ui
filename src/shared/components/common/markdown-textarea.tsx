@@ -646,41 +646,49 @@ function handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
     switch (event.key) {
       case "k": {
         handleInsertLink(i);
+        event.preventDefault();
         break;
       }
       case "Enter": {
         if (!i.isDisabled) {
           handleSubmit(i, event);
         }
-
+        event.preventDefault();
         break;
       }
       case "b": {
         handleInsertBold(i);
+        event.preventDefault();
         break;
       }
       case "i": {
         handleInsertItalic(i);
+        event.preventDefault();
         break;
       }
       case "e": {
         handleInsertCode(i);
+        event.preventDefault();
         break;
       }
       case "8": {
         handleInsertList(i);
+        event.preventDefault();
         break;
       }
       case "s": {
         handleInsertSpoiler(i);
+        event.preventDefault();
         break;
       }
       case "p": {
         if (i.state.content) handlePreviewToggle(i);
+        event.preventDefault();
         break;
       }
       case ".": {
         handleInsertQuote(i);
+        event.preventDefault();
         break;
       }
     }
