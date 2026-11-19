@@ -3,7 +3,7 @@ import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, FormEvent } from "inferno";
+import { Component, InfernoNode, FormEvent } from "inferno";
 import { createElement } from "inferno-create-element";
 import { Prompt } from "inferno-router";
 import { Language, LanguageId, MyUserInfo } from "lemmy-js-client";
@@ -141,6 +141,22 @@ export class MarkdownTextArea extends Component<
           textarea.focus();
         }
       }
+    }
+  }
+
+  componentWillUnmount() {
+    const textarea = this.textAreaRef.current;
+    if (textarea) {
+      autosize.destroy(textarea);
+    }
+  }
+
+  componentDidUpdate(
+    _: MarkdownTextAreaProps & { children?: InfernoNode },
+    prevState: Readonly<MarkdownTextAreaState>,
+  ) {
+    if (this.state.content !== prevState.content && this.textAreaRef.current) {
+      autosize.update(this.textAreaRef.current);
     }
   }
 
@@ -586,7 +602,6 @@ function handleInsertAtCursor(
     textarea.selectionStart = cursorPosition + text.length + cursorOffset;
     textarea.selectionEnd = cursorPosition + text.length + cursorOffset;
     textarea.focus();
-    autosize.update(textarea);
   }, 10);
 }
 
@@ -770,10 +785,6 @@ function handleSimpleSurroundBeforeAfter(
       end + emptyChars.length + afterChars.length + escapeSpaces,
     );
   }
-
-  setTimeout(() => {
-    autosize.update(textarea);
-  }, 10);
 }
 
 function handleInsertBold(i: MarkdownTextArea) {
@@ -843,8 +854,6 @@ function handleQuoteInsert(i: MarkdownTextArea) {
       content: `${content}${quotedText}`,
     });
     handleSubmitContentChange(i);
-    // Not sure why this needs a delay
-    setTimeout(() => autosize.update(textarea), 10);
   }
 }
 
