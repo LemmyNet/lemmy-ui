@@ -21,6 +21,7 @@ export const mentionDropdownFetchLimit = 10;
 export const commentTreeMaxDepth = 8;
 export const postMarkdownFieldCharacterLimit = 50000;
 export const markdownFieldCharacterLimit = 10000;
+export const indentationLevelBreak = 4;
 export const maxUploadImages = 20;
 export const concurrentImageUpload = 4;
 export const updateUnreadCountsInterval = 30000;
