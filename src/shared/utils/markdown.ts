@@ -3,10 +3,11 @@ import { debounce, groupBy } from "@utils/helpers";
 import { CommunityTribute, PersonTribute } from "@utils/types";
 import { Picker } from "emoji-mart";
 import { CustomEmojiView } from "lemmy-js-client";
-import {
-  default as MarkdownIt,
-  Options as MarkdownItOptions,
-  PluginSimple,
+import MarkdownItC, {
+  MarkdownItOptions,
+  MarkdownIt,
+  Token,
+  Renderer,
 } from "markdown-it";
 import markdown_it_container from "markdown-it-container";
 import { relTags } from "./config";
@@ -26,16 +27,14 @@ import { getStaticDir } from "./env";
 import mila from "markdown-it-link-attributes";
 import { buildPictrsSrc } from "@components/common/pictrs-image";
 import { TributeCollection } from "tributejs";
-import Token from "markdown-it/lib/token.mjs";
-import Renderer from "markdown-it/lib/renderer.mjs";
 
-export let md: MarkdownIt = new MarkdownIt();
+export let md: MarkdownIt = new MarkdownItC();
 
-export let mdNoImages: MarkdownIt = new MarkdownIt();
+export let mdNoImages: MarkdownIt = new MarkdownItC();
 
 // Zero disables all rules.
 // Only explicitly allow a limited set of rules safe for use in post titles.
-export const mdLimited: MarkdownIt = new MarkdownIt("zero").enable([
+export const mdLimited: MarkdownIt = new MarkdownItC("zero").enable([
   "emphasis",
   "backticks",
   "strikethrough",
@@ -180,41 +179,41 @@ export function setupMarkdown() {
   //   (main, [key, value]) => ({ ...main, [key]: value }),
   //   {}
   // );
-  md = new MarkdownIt(markdownItConfig)
-    .use(markdown_it_sub as PluginSimple)
-    .use(markdown_it_sup as PluginSimple)
-    .use(markdown_it_footnote as PluginSimple)
-    .use(html5Media as PluginSimple, html5EmbedConfig)
+  md = new MarkdownItC(markdownItConfig)
+    .use(markdown_it_sub)
+    .use(markdown_it_sup)
+    .use(markdown_it_footnote)
+    .use(html5Media, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(markdown_it_highlightjs as PluginSimple, highlightjsConfig)
-    .use(markdown_it_ruby as PluginSimple)
+    .use(markdown_it_highlightjs, highlightjsConfig)
+    .use(markdown_it_ruby)
     .use(localInstanceLinkParser)
-    .use(markdown_it_bidi as PluginSimple)
+    .use(markdown_it_bidi)
     .use(markdown_it_cjk_friendly)
-    .use(mila as PluginSimple, milaAttrs);
+    .use(mila, milaAttrs);
   // .use(markdown_it_emoji, {
   //   defs: emojiDefs,
   // });
 
   mdNoImages = new MarkdownIt(markdownItConfig)
-    .use(markdown_it_sub as PluginSimple)
-    .use(markdown_it_sup as PluginSimple)
-    .use(markdown_it_footnote as PluginSimple)
-    .use(html5Media as PluginSimple, html5EmbedConfig)
+    .use(markdown_it_sub)
+    .use(markdown_it_sup)
+    .use(markdown_it_footnote)
+    .use(html5Media, html5EmbedConfig)
     .use(markdown_it_container, "spoiler", spoilerConfig)
-    .use(markdown_it_highlightjs as PluginSimple, highlightjsConfig)
+    .use(markdown_it_highlightjs, highlightjsConfig)
     .use(localInstanceLinkParser)
-    .use(markdown_it_bidi as PluginSimple)
+    .use(markdown_it_bidi)
     // .use(markdown_it_emoji, {
     //   defs: emojiDefs,
     // })
-    .use(mila as PluginSimple, milaAttrs)
+    .use(mila, milaAttrs)
     .disable("image");
   const defaultImageRenderer = md.renderer.rules.image;
   md.renderer.rules.image = function (
     tokens: Token[],
     idx: number,
-    options: MarkdownItOptions,
+    options: Required<MarkdownItOptions>,
     env: never,
     self: Renderer,
   ) {
