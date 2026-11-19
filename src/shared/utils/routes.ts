@@ -31,6 +31,7 @@ import {
   getLoginQueryParams,
 } from "@components/home/authenticate/login";
 import { LoginReset } from "@components/home/authenticate/login-reset";
+import { ResendVerificationEmail } from "@components/home/authenticate/resend-verification-email";
 import { Setup } from "@components/home/setup";
 import {
   Signup,
@@ -160,6 +161,10 @@ export const routes: IRoutePropsWithFetch<
   {
     path: `/login_reset`,
     component: LoginReset,
+  },
+  {
+    path: `/resend_verification_email`,
+    component: ResendVerificationEmail,
   },
   {
     path: `/signup`,

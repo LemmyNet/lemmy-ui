@@ -1,22 +1,17 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import classNames from "classnames";
 import { Component, FormEvent, FormEventHandler } from "inferno";
-import { EditSite, LocalSiteRateLimit } from "lemmy-js-client";
+import { EditSite } from "lemmy-js-client";
+import {
+  RateLimitFormValues,
+  RateLimitType,
+  SiteRateLimits,
+  rateLimitTypes,
+  toRateLimitEditSite,
+} from "@utils/rate-limits";
 import { I18NextService } from "../../services";
 import { Icon, Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
-
-const rateLimitTypes = [
-  "message",
-  "post",
-  "register",
-  "image",
-  "comment",
-  "search",
-  "import_user_settings",
-] as const;
-
-export type RateLimitType = (typeof rateLimitTypes)[number];
 
 interface RateLimitsProps {
   handleRateLimit: FormEventHandler<HTMLInputElement>;
@@ -27,13 +22,13 @@ interface RateLimitsProps {
 }
 
 interface RateLimitFormProps {
-  rateLimits: LocalSiteRateLimit;
+  rateLimits: SiteRateLimits;
   loading: boolean;
   onSaveSite: (form: EditSite) => void;
 }
 
 interface RateLimitFormState {
-  form: Partial<Omit<LocalSiteRateLimit, "updated_at" | "published_at">>;
+  form: RateLimitFormValues;
 }
 
 function RateLimits({
@@ -109,15 +104,7 @@ function submitRateLimitForm(
   event: FormEvent<HTMLFormElement>,
 ) {
   event.preventDefault();
-  const form: EditSite = Object.entries(i.state.form).reduce(
-    (acc, [key, val]) => {
-      acc[`rate_limit_${key}`] = val;
-      return acc;
-    },
-    {},
-  );
-
-  i.props.onSaveSite(form);
+  i.props.onSaveSite(toRateLimitEditSite(i.state.form));
 }
 
 export default class RateLimitsForm extends Component<
