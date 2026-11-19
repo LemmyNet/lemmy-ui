@@ -117,7 +117,8 @@ export function isCommentNodeFull(
   return (node as CommentNodeFull).view.comment_view.post !== undefined;
 }
 
-/** A helper type to set which comment is loading
+/**
+ * A helper type to set which comment is loading
  *
  * For comment creates, the comment id is the parent (or zero)
  **/

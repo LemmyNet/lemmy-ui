@@ -1,8 +1,8 @@
 import {
   canViewCommunity,
   commentsToFlatNodes,
-  communityRSSUrl,
   defaultPostListingMode,
+  defaultPostSortType,
   editComment,
   editPersonNotes,
   editPost,
@@ -90,7 +90,6 @@ import {
   ModEditPost,
   CommunityTagId,
 } from "lemmy-js-client";
-import { relTags } from "@utils/config";
 import { PostOrCommentType, InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
 import {
@@ -105,8 +104,7 @@ import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostOrCommentTypeDropdown } from "../common/post-or-comment-type-dropdown";
 import { htmlTags } from "../common/html-tags";
-import { Icon, Spinner } from "../common/icon";
-import { PostSortDropdown, CommentSortDropdown } from "../common/sort-dropdown";
+import { Spinner } from "../common/icon";
 import { SiteSidebar } from "../home/site-sidebar";
 import { PostListings } from "../post/post-listings";
 import { PaginatorCursor } from "../common/paginator-cursor";
@@ -128,16 +126,11 @@ import {
   intervalToQuery,
   intervalToSeconds,
   secondsToLargestInterval,
-  TimeIntervalFilter,
 } from "@components/common/time-interval-filter";
-import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
 import { communityName } from "./community-link";
-import {
-  ExpandChipCheckbox,
-  FilterChipCheckbox,
-} from "@components/common/filter-chip-checkbox";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
-import { CommunityTagDropdown } from "@components/common/community-tag-dropdown";
+import { GetPostsFilterBar } from "@components/common/get-posts-filter-bar";
+import { GetCommentsFilterBar } from "@components/common/get-comments-filter-bar";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -189,7 +182,6 @@ export function getCommunityQueryParams(
   myUserInfo?: MyUserInfo,
 ) {
   const local_user = myUserInfo?.local_user_view.local_user;
-  const local_site = siteRes.site_view.local_site;
   return getQueryParams<CommunityProps, Fallbacks>(
     {
       postOrCommentType: getPostOrCommentTypeFromQuery,
@@ -203,8 +195,7 @@ export function getCommunityQueryParams(
     },
     source,
     {
-      sort:
-        local_user?.default_post_sort_type ?? local_site.default_post_sort_type,
+      sort: defaultPostSortType(siteRes, myUserInfo),
       time:
         secondsToLargestInterval(local_user?.default_post_time_range_seconds) ??
         ALL_TIME_INTERVAL,
@@ -277,7 +268,10 @@ export class Community extends Component<CommunityRouteProps, State> {
     showSidebarMobile: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
-    postListingMode: defaultPostListingMode(this.isoData),
+    postListingMode: defaultPostListingMode(
+      this.isoData.siteRes,
+      this.isoData.myUserInfo,
+    ),
     selectButtonsHidden: true,
   };
   private readonly mainContentRef: RefObject<HTMLDivElement>;
@@ -804,145 +798,81 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   selects() {
-    const res =
-      this.state.communityRes.state === "success" &&
-      this.state.communityRes.data;
+    const communityView =
+      this.state.communityRes.state === "success"
+        ? this.state.communityRes.data.community_view
+        : undefined;
+
     const {
       postOrCommentType,
       sort,
       time,
-      showHidden,
       showRead,
       tagId,
       hidePostsWithMedia,
+      showHidden,
     } = this.props;
-    const communityRss = res
-      ? communityRSSUrl(res.community_view.community, sort)
-      : undefined;
-    const { showSidebarMobile, selectButtonsHidden } = this.state;
+    const { showSidebarMobile, selectButtonsHidden, postListingMode, siteRes } =
+      this.state;
 
     const myUserInfo = this.isoData.myUserInfo;
-    const hideTimeSelect = sort === "new" || sort === "old";
-    const tags = res && res.community_view.tags;
 
     return (
-      <>
-        <div className="row row-cols-auto align-items-center g-1 mb-3">
-          <div className="d-block d-md-none col">
-            <ExpandChipCheckbox
-              option="sidebar"
-              isChecked={showSidebarMobile}
-              onCheck={show => handleShowSidebarMobile(this, show)}
-            />
-          </div>
-          <div className="col">
-            <PostOrCommentTypeDropdown
-              currentOption={postOrCommentType}
-              onSelect={val => handlePostOrCommentTypeChange(this, val)}
-            />
-          </div>
-          <div className="col">
-            <PostListingModeDropdown
-              currentOption={this.state.postListingMode}
-              onSelect={val =>
-                handlePostListingModeChange(this, val, myUserInfo)
-              }
-              showLabel
-            />
-          </div>
-          {this.props.postOrCommentType === "post" ? (
-            <>
-              <div className="col">
-                <PostSortDropdown
-                  currentOption={mixedToPostSortType(sort)}
-                  onSelect={val => handleSortChange(this, val)}
-                  showLabel
-                />
-              </div>
-              {tags && tags.length > 0 && (
-                <div className="col">
-                  <CommunityTagDropdown
-                    tags={tags}
-                    currentOption={tagId?.toString() ?? "0"}
-                    onSelect={val => handleCommunityTagFilterChange(this, val)}
-                  />
-                </div>
-              )}
-              {!hideTimeSelect && (
-                <div className="col">
-                  <TimeIntervalFilter
-                    interval={time}
-                    onChange={val => handleTimeChange(this, val)}
-                  />
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="col">
-              <CommentSortDropdown
-                currentOption={mixedToCommentSortType(sort)}
-                onSelect={val => handleCommentSortChange(this, val)}
-                showLabel
-              />
-            </div>
-          )}
-          {communityRss && (
-            <div className="col">
-              <a href={communityRss} title="RSS" rel={relTags}>
-                <Icon icon="rss" classes="text-muted small" />
-              </a>
-              <link
-                rel="alternate"
-                type="application/atom+xml"
-                href={communityRss}
-              />
-            </div>
-          )}
-          {myUserInfo && (
-            <button
-              className="col btn btn-ghost"
-              aria-label={I18NextService.i18n.t(
-                selectButtonsHidden ? "expand" : "collapse",
-              )}
-              onClick={_ => handleHideSelectButtons(this)}
-            >
-              <Icon icon={`chevrons-${selectButtonsHidden ? "down" : "up"}`} />
-            </button>
-          )}
+      <div className="row row-cols-auto align-items-center g-1 mb-3">
+        <div className="col">
+          <PostOrCommentTypeDropdown
+            currentOption={postOrCommentType}
+            onSelect={val => handlePostOrCommentTypeChange(this, val)}
+          />
         </div>
-        {postOrCommentType === "post" && myUserInfo && !selectButtonsHidden && (
-          <div className="row row-cols-auto mt-2">
-            <div className="col">
-              <FilterChipCheckbox
-                option={"show_hidden_posts"}
-                isChecked={showHidden ?? false}
-                onCheck={hidden => handleShowHiddenChange(this, hidden)}
-              />
-            </div>
-            <div className="col">
-              <FilterChipCheckbox
-                option={"hide_read_posts"}
-                isChecked={!(showRead ?? false)}
-                onCheck={hideRead => handleHideReadChange(this, hideRead)}
-              />
-            </div>
-            <div
-              className="col"
-              data-tippy-content={I18NextService.i18n.t(
-                "hide_memes_description",
-              )}
-            >
-              <FilterChipCheckbox
-                option={"hide_memes"}
-                isChecked={hidePostsWithMedia ?? false}
-                onCheck={hidePostsWithMedia =>
-                  handlePostsWithMediaChange(this, hidePostsWithMedia)
-                }
-              />
-            </div>
-          </div>
+        {postOrCommentType === "post" && (
+          <GetPostsFilterBar
+            listingType={"all"}
+            listingMode={postListingMode}
+            sort={sort}
+            time={time}
+            siteRes={siteRes}
+            communityView={communityView}
+            communityTagId={tagId}
+            showSubscribedMobile={false}
+            showSidebarMobile={showSidebarMobile}
+            myUserInfo={myUserInfo}
+            showHidden={showHidden || true}
+            showRead={showRead || true}
+            hidePostsWithMedia={hidePostsWithMedia}
+            selectButtonsHidden={selectButtonsHidden}
+            onShowSubscribedMobile={() => {}}
+            onShowSidebarMobile={show => handleShowSidebarMobile(this, show)}
+            onSortChange={sort => handleSortChange(this, sort)}
+            onListingTypeChange={() => {}}
+            onListingModeChange={listingMode =>
+              handlePostListingModeChange(this, listingMode, myUserInfo)
+            }
+            onTimeIntervalChange={time => handleTimeChange(this, time)}
+            onHideSelectButtons={() => handleHideSelectButtons(this)}
+            onShowHiddenChange={hidden => handleShowHiddenChange(this, hidden)}
+            onHideReadChange={hideRead => handleHideReadChange(this, hideRead)}
+            onHidePostsWithMediaChange={hidePostsWithMedia =>
+              handleHidePostsWithMediaChange(this, hidePostsWithMedia)
+            }
+            onCommunityTagIdChange={tagId =>
+              handleCommunityTagIdChange(this, tagId)
+            }
+          />
         )}
-      </>
+        {postOrCommentType === "comment" && (
+          <GetCommentsFilterBar
+            listingType={"all"}
+            sort={mixedToCommentSortType(sort)}
+            time={time}
+            siteRes={siteRes}
+            myUserInfo={myUserInfo}
+            onSortChange={sort => handleCommentSortChange(this, sort)}
+            onListingTypeChange={() => {}}
+            onTimeIntervalChange={time => handleTimeChange(this, time)}
+          />
+        )}
+      </div>
     );
   }
 }
@@ -1010,7 +940,7 @@ function handlePostOrCommentTypeChange(
   i.updateUrl({ postOrCommentType, cursor: undefined });
 }
 
-function handleCommunityTagFilterChange(i: Community, tag: string) {
+function handleCommunityTagIdChange(i: Community, tag: string) {
   // A zero is an "All" / undefined
   const tagId = tag === "0" ? undefined : Number(tag);
 
@@ -1046,7 +976,10 @@ function handleHideReadChange(i: Community, hideRead: boolean) {
   });
 }
 
-function handlePostsWithMediaChange(i: Community, hidePostsWithMedia: boolean) {
+function handleHidePostsWithMediaChange(
+  i: Community,
+  hidePostsWithMedia: boolean,
+) {
   i.updateUrl({
     hidePostsWithMedia,
     cursor: undefined,
