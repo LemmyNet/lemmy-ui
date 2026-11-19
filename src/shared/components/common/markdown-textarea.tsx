@@ -31,6 +31,12 @@ import ProgressBar from "./progress-bar";
 import { validURL } from "@utils/helpers";
 import { createRef, RefObject } from "inferno";
 
+const listIndentReg = /^(?<indent>[ ]*[-*+][ ]*)(?<rest>[^-*+][^$]*)?$/;
+const numberListIndentReg =
+  /^(?<indent>(?<head>[ ]*)(?<number>[0-9]+)(?<token>[.)])(?<tail>[ ]+))(?<rest>[^-*+][^$]*)?$/;
+const quoteIndentReg = /^(?<indent>[> ]*>[ ]*)(?<rest>[^>][^$]*)?$/;
+const spaceIndentReg = /^(?<indent>[ ]+)(?<rest>[^ ][^$]*)?$/;
+
 type MarkdownTextAreaType =
   | "post"
   | "comment"
@@ -102,6 +108,7 @@ interface MarkdownTextAreaState {
   languageId?: number;
   previewMode: boolean;
   imageUploadStatus?: ImageUploadStatus;
+  lastAutoIndent: string;
 }
 
 @tippyMixin
@@ -117,6 +124,7 @@ export class MarkdownTextArea extends Component<
     content: undefined,
     languageId: this.props.initialLanguageId,
     previewMode: false,
+    lastAutoIndent: "",
   };
 
   async componentDidMount() {
@@ -621,6 +629,14 @@ function handleContentChange(
   i.setState({ content: event.target.value });
   localStorage.setItem(localStorageKey(i.props.typeAndId), event.target.value);
   handleSubmitContentChange(i);
+  if (
+    event instanceof InputEvent &&
+    (event.inputType === "insertLineBreak" ||
+      /* chromium does this instead of insertLineBreak in some cases */
+      (event.inputType === "insertText" && event.data === null))
+  ) {
+    handleAutoIndent(i);
+  }
 }
 
 // Keybind handler
@@ -883,6 +899,54 @@ function handleInsertQuote(i: MarkdownTextArea) {
     // Start or extend indentation
     return { indent: "> ", skip: 0 };
   });
+}
+
+function handleAutoIndent(i: MarkdownTextArea) {
+  const textarea = i.textAreaRef.current;
+  if (!textarea) {
+    return;
+  }
+
+  const { value, selectionStart } = textarea;
+  // Expects to be called immediately after inserting a linebreak.
+  if (value[selectionStart - 1] !== "\n") {
+    return;
+  }
+  const lastLineBreak = value.lastIndexOf("\n", selectionStart - 2);
+  const lastLine = value.substring(lastLineBreak + 1, selectionStart - 1);
+
+  const match =
+    lastLine.match(listIndentReg) ??
+    lastLine.match(numberListIndentReg) ??
+    lastLine.match(quoteIndentReg) ??
+    lastLine.match(spaceIndentReg);
+
+  if (!match) {
+    i.setState({ lastAutoIndent: "" });
+  } else {
+    const {
+      rest = "",
+      head = "",
+      number = "",
+      token = "",
+      tail = "",
+    } = match.groups ?? {};
+    let { indent = "" } = match.groups ?? {};
+    if (rest) {
+      if (number && token) {
+        indent = `${head}${Number(number) + 1}${token}${tail}`;
+      }
+      handleInsertText(i, indent);
+      i.setState({ lastAutoIndent: indent });
+    } else {
+      // Only an indentation. If it matches the last auto indent, remove it.
+      if (i.state.lastAutoIndent === indent) {
+        textarea.selectionStart -= lastLine.length + 1;
+        handleInsertText(i, "\n");
+        i.setState({ lastAutoIndent: "" });
+      }
+    }
+  }
 }
 
 function localStorageKey(typeAndId: TypeAndId): string {
