@@ -69,9 +69,16 @@ export class PrivateMessage extends Component<
       : message_view.creator;
 
     return (
-      <div className="private-message border-top border-light-subtle">
-        <div className="row row-cols-auto align-items-center g-1 mb-2">
-          <div className="col text-muted small">
+      <div className="private-message">
+        <div className="row row-cols-auto align-items-center g-1 mb-1">
+          <div className="col text-muted small fw-bold">
+            <Icon
+              icon={this.mine ? "arrow-up-right" : "arrow-down-left"}
+              classes={classNames(
+                "icon-inline me-1",
+                this.mine ? "text-secondary" : "text-primary",
+              )}
+            />
             {this.mine
               ? I18NextService.i18n.t("to")
               : I18NextService.i18n.t("from")}
@@ -117,7 +124,7 @@ export class PrivateMessage extends Component<
                   )}
                 />
               )}
-              <div className="row row-cols-auto align-items-center justify-content-end justify-content-md-start g-3 mb-2 mt-1 text-muted fw-bold">
+              <div className="row row-cols-auto align-items-center justify-content-end justify-content-md-start g-3 mt-1 text-muted fw-bold">
                 {!this.mine && (
                   <>
                     {

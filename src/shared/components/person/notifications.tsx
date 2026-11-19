@@ -89,6 +89,8 @@ import {
 } from "@components/common/filter-chip-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import classNames from "classnames";
+import { NotificationStatusIndicator } from "../notifications/notification-status-indicator";
 
 const messageTypeOptions: FilterOption<NotificationTypeFilter>[] = [
   { value: "all", i18n: "all" },
@@ -296,6 +298,7 @@ export class Notifications extends Component<
     const siteRes = this.state.siteRes;
     const data = item.data;
     const myUserInfo = this.isoData.myUserInfo;
+
     switch (data.type_) {
       case "comment":
         return (
@@ -316,6 +319,7 @@ export class Notifications extends Component<
             mutePersonName={false}
             muteCommunityName
             hideAvatar
+            noBorder
             markReadLoading={itemLoading(this.state.markCommentReadLoadingRes)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
@@ -406,7 +410,7 @@ export class Notifications extends Component<
               mutePersonName={false}
               muteCommunityName
               hideAvatar={false}
-              viewOnly // TODO: comments do allow edits and moderation
+              viewOnly
               onPostEdit={() => {}}
               onPostModEdit={() => {}}
               onPostVote={() => {}}
@@ -448,12 +452,37 @@ export class Notifications extends Component<
     }
   }
 
+  renderStatusIndicatorAndItem(item: NotificationView): InfernoNode {
+    const data = item.data;
+    const myUserInfo = this.isoData.myUserInfo;
+    const isSentByMe =
+      data.type_ === "private_message" &&
+      myUserInfo?.local_user_view.person.id === data.creator.id;
+    const isUnread = !item.notification.read && !isSentByMe;
+
+    return (
+      <div
+        className={classNames(
+          "notification-row d-flex gap-3 py-2 px-3 border-bottom border-light-subtle",
+          isUnread && "bg-body-tertiary",
+        )}
+      >
+        <NotificationStatusIndicator
+          item={item}
+          isSentByMe={isSentByMe}
+          isUnread={isUnread}
+        />
+        <div className="flex-grow-1 min-w-0">{this.renderItemType(item)}</div>
+      </div>
+    );
+  }
+
   all(): InfernoNode {
     const { notifsRes } = this.state;
     return (
       <ListView
         state={notifsRes}
-        renderItem={r => this.renderItemType(r)}
+        renderItem={r => this.renderStatusIndicatorAndItem(r)}
         emptyIcon="bell"
         emptyTranslationKey="no_notifications_unread"
         loadingNode={<CommentsLoadingSkeleton />}
