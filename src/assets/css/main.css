@@ -101,11 +101,62 @@ button[aria-label="Unsave"] .icon {
 
 .md-div pre {
   white-space: pre;
+  max-width: 100%;
   overflow-x: auto;
 }
 
 .md-div details {
   margin-bottom: 1rem;
+}
+
+.md-div table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Sidebar Markdown */
+aside .md-div {
+  font-size: 0.875rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+aside .md-div h1 {
+  font-size: 1.2rem;
+}
+
+aside .md-div h2 {
+  font-size: 1.1rem;
+}
+
+aside .md-div h3 {
+  font-size: 1rem;
+}
+
+aside .md-div h4 {
+  font-size: 0.95rem;
+}
+
+aside .md-div h5,
+aside .md-div h6 {
+  font-size: 0.9rem;
+}
+
+aside .md-div p,
+aside .md-div ul,
+aside .md-div ol {
+  margin-bottom: 0.5rem;
+}
+
+aside .md-div ul,
+aside .md-div ol {
+  padding-left: 1.25rem;
+}
+
+aside .md-div pre,
+aside .md-div table {
+  font-size: 0.85em;
 }
 
 .vote-bar {
