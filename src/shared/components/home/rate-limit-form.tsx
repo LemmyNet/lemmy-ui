@@ -14,7 +14,6 @@ import { Icon, Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 
 interface RateLimitsProps {
-  type: RateLimitType;
   handleRateLimit: FormEventHandler<HTMLInputElement>;
   handleRateLimitIntervalSeconds: FormEventHandler<HTMLInputElement>;
   rateLimitValue?: number;
@@ -33,7 +32,6 @@ interface RateLimitFormState {
 }
 
 function RateLimits({
-  type,
   handleRateLimit,
   handleRateLimitIntervalSeconds: handleRateLimitIntervalSeconds,
   rateLimitIntervalSeconds: rateLimitIntervalSeconds,
@@ -43,31 +41,27 @@ function RateLimits({
   return (
     <div role="tabpanel" className={classNames("mb-3 row", className)}>
       <div className="col-md-6">
-        <label htmlFor={`rate-limit-${type}`}>
+        <label htmlFor="rate-limit">
           {I18NextService.i18n.t("rate_limit")}
         </label>
         <input
           type="number"
-          id={`rate-limit-${type}`}
+          id="rate-limit"
           className="form-control"
           min={0}
-          max={2147483647}
-          step={1}
           value={rateLimitMaxRequests}
           onInput={handleRateLimit}
         />
       </div>
       <div className="col-md-6">
-        <label htmlFor={`rate-limit-${type}-per-second`}>
+        <label htmlFor="rate-limit-per-second">
           {I18NextService.i18n.t("per_second")}
         </label>
         <input
           type="number"
-          id={`rate-limit-${type}-per-second`}
+          id="rate-limit-per-second"
           className="form-control"
-          min={type.startsWith("resend_verification_email") ? 1 : 0}
-          max={2147483647}
-          step={1}
+          min={0}
           value={rateLimitIntervalSeconds}
           onInput={handleRateLimitIntervalSeconds}
         />
@@ -139,7 +133,6 @@ export default class RateLimitsForm extends Component<
             label: I18NextService.i18n.t(`rate_limit_${rateLimitType}`),
             getNode: isSelected => (
               <RateLimits
-                type={rateLimitType}
                 className={classNames("tab-pane show", {
                   active: isSelected,
                 })}
