@@ -133,9 +133,6 @@ export default class RateLimitsForm extends Component<
           <Icon icon="info" classes="icon-inline me-2" />
           {I18NextService.i18n.t("rate_limit_info")}
         </div>
-        <p className="small">
-          {I18NextService.i18n.t("rate_limit_verification_email_info")}
-        </p>
         <Tabs
           tabs={rateLimitTypes.map(rateLimitType => ({
             key: rateLimitType,
