@@ -90,6 +90,7 @@ export type ContentPostProps = {
   onHidePost: () => void;
   onSharePost: () => void;
   onMarkPostAsRead: () => void;
+  onCopyMarkdownLink: () => void;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -306,6 +307,13 @@ export default class ContentActionDropdown extends Component<
                         (this.props as ContentPostProps).postView,
                       )
                     }
+                  />
+                )}
+                {type === "post" && (
+                  <ActionButton
+                    icon="code"
+                    label={I18NextService.i18n.t("copy_markdown_link")}
+                    onClick={this.props.onCopyMarkdownLink}
                   />
                 )}
                 {this.props.myUserInfo && (
