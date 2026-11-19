@@ -1,5 +1,5 @@
 import { isBrowser, platform } from "@utils/browser";
-import { numToSI, randomStr } from "@utils/helpers";
+import { debounce, numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
@@ -98,6 +98,7 @@ interface MarkdownTextAreaState {
   id: string;
   formId: string;
   content?: string;
+  previewContent?: string;
   languageId?: number;
   previewMode: boolean;
   imageUploadStatus?: ImageUploadStatus;
@@ -114,6 +115,7 @@ export class MarkdownTextArea extends Component<
     id: `markdown-textarea-${randomStr()}`,
     formId: `markdown-form-${randomStr()}`,
     content: undefined,
+    previewContent: undefined,
     languageId: this.props.initialLanguageId,
     previewMode: false,
   };
@@ -127,11 +129,14 @@ export class MarkdownTextArea extends Component<
           this.props.initialContent ??
           localStorage.getItem(localStorageKey(this.props.typeAndId)) ??
           undefined;
-        this.setState({ content });
+        this.setState({ content, previewContent: content });
         autosize(textarea);
         tribute.attach(textarea);
         textarea.addEventListener("tribute-replaced", () => {
-          this.setState({ content: textarea.value });
+          this.setState({
+            content: textarea.value,
+            previewContent: textarea.value,
+          });
           autosize.update(textarea);
         });
 
@@ -294,14 +299,15 @@ export class MarkdownTextArea extends Component<
           </div>
         </div>
 
-        {this.state.previewMode && this.state.content && (
+        {this.state.previewMode && this.state.previewContent && (
           <div className="row mb-2">
             <div className="col-12">
               <div className="rounded bg-light border">
                 <div
                   className="card card-body md-div"
-                  dangerouslySetInnerHTML={mdToHtml(this.state.content, () =>
-                    this.forceUpdate(),
+                  dangerouslySetInnerHTML={mdToHtml(
+                    this.state.previewContent,
+                    () => this.forceUpdate(),
                   )}
                 />
               </div>
@@ -596,6 +602,7 @@ function handleSubmitContentChange(i: MarkdownTextArea) {
   // Coerces the undefineds to empty strings, for replacing in the DB
   const content = i.state.content ?? "";
   i.props.onContentChange?.(content);
+  updatePreviewContent(i, content);
 }
 
 function handleContentChange(
@@ -606,6 +613,15 @@ function handleContentChange(
   localStorage.setItem(localStorageKey(i.props.typeAndId), event.target.value);
   handleSubmitContentChange(i);
 }
+
+const updatePreviewContent = debounce(function (
+  i: MarkdownTextArea,
+  content: string,
+) {
+  if (i.state.previewMode) {
+    i.setState({ previewContent: content });
+  }
+}, 1000);
 
 // Keybind handler
 // Keybinds inspired by github comment area
