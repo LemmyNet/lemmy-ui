@@ -166,7 +166,7 @@ export class MarkdownTextArea extends Component<
         <div className="row mb-2">
           <div className="col-12">
             <div className="rounded bg-light border">
-              {!this.state.previewMode && (
+              {
                 <div
                   className={classNames("d-flex flex-wrap border-bottom", {
                     "no-click": this.isDisabled,
@@ -249,16 +249,13 @@ export class MarkdownTextArea extends Component<
                     <Icon icon="help-circle" classes="icon-inline" />
                   </a>
                 </div>
-              )}
+              }
               <div>
                 <textarea
                   id={this.state.id}
                   ref={this.textAreaRef}
                   className={classNames(
                     "form-control border-0 rounded-top-0 rounded-bottom",
-                    {
-                      "d-none": this.state.previewMode,
-                    },
                   )}
                   value={this.state.content}
                   onInput={e => handleContentChange(this, e)}
@@ -273,14 +270,6 @@ export class MarkdownTextArea extends Component<
                   placeholder={this.props.placeholder}
                   spellCheck
                 />
-                {this.state.previewMode && this.state.content && (
-                  <div
-                    className="card card-body md-div"
-                    dangerouslySetInnerHTML={mdToHtml(this.state.content, () =>
-                      this.forceUpdate(),
-                    )}
-                  />
-                )}
                 {this.state.imageUploadStatus &&
                   this.state.imageUploadStatus.total > 1 && (
                     <ProgressBar
@@ -304,6 +293,21 @@ export class MarkdownTextArea extends Component<
             </div>
           </div>
         </div>
+
+        {this.state.previewMode && this.state.content && (
+          <div className="row mb-2">
+            <div className="col-12">
+              <div className="rounded bg-light border">
+                <div
+                  className="card card-body md-div"
+                  dangerouslySetInnerHTML={mdToHtml(this.state.content, () =>
+                    this.forceUpdate(),
+                  )}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="row row-cols-auto align-items-center g-2 g-sm-3 mb-2 mb-sm-2">
           {this.props.buttonTitle && (
@@ -330,9 +334,7 @@ export class MarkdownTextArea extends Component<
               )}
               onClick={() => handlePreviewToggle(this)}
             >
-              {this.state.previewMode
-                ? I18NextService.i18n.t("edit")
-                : I18NextService.i18n.t("preview")}
+              {I18NextService.i18n.t("toggle_preview")}
             </button>
           </div>
           {this.props.replyType && (
