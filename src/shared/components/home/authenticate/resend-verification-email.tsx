@@ -1,4 +1,4 @@
-import { setIsoData } from "@utils/app";
+import { setIsoData, WithHead } from "@utils/app";
 import { validEmail } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import { Link, RouteComponentProps, RouterContext } from "inferno-router";
@@ -10,7 +10,7 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "@services/HttpService";
-import { HtmlTags } from "../../common/html-tags";
+import { htmlTags } from "../../common/html-tags";
 import { Spinner } from "../../common/icon";
 import { simpleScrollMixin } from "../../mixins/scroll-mixin";
 
@@ -21,7 +21,7 @@ interface State {
 
 @simpleScrollMixin
 export class ResendVerificationEmail extends Component<
-  RouteComponentProps<Record<string, never>>,
+  RouteComponentProps<Record<string, never>> & WithHead,
   State
 > {
   private isoData = setIsoData(this.context);
@@ -57,12 +57,13 @@ export class ResendVerificationEmail extends Component<
     const { email, resendRes } = this.state;
     const loading = resendRes.state === "loading";
     const title = I18NextService.i18n.t("resend_verification_email");
+    htmlTags({
+      head: this.props.head,
+      title: `${title} - ${this.isoData.siteRes?.site_view.site.name}`,
+      context: this.context as RouterContext,
+    });
     return (
       <div className="container-lg">
-        <HtmlTags
-          title={`${title} - ${this.isoData.siteRes?.site_view.site.name}`}
-          context={this.context as RouterContext}
-        />
         <div className="col-12 col-lg-6 col-md-8 m-auto">
           <h1 className="h4 mb-4">{title}</h1>
           <p>{I18NextService.i18n.t("resend_verification_email_help")}</p>
