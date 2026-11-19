@@ -1,4 +1,4 @@
-import { setIsoData, updateMyUserInfo } from "@utils/app";
+import { setIsoData, updateMyUserInfo, WithHead } from "@utils/app";
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import { GetSiteResponse, SuccessResponse } from "lemmy-js-client";
@@ -8,12 +8,14 @@ import {
   LOADING_REQUEST,
   RequestState,
 } from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import PasswordInput from "../common/password-input";
 import { toast } from "@utils/app";
 import { simpleScrollMixin } from "../mixins/scroll-mixin";
 import { RouteComponentProps, RouterContext } from "inferno-router";
+
+type RouteProps = RouteComponentProps<Record<string, never>> & WithHead;
 
 interface State {
   passwordChangeRes: RequestState<SuccessResponse>;
@@ -26,10 +28,7 @@ interface State {
 }
 
 @simpleScrollMixin
-export class PasswordChange extends Component<
-  RouteComponentProps<Record<string, never>>,
-  State
-> {
+export class PasswordChange extends Component<RouteProps, State> {
   private isoData = setIsoData(this.context);
 
   state: State = {
@@ -47,12 +46,14 @@ export class PasswordChange extends Component<
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="password-change container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3 mb-4">
             <h1 className="h4 mb-4">

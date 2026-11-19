@@ -44,6 +44,7 @@ import {
   FilterChipDropdown,
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
+import { Separator } from "@components/common/separators";
 
 interface SiteFormProps {
   showLocal?: boolean;
@@ -236,6 +237,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </label>
           <div className="col-12">
             <MarkdownTextArea
+              typeAndId={{ type_: "site_sidebar" }}
               initialContent={this.state.siteForm.sidebar}
               onContentChange={val => handleSiteSidebarChange(this, val)}
               hideNavigationWarnings
@@ -252,6 +254,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           </label>
           <div className="col-12">
             <MarkdownTextArea
+              typeAndId={{ type_: "site_legal" }}
               initialContent={this.state.siteForm.legal_information}
               onContentChange={val => handleSiteLegalInfoChange(this, val)}
               hideNavigationWarnings
@@ -273,7 +276,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <hr />
+        <Separator />
         <h5 className="card-title mb-3">{I18NextService.i18n.t("content")}</h5>
         <div className="mb-3 row">
           <div className="col-12">
@@ -315,6 +318,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
               </label>
               <div className="col-12">
                 <MarkdownTextArea
+                  typeAndId={{ type_: "site_content_warning" }}
                   initialContent={this.state.siteForm.content_warning}
                   onContentChange={val =>
                     handleSiteContentWarningChange(this, val)
@@ -364,7 +368,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
           urls={this.state.siteForm.blocked_urls ?? []}
           onUpdate={urls => handleBlockedUrlsUpdate(this, urls)}
         />
-        <hr />
+        <Separator />
         <h5 className="card-title mb-3">{I18NextService.i18n.t("voting")}</h5>
         <div className="mb-3 row align-items-center">
           {(
@@ -399,7 +403,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </>
           ))}
         </div>
-        <hr />
+        <Separator />
         <h5 className="card-title mb-3">
           {I18NextService.i18n.t("registration")}
         </h5>
@@ -420,6 +424,9 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </label>
             <div className="col-12">
               <MarkdownTextArea
+                typeAndId={{
+                  type_: "site_application_question",
+                }}
                 initialContent={this.state.siteForm.application_question}
                 onContentChange={val =>
                   handleSiteApplicationQuestionChange(this, val)
@@ -478,7 +485,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <hr />
+        <Separator />
         <h5 className="card-title mb-3">
           {I18NextService.i18n.t("look_and_feel")}
         </h5>
@@ -653,7 +660,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             </div>
           </>
         )}
-        <hr />
+        <Separator />
         <h5 className="card-title mb-3">
           {I18NextService.i18n.t("sorting_and_filtering")}
         </h5>
@@ -739,7 +746,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <hr />
+        <Separator />
         <h5 className="card-title mb-3">
           {I18NextService.i18n.t("notifications")}
         </h5>
@@ -772,7 +779,7 @@ export class SiteForm extends Component<SiteFormProps, SiteFormState> {
             />
           </div>
         </div>
-        <hr />
+        <Separator />
         <h5 className="card-title mb-3">
           {I18NextService.i18n.t("federation")}
         </h5>

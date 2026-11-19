@@ -127,6 +127,10 @@ export class RegistrationApplication extends Component<
             </label>
             <div className="col-sm-10">
               <MarkdownTextArea
+                typeAndId={{
+                  type_: "registration_application_deny",
+                  id: ra.id,
+                }}
                 initialContent={this.state.denyReason}
                 onContentChange={val => handleDenyReasonChange(this, val)}
                 hideNavigationWarnings

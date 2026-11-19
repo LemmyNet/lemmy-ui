@@ -2,6 +2,7 @@ import { getQueryString, hostname } from "@utils/helpers";
 import { amAdmin, amMod } from "@utils/roles";
 import { Component, FormEvent } from "inferno";
 import { T } from "inferno-i18next-dess";
+import { NoOptionI18nKeys } from "i18next";
 import {
   BlockCommunity,
   CommunityModeratorView,
@@ -59,6 +60,8 @@ interface SidebarState {
   removeExpires?: string;
   showPurgeDialog: boolean;
   showReportModal: boolean;
+  reportLoading: boolean;
+  reportError?: string;
   searchText: string;
   notifications: CommunityNotificationsMode;
 }
@@ -67,6 +70,7 @@ interface SidebarState {
 export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
   state: SidebarState = {
     showReportModal: false,
+    reportLoading: false,
     searchText: "",
     notifications:
       this.props.communityView?.community_actions?.notifications ??
@@ -247,6 +251,8 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
                     onSubmit={reason => handleSubmitReport(this, reason)}
                     onCancel={() => handleHideReportModal(this)}
                     show={this.state.showReportModal}
+                    loading={this.state.reportLoading}
+                    error={this.state.reportError}
                   />
                 </div>
               </section>
@@ -436,19 +442,36 @@ function handleSearchSubmit(
 }
 
 function handleShowReportModal(i: CommunitySidebar) {
-  i.setState({ showReportModal: true });
+  i.setState({ showReportModal: true, reportError: undefined });
 }
 
 function handleHideReportModal(i: CommunitySidebar) {
-  i.setState({ showReportModal: false });
+  i.setState({ showReportModal: false, reportError: undefined });
 }
 
 async function handleSubmitReport(i: CommunitySidebar, reason: string) {
+  i.setState({ reportLoading: true, reportError: undefined });
+
   const res = await HttpService.client.createCommunityReport({
     community_id: i.props.communityView.community.id,
     reason,
   });
-  reportToast(res);
+
+  if (res.state === "success") {
+    i.setState({
+      showReportModal: false,
+      reportLoading: false,
+      reportError: undefined,
+    });
+    reportToast(res);
+  } else if (res.state === "failed") {
+    i.setState({
+      reportLoading: false,
+      reportError: I18NextService.i18n.t(res.err.name as NoOptionI18nKeys),
+    });
+  } else {
+    i.setState({ reportLoading: false });
+  }
 }
 
 function handleShowRemoveDialog(i: CommunitySidebar) {

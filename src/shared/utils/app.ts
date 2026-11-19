@@ -68,6 +68,7 @@ import { httpBackendUrl } from "./env";
 import { RequestState } from "@services/HttpService";
 import { NoOptionI18nKeys } from "i18next";
 import { StaticRouter } from "inferno-router";
+import { Unhead } from "unhead/client";
 
 export function buildCommentsTree<T extends CommentSlimView>(
   comments: T[],
@@ -621,6 +622,13 @@ export function setIsoData<T extends RouteData>(context: any): IsoData<T> {
     return staticContext as unknown as IsoData<T>;
   }
 }
+
+/**
+ * A helper for reading / writing html tags from the props.
+ **/
+export type WithHead = {
+  head: Unhead;
+};
 
 export function updateMyUserInfo(myUserInfo: MyUserInfo | undefined) {
   if (isBrowser()) {

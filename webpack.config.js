@@ -123,7 +123,7 @@ module.exports = (env, argv) => {
       chunkLoading: false, // everything bundled
     },
     target: "node",
-    externals: [nodeExternals(), "inferno-helmet"],
+    externals: [nodeExternals()],
     plugins: [...base.plugins],
   };
 

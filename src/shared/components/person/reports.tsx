@@ -4,6 +4,7 @@ import {
   getUncombinedReport,
   setIsoData,
   toast,
+  WithHead,
 } from "@utils/app";
 import { resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -44,7 +45,7 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { CommentReport } from "../comment/comment-report";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { ListView } from "../common/list-view";
 import { PostReport } from "../post/post-report";
@@ -65,6 +66,7 @@ import {
   FilterOption,
 } from "@components/common/filter-chip-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { Separator } from "@components/common/separators";
 
 type ReportsData = RouteDataResponse<{
   reportsRes: PagedResponse<ReportCombinedView>;
@@ -90,7 +92,8 @@ interface ReportsState {
 }
 
 type ReportsRouteProps = RouteComponentProps<Record<string, never>> &
-  Record<string, never>;
+  Record<string, never> &
+  WithHead;
 export type ReportsFetchConfig = IRoutePropsWithFetch<
   ReportsData,
   Record<string, never>,
@@ -176,6 +179,12 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
   render() {
     const banFromCommunityForm = this.state.banFromCommunityForm;
     const adminBanForm = this.state.adminBanForm;
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="person-reports container-lg d-flex flex-column fl-1">
         {banFromCommunityForm && (
@@ -203,10 +212,6 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         )}
         <div className="row fl-1">
           <div className="col-12 d-flex flex-column fl-1">
-            <HtmlTags
-              title={this.documentTitle}
-              context={this.context as RouterContext}
-            />
             <h1 className="h4 mb-4">{I18NextService.i18n.t("reports")}</h1>
             {this.selects()}
             {this.section}
@@ -368,7 +373,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
         state={reportsRes}
         renderItem={i => (
           <>
-            <hr />
+            <Separator />
             {this.renderItemType(i)}
           </>
         )}
@@ -399,7 +404,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(cr => (
               <>
-                <hr />
+                <Separator />
                 <CommentReport
                   key={cr.comment_report.id}
                   report={cr}
@@ -443,7 +448,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(pr => (
               <>
-                <hr />
+                <Separator />
                 <PostReport
                   key={pr.post_report.id}
                   enableNsfw={enableNsfw(siteRes)}
@@ -487,7 +492,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(pmr => (
               <>
-                <hr />
+                <Separator />
                 <PrivateMessageReport
                   key={pmr.private_message_report.id}
                   report={pmr}
@@ -523,7 +528,7 @@ export class Reports extends Component<ReportsRouteProps, ReportsState> {
           <div>
             {reports.map(cr => (
               <>
-                <hr />
+                <Separator />
                 <CommunityReport
                   key={cr.community_report.id}
                   report={cr}

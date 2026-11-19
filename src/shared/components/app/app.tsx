@@ -1,4 +1,4 @@
-import { isAnonymousPath, isAuthPath, setIsoData } from "@utils/app";
+import { isAnonymousPath, isAuthPath, setIsoData, WithHead } from "@utils/app";
 import { Component, createRef, InfernoMouseEvent } from "inferno";
 import { Provider } from "inferno-i18next-dess";
 import { Route, Switch } from "inferno-router";
@@ -28,10 +28,10 @@ function handleJumpToContent(
   app.contentRef.current?.focus();
 }
 
-interface AppProps {
+type AppProps = {
   dateFnsLocale: Locale;
   i18n: i18n;
-}
+} & WithHead;
 
 export default class App extends Component<AppProps, object> {
   private isoData: IsoDataOptionalSite = setIsoData(this.context);
@@ -108,14 +108,26 @@ export default class App extends Component<AppProps, object> {
                       {...routeProps}
                       myUserInfo={this.isoData.myUserInfo}
                     >
-                      <RouteComponent key={key} {...queryProps} />
+                      <RouteComponent
+                        key={key}
+                        head={this.props.head}
+                        {...queryProps}
+                      />
                     </AuthGuard>
                   ) : isAnonymousPath(path ?? "") ? (
                     <AnonymousGuard myUserInfo={this.isoData.myUserInfo}>
-                      <RouteComponent key={key} {...queryProps} />
+                      <RouteComponent
+                        key={key}
+                        head={this.props.head}
+                        {...queryProps}
+                      />
                     </AnonymousGuard>
                   ) : (
-                    <RouteComponent key={key} {...queryProps} />
+                    <RouteComponent
+                      key={key}
+                      head={this.props.head}
+                      {...queryProps}
+                    />
                   ))}
               </div>
             </ErrorGuard>
@@ -153,6 +165,7 @@ export default class App extends Component<AppProps, object> {
             </button>
             {siteView && (
               <Theme
+                head={this.props.head}
                 defaultTheme={siteView.local_site.default_theme}
                 myUserInfo={this.isoData.myUserInfo}
               />

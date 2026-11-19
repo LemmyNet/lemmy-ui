@@ -1,4 +1,9 @@
-import { editMultiCommunity, setIsoData, showLocal } from "@utils/app";
+import {
+  editMultiCommunity,
+  setIsoData,
+  showLocal,
+  WithHead,
+} from "@utils/app";
 import {
   getQueryParams,
   getQueryString,
@@ -30,7 +35,7 @@ import {
   RequestState,
   wrapClient,
 } from "@services/HttpService";
-import { HtmlTags } from "@components/common/html-tags";
+import { htmlTags } from "@components/common/html-tags";
 import { Icon, Spinner } from "@components/common/icon";
 import { MultiCommunitiesSortDropdown } from "@components/common/sort-dropdown";
 import { SubscribeButton } from "@components/common/subscribe-button";
@@ -45,6 +50,7 @@ import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { MultiCommunityLink } from "./multi-community-link";
 import { MultiCommunityListingTypeDropdown } from "@components/common/multi-community-listing-type-dropdown";
 import { CreateMultiCommunityButton } from "@components/common/content-actions/create-item-buttons";
+import { Separator } from "@components/common/separators";
 
 type MultiCommunitiesData = RouteDataResponse<{
   listMultiCommunitiesRes: PagedResponse<MultiCommunityView>;
@@ -84,7 +90,7 @@ export function getMultiCommunitiesQueryParams(source?: string): Props {
 }
 
 type PathProps = Record<string, never>;
-type RouteProps = RouteComponentProps<PathProps> & Props;
+type RouteProps = RouteComponentProps<PathProps> & Props & WithHead;
 export type MultiCommunitiesFetchConfig = IRoutePropsWithFetch<
   MultiCommunitiesData,
   PathProps,
@@ -193,7 +199,7 @@ export class MultiCommunities extends Component<RouteProps, State> {
                     />
                   </div>
                 </div>
-                <hr />
+                <Separator />
               </>
             ))}
           </div>
@@ -206,12 +212,14 @@ export class MultiCommunities extends Component<RouteProps, State> {
     const { listingType, sort } = this.props;
     const myUserInfo = this.isoData.myUserInfo;
 
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="multi-communities container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <div>
           <h1 className="h4 mb-4">
             {I18NextService.i18n.t("multi_communities")}

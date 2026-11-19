@@ -3,6 +3,7 @@ import {
   enableNsfw,
   filterCommunitySelection,
   setIsoData,
+  WithHead,
 } from "@utils/app";
 import {
   bareRoutePush,
@@ -38,7 +39,7 @@ import {
   WrappedLemmyHttp,
   wrapClient,
 } from "../../services/HttpService";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { PostForm } from "./post-form";
 import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
@@ -106,7 +107,8 @@ interface CreatePostState {
 
 type CreatePostPathProps = Record<string, never>;
 type CreatePostRouteProps = RouteComponentProps<CreatePostPathProps> &
-  CreatePostProps;
+  CreatePostProps &
+  WithHead;
 export type CreatePostFetchConfig = IRoutePropsWithFetch<
   CreatePostData,
   CreatePostPathProps,
@@ -254,12 +256,15 @@ export class CreatePost extends Component<
     const selectedCommunityChoice = selectedCommunity
       ? communityToChoice(selectedCommunity)
       : undefined;
+
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="create-post container-lg" key={resetCounter}>
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <div className="row">
           <div id="createPostForm" className="col-12 col-lg-6 offset-lg-2 mb-4">
             <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>

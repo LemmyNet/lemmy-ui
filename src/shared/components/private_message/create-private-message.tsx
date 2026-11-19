@@ -1,4 +1,4 @@
-import { getRecipientIdFromProps, setIsoData } from "@utils/app";
+import { getRecipientIdFromProps, setIsoData, WithHead } from "@utils/app";
 import { RouteDataResponse } from "@utils/types";
 import { Component, InfernoNode } from "inferno";
 import {
@@ -18,7 +18,7 @@ import {
   wrapClient,
 } from "@services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Spinner } from "../common/icon";
 import { PrivateMessageForm } from "./private-message-form";
 import { getHttpBaseInternal } from "../../utils/env";
@@ -42,7 +42,9 @@ interface CreatePrivateMessageState {
 
 type CreatePrivateMessagePathProps = { recipient_id: string };
 type CreatePrivateMessageRouteProps =
-  RouteComponentProps<CreatePrivateMessagePathProps> & Record<string, never>;
+  RouteComponentProps<CreatePrivateMessagePathProps> &
+    Record<string, never> &
+    WithHead;
 export type CreatePrivateMessageFetchConfig = IRoutePropsWithFetch<
   CreatePrivateMessageData,
   CreatePrivateMessagePathProps,
@@ -161,12 +163,14 @@ export class CreatePrivateMessage extends Component<
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="create-private-message container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         {this.renderRecipientRes()}
       </div>
     );

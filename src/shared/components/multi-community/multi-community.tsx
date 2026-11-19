@@ -10,6 +10,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  WithHead,
 } from "@utils/app";
 import {
   getQueryParams,
@@ -74,7 +75,7 @@ import {
 } from "../../services/HttpService";
 import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { PostSortDropdown } from "../common/sort-dropdown";
 import { PostListings } from "../post/post-listings";
@@ -168,7 +169,7 @@ function getShowHiddenFromQuery(hidden: string | undefined): boolean {
 }
 
 type PathProps = { name: string };
-type RouteProps = RouteComponentProps<PathProps> & Props;
+type RouteProps = RouteComponentProps<PathProps> & Props & WithHead;
 export type MultiCommunityFetchConfig = IRoutePropsWithFetch<
   MultiCommunityData,
   PathProps,
@@ -304,17 +305,17 @@ export class MultiCommunity extends Component<RouteProps, State> {
     const res =
       this.state.multiCommunityRes.state === "success" &&
       this.state.multiCommunityRes.data;
+    if (res) {
+      htmlTags({
+        head: this.props.head,
+        title: this.documentTitle,
+        context: this.context as RouterContext,
+        canonicalPath: res.multi_community_view.multi.ap_id,
+        description: res.multi_community_view.multi.summary,
+      });
+    }
     return (
       <>
-        {res && (
-          <HtmlTags
-            title={this.documentTitle}
-            context={this.context as RouterContext}
-            canonicalPath={res.multi_community_view.multi.ap_id}
-            description={res.multi_community_view.multi.summary}
-          />
-        )}
-
         {this.multiCommunityInfo()}
         <div className="d-block d-md-none">
           <button

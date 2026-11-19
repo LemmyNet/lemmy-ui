@@ -3,6 +3,7 @@ import {
   searchUsers,
   personToChoice,
   setIsoData,
+  WithHead,
 } from "@utils/app";
 import {
   resourcesSettled,
@@ -61,7 +62,7 @@ import { getHttpBaseInternal } from "../../utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
 import { isBrowser } from "@utils/browser";
 import classNames from "classnames";
-import { HtmlTags } from "@components/common/html-tags";
+import { htmlTags } from "@components/common/html-tags";
 import Tabs from "@components/common/tabs";
 import { CommunityForm } from "./community-form";
 import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
@@ -76,6 +77,7 @@ import { NoOptionI18nKeys } from "i18next";
 import { CommunityLink } from "./community-link";
 import { FilterChipSelect } from "@components/common/filter-chip-select";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { Separator } from "@components/common/separators";
 type CommunitySettingsData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
   followersRes: PagedResponse<PersonView>;
@@ -108,7 +110,7 @@ interface Props {
 }
 
 type PathProps = { name: string };
-type RouteProps = RouteComponentProps<PathProps> & Props;
+type RouteProps = RouteComponentProps<PathProps> & Props & WithHead;
 export type CommunitySettingsFetchConfig = IRoutePropsWithFetch<
   CommunitySettingsData,
   PathProps,
@@ -118,7 +120,7 @@ export type CommunitySettingsFetchConfig = IRoutePropsWithFetch<
 type FollowersListProps = {
   followers: PersonView[];
   myUserInfo?: MyUserInfo;
-};
+} & WithHead;
 
 function FollowersList({ followers, myUserInfo }: FollowersListProps) {
   const nameCols = "col-6 col-md-3";
@@ -172,7 +174,7 @@ function FollowersList({ followers, myUserInfo }: FollowersListProps) {
               )}
             </div>
           </div>
-          <hr key={person.person.id + "hr"} />
+          <Separator key={person.person.id + "hr"} />
         </>
       ))}
     </div>
@@ -315,6 +317,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
             <FollowersList
               followers={this.state.followersRes.data.items}
               myUserInfo={this.isoData.myUserInfo}
+              head={this.props.head}
             />
             <PaginatorCursor
               current={this.state.followersCursor}
@@ -330,12 +333,14 @@ export class CommunitySettings extends Component<RouteProps, State> {
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="community-settings container">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <Tabs
           tabs={[
             {
@@ -380,7 +385,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
                   id="followers-tab-pane"
                 >
                   {this.followersList()}
-                  <hr />
+                  <Separator />
                 </div>
               ),
             },
@@ -647,7 +652,7 @@ export class CommunitySettings extends Component<RouteProps, State> {
               </div>
             ))}
         </div>
-        <hr />
+        <Separator />
         <div className="row mb-4">
           <div className="col-12 col-md-4">
             <FilterChipSelect

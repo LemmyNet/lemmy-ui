@@ -14,6 +14,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  WithHead,
 } from "@utils/app";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import {
@@ -101,7 +102,7 @@ import {
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
 import { BannerIconHeader } from "../common/banner-icon-header";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { MomentTime } from "../common/moment-time";
 import { UserBadges } from "../common/user-badges";
@@ -320,7 +321,9 @@ function usernameIsPerson(username: string, person?: Person) {
 }
 
 type ProfilePathProps = { username: string };
-type ProfileRouteProps = RouteComponentProps<ProfilePathProps> & ProfileProps;
+type ProfileRouteProps = RouteComponentProps<ProfilePathProps> &
+  ProfileProps &
+  WithHead;
 export type ProfileFetchConfig = IRoutePropsWithFetch<
   ProfileData,
   ProfilePathProps,
@@ -671,16 +674,18 @@ export class Profile extends Component<ProfileRouteProps, ProfileState> {
           ? personRes.person_view.person.bio
           : "";
 
+        htmlTags({
+          head: this.props.head,
+          title: this.documentTitle,
+          context: this.context as RouterContext,
+          canonicalPath: personRes.person_view.person.ap_id,
+          description: bio,
+          image: personRes.person_view.person.avatar,
+        });
+
         return (
           <div className="row">
             <div className="col-12 col-md-8">
-              <HtmlTags
-                title={this.documentTitle}
-                context={this.context as RouterContext}
-                canonicalPath={personRes.person_view.person.ap_id}
-                description={bio}
-                image={personRes.person_view.person.avatar}
-              />
               {this.userInfo(personRes.person_view)}
               {this.selects}
               {isUpload && this.renderUploadsRes()}

@@ -4,6 +4,7 @@ import {
   searchUsers,
   personToChoice,
   setIsoData,
+  WithHead,
 } from "@utils/app";
 import {
   debounce,
@@ -47,7 +48,7 @@ import {
   RequestState,
   wrapClient,
 } from "../services/HttpService";
-import { HtmlTags } from "./common/html-tags";
+import { htmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { MomentTime } from "./common/moment-time";
 import { communityLink, CommunityLink } from "./community/community-link";
@@ -62,6 +63,7 @@ import { NoOptionI18nKeys } from "i18next";
 import { ModlogKindFilterDropdown } from "./common/modlog-kind-filter-dropdown";
 import { FilterChipSelect } from "./common/filter-chip-select";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
+import { Separator } from "./common/separators";
 
 const TIME_COLS = "col-6 col-md-2";
 const MOD_COLS = "col-6 col-md-4";
@@ -151,7 +153,7 @@ export function processModlogEntry(
         moderator,
         data: (
           <>
-            <span>Allowed instance</span>
+            <span>Allowed instance </span>
             <span>{target_instance?.domain}</span>
           </>
         ),
@@ -164,7 +166,7 @@ export function processModlogEntry(
         moderator,
         data: (
           <>
-            <span>Blocked Instance</span>
+            <span>Blocked Instance </span>
             <span>{target_instance?.domain}</span>
           </>
         ),
@@ -231,7 +233,7 @@ export function processModlogEntry(
         moderator,
         data: target_community && (
           <>
-            <span>Purged Post From</span>
+            <span>Purged Post From </span>
             <CommunityLink
               community={target_community}
               myUserInfo={myUserInfo}
@@ -384,7 +386,7 @@ export function processModlogEntry(
         moderator,
         data: target_community && (
           <>
-            <span>Change visibility of</span>
+            <span>Changed visibility of </span>
             <span>
               <CommunityLink
                 community={target_community}
@@ -574,7 +576,7 @@ export function processModlogEntry(
         moderator,
         data: target_community && target_person && (
           <>
-            <span>Transferred</span>
+            <span>Transferred </span>
             <span>
               <CommunityLink
                 community={target_community}
@@ -693,7 +695,9 @@ async function createNewOptions({
 }
 
 type ModlogPathProps = Record<string, never>;
-type ModlogRouteProps = RouteComponentProps<ModlogPathProps> & ModlogProps;
+type ModlogRouteProps = RouteComponentProps<ModlogPathProps> &
+  ModlogProps &
+  WithHead;
 export type ModlogFetchConfig = IRoutePropsWithFetch<
   ModlogData,
   ModlogPathProps,
@@ -856,7 +860,7 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
               <MomentTime published={published_at} />
             </div>
           </div>
-          <hr />
+          <Separator />
         </>
       );
     });
@@ -896,13 +900,13 @@ export class Modlog extends Component<ModlogRouteProps, ModlogState> {
     const communityResp =
       communityState === "success" && this.state.communityRes.data;
 
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
     return (
       <div className="modlog container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
-
         <h1 className="h4 mb-4">{I18NextService.i18n.t("modlog")}</h1>
 
         <div

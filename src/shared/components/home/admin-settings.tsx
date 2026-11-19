@@ -1,4 +1,4 @@
-import { fetchThemeList, setIsoData, showLocal } from "@utils/app";
+import { fetchThemeList, setIsoData, showLocal, WithHead } from "@utils/app";
 import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { RouteDataResponse } from "@utils/types";
@@ -38,7 +38,7 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import Tabs from "../common/tabs";
 import { PersonListing } from "../person/person-listing";
@@ -69,6 +69,7 @@ import {
 } from "@components/common/all-or-banned-dropdown";
 import { InstancesKindDropdown } from "@components/common/instances-kind-dropdown";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { Separator } from "@components/common/separators";
 
 type AdminSettingsData = RouteDataResponse<{
   usersRes: PagedResponse<LocalUserView>;
@@ -99,7 +100,8 @@ interface AdminSettingsState {
 }
 
 type AdminSettingsRouteProps = RouteComponentProps<Record<string, never>> &
-  Record<string, never>;
+  Record<string, never> &
+  WithHead;
 export type AdminSettingsFetchConfig = IRoutePropsWithFetch<
   AdminSettingsData,
   Record<string, never>,
@@ -190,12 +192,13 @@ export class AdminSettings extends Component<
   }
 
   render() {
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
     return (
       <div className="admin-settings container">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <Tabs
           tabs={[
             {
@@ -255,7 +258,7 @@ export class AdminSettings extends Component<
                 >
                   {this.userListTitleAndSelects()}
                   {this.userList()}
-                  <hr />
+                  <Separator />
                   {this.admins()}
                 </div>
               ),
@@ -516,7 +519,7 @@ export class AdminSettings extends Component<
                 <ResponsiveTableRowHeader title={"comments"} />
                 <div className={dataCols}>{admin.person.comment_count}</div>
               </div>
-              <hr key={admin.person.id + "hr"} />
+              <Separator key={admin.person.id + "hr"} />
             </>
           ))}
         </div>
@@ -632,7 +635,7 @@ export class AdminSettings extends Component<
                     {local_user.person.comment_count}
                   </div>
                 </div>
-                <hr key={local_user.person.id + "hr"} />
+                <Separator key={local_user.person.id + "hr"} />
               </>
             ))}
             <PaginatorCursor
@@ -818,14 +821,14 @@ export class AdminSettings extends Component<
               resource={this.state.instancesRes}
               onPageChange={cursor => handleInstancesPageChange(this, cursor)}
             />
-            <hr />
+            <Separator />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("block_instance")}
             </h1>
             <InstanceBlockForm
               onCreate={form => handleInstanceBlockCreate(this, form)}
             />
-            <hr />
+            <Separator />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("allow_instance")}
             </h1>

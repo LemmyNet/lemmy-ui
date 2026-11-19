@@ -2,25 +2,27 @@ import { Component, InfernoNode, RefObject, createRef } from "inferno";
 import { Modal } from "bootstrap";
 import { modalMixin } from "@components/mixins/modal-mixin";
 import { I18NextService } from "@services/I18NextService";
+import { randomStr } from "@utils/helpers";
 
 interface CommunityReportModalProps {
   onSubmit: (reason: string) => void;
   onCancel: () => void;
   show?: boolean;
+  loading?: boolean;
+  error?: string;
   children?: InfernoNode;
 }
 
 type CommunityReportModalState = object;
 
-function handleSubmit(i: CommunityReportModal, event?: Event) {
-  if (i.state.loading || !i.reasonRef.current?.value) {
-    event?.preventDefault();
+function handleSubmit(i: CommunityReportModal, event: Event) {
+  event.preventDefault();
+
+  if (i.props.loading || !i.reasonRef.current?.value.trim()) {
     return;
   }
 
-  i.setState({ loading: true });
   i.props.onSubmit(i.reasonRef.current.value);
-  i.setState({ loading: false });
 }
 
 @modalMixin
@@ -28,12 +30,10 @@ export default class CommunityReportModal extends Component<
   CommunityReportModalProps,
   CommunityReportModalState
 > {
-  state = {
-    loading: false,
-  };
-
   readonly modalDivRef: RefObject<HTMLDivElement>;
   readonly reasonRef: RefObject<HTMLInputElement>;
+  readonly formId = `community-report-form-${randomStr()}`;
+  readonly reasonId = `community-report-reason-${randomStr()}`;
   modal?: Modal;
 
   constructor(props: CommunityReportModalProps, context: object) {
@@ -44,6 +44,8 @@ export default class CommunityReportModal extends Component<
   }
 
   render() {
+    const { loading, error } = this.props;
+
     return (
       <div
         className="modal fade"
@@ -65,19 +67,16 @@ export default class CommunityReportModal extends Component<
               <form
                 onSubmit={event => handleSubmit(this, event)}
                 className="p-3 w-100 container"
-                id="community-report-form"
+                id={this.formId}
               >
                 <div className="row mb-3">
                   <div className="col">
-                    <label
-                      className="visually-hidden"
-                      htmlFor="community-report-reason"
-                    >
+                    <label className="visually-hidden" htmlFor={this.reasonId}>
                       {I18NextService.i18n.t("reason")}
                     </label>
                     <input
                       type="text"
-                      id="community-report-reason"
+                      id={this.reasonId}
                       className="form-control my-2 my-lg-0"
                       placeholder={I18NextService.i18n.t("reason")}
                       required
@@ -85,14 +84,22 @@ export default class CommunityReportModal extends Component<
                     />
                   </div>
                 </div>
+                {error && (
+                  <div
+                    className="alert alert-danger py-1 px-2 small text-start"
+                    role="alert"
+                  >
+                    {error}
+                  </div>
+                )}
               </form>
             </div>
             <footer className="modal-footer">
               <button
-                type="button"
+                type="submit"
+                form={this.formId}
                 className="btn btn-success"
-                onClick={event => handleSubmit(this, event)}
-                disabled={this.state.loading}
+                disabled={loading}
               >
                 {I18NextService.i18n.t("create_report")}
               </button>
@@ -100,6 +107,7 @@ export default class CommunityReportModal extends Component<
                 type="button"
                 className="btn btn-danger"
                 onClick={() => this.props.onCancel()}
+                disabled={loading}
               >
                 {I18NextService.i18n.t("cancel")}
               </button>
@@ -115,6 +123,9 @@ export default class CommunityReportModal extends Component<
   }
 
   handleHide() {
+    if (this.reasonRef.current) {
+      this.reasonRef.current.value = "";
+    }
     this.props.onCancel();
   }
 }

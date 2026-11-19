@@ -3,12 +3,12 @@ import { FilterChipDropdown, FilterOption } from "./filter-chip-dropdown";
 
 // There are actually 10 color options in the back end, but squash these down
 const tagColorOptions: FilterOption<TagColor>[] = [
-  { noI18n: "1", value: "color01" },
-  { noI18n: "2", value: "color02" },
-  { noI18n: "3", value: "color03" },
-  { noI18n: "4", value: "color04" },
-  { noI18n: "5", value: "color05" },
-  { noI18n: "6", value: "color06" },
+  { noI18n: "1", value: "color01", bgColor: "light" },
+  { noI18n: "2", value: "color02", bgColor: "primary" },
+  { noI18n: "3", value: "color03", bgColor: "info" },
+  { noI18n: "4", value: "color04", bgColor: "success" },
+  { noI18n: "5", value: "color05", bgColor: "warning" },
+  { noI18n: "6", value: "color06", bgColor: "danger" },
 ];
 
 type TagColorDropdownProps = {
@@ -42,7 +42,7 @@ export function tagColorToColorClass(tagColor: TagColor): string {
 function tagColorToBtnClasses(tagColor: TagColor): string {
   const colorClass = tagColorToColorClass(tagColor);
 
-  return `btn btn-sm bg-${colorClass}-subtle border-${colorClass}-subtle`;
+  return `btn btn-sm btn-${colorClass}`;
 }
 
 export function TagColorDropdown({

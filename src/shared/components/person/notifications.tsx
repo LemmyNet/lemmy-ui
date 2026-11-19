@@ -8,6 +8,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  WithHead,
 } from "@utils/app";
 import { capitalizeFirstLetter, resourcesSettled } from "@utils/helpers";
 import { scrollMixin } from "../mixins/scroll-mixin";
@@ -67,7 +68,7 @@ import {
   wrapClient,
 } from "../../services/HttpService";
 import { toast } from "@utils/app";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { ListView } from "../common/list-view";
 import { PrivateMessage } from "../private_message/private-message";
@@ -88,6 +89,8 @@ import {
 } from "@components/common/filter-chip-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import classNames from "classnames";
+import { NotificationStatusIndicator } from "../notifications/notification-status-indicator";
 
 const messageTypeOptions: FilterOption<NotificationTypeFilter>[] = [
   { value: "all", i18n: "all" },
@@ -123,7 +126,8 @@ interface NotificationsState {
 }
 
 type NotificationsRouteProps = RouteComponentProps<Record<string, never>> &
-  Record<string, never>;
+  Record<string, never> &
+  WithHead;
 export type NotificationsFetchConfig = IRoutePropsWithFetch<
   NotificationsData,
   Record<string, never>,
@@ -203,14 +207,17 @@ export class Notifications extends Component<
   render() {
     const feedToken = this.isoData.siteRes?.my_feed_token;
     const notifsRss = feedToken ? notificationsRSSUrl(feedToken) : undefined;
+
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="notifications container-lg d-flex flex-column fl-1">
         <div className="row fl-1">
           <div className="col-12 d-flex flex-column fl-1">
-            <HtmlTags
-              title={this.documentTitle}
-              context={this.context as RouterContext}
-            />
             <h1 className="h4 mb-4">
               {I18NextService.i18n.t("notifications")}
               {notifsRss && (
@@ -291,6 +298,7 @@ export class Notifications extends Component<
     const siteRes = this.state.siteRes;
     const data = item.data;
     const myUserInfo = this.isoData.myUserInfo;
+
     switch (data.type_) {
       case "comment":
         return (
@@ -311,6 +319,7 @@ export class Notifications extends Component<
             mutePersonName={false}
             muteCommunityName
             hideAvatar
+            noBorder
             markReadLoading={itemLoading(this.state.markCommentReadLoadingRes)}
             allLanguages={siteRes.all_languages}
             siteLanguages={siteRes.discussion_languages}
@@ -401,7 +410,7 @@ export class Notifications extends Component<
               mutePersonName={false}
               muteCommunityName
               hideAvatar={false}
-              viewOnly // TODO: comments do allow edits and moderation
+              viewOnly
               onPostEdit={() => {}}
               onPostModEdit={() => {}}
               onPostVote={() => {}}
@@ -443,12 +452,37 @@ export class Notifications extends Component<
     }
   }
 
+  renderStatusIndicatorAndItem(item: NotificationView): InfernoNode {
+    const data = item.data;
+    const myUserInfo = this.isoData.myUserInfo;
+    const isSentByMe =
+      data.type_ === "private_message" &&
+      myUserInfo?.local_user_view.person.id === data.creator.id;
+    const isUnread = !item.notification.read && !isSentByMe;
+
+    return (
+      <div
+        className={classNames(
+          "notification-row d-flex gap-3 py-2 px-3 border-bottom border-light-subtle",
+          isUnread && "bg-body-tertiary",
+        )}
+      >
+        <NotificationStatusIndicator
+          item={item}
+          isSentByMe={isSentByMe}
+          isUnread={isUnread}
+        />
+        <div className="flex-grow-1 min-w-0">{this.renderItemType(item)}</div>
+      </div>
+    );
+  }
+
   all(): InfernoNode {
     const { notifsRes } = this.state;
     return (
       <ListView
         state={notifsRes}
-        renderItem={r => this.renderItemType(r)}
+        renderItem={r => this.renderStatusIndicatorAndItem(r)}
         emptyIcon="bell"
         emptyTranslationKey="no_notifications_unread"
         loadingNode={<CommentsLoadingSkeleton />}

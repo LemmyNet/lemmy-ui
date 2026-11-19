@@ -15,6 +15,7 @@ import {
   setIsoData,
   updateCommunityBlock,
   updatePersonBlock,
+  WithHead,
 } from "@utils/app";
 import { T } from "inferno-i18next-dess";
 import {
@@ -103,7 +104,7 @@ import { tippyMixin } from "../mixins/tippy-mixin";
 import { toast } from "@utils/app";
 import { CommentNodes } from "../comment/comment-nodes";
 import { PostOrCommentTypeDropdown } from "../common/post-or-comment-type-dropdown";
-import { HtmlTags } from "../common/html-tags";
+import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { PostSortDropdown, CommentSortDropdown } from "../common/sort-dropdown";
 import { SiteSidebar } from "../home/site-sidebar";
@@ -137,6 +138,7 @@ import {
 } from "@components/common/filter-chip-checkbox";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 import { CommunityTagDropdown } from "@components/common/community-tag-dropdown";
+import { Offcanvas } from "../common/offcanvas/offcanvas";
 
 type CommunityData = RouteDataResponse<{
   communityRes: GetCommunityResponse;
@@ -248,7 +250,8 @@ function getHidePostsWithMediaFromQuery(
 
 type CommunityPathProps = { name: string };
 type CommunityRouteProps = RouteComponentProps<CommunityPathProps> &
-  CommunityProps;
+  CommunityProps &
+  WithHead;
 export type CommunityFetchConfig = IRoutePropsWithFetch<
   CommunityData,
   CommunityPathProps,
@@ -509,20 +512,19 @@ export class Community extends Component<CommunityRouteProps, State> {
     const res =
       this.state.communityRes.state === "success" &&
       this.state.communityRes.data;
-    return (
-      <>
-        {res && (
-          <HtmlTags
-            title={this.documentTitle}
-            context={this.context as RouterContext}
-            canonicalPath={res.community_view.community.ap_id}
-            description={res.community_view.community.summary}
-            image={res.community_view.community.icon}
-          />
-        )}
-        {this.communityInfo()}
-      </>
-    );
+
+    if (res) {
+      htmlTags({
+        head: this.props.head,
+        title: this.documentTitle,
+        context: this.context as RouterContext,
+        canonicalPath: res.community_view.community.ap_id,
+        description: res.community_view.community.summary,
+        image: res.community_view.community.icon,
+      });
+    }
+
+    return this.communityInfo();
   }
 
   render() {
@@ -540,7 +542,7 @@ export class Community extends Component<CommunityRouteProps, State> {
               <>
                 {this.renderCommunity()}
                 {this.selects()}
-                {this.mobileSidebar(canViewCommunity_)}
+                {this.mobileSidebar()}
                 {this.listings()}
                 <div className="row">
                   <div className="col">
@@ -585,12 +587,27 @@ export class Community extends Component<CommunityRouteProps, State> {
   }
 
   mobileSidebar(forceShow?: boolean) {
-    const showSidebar = forceShow || this.state.showSidebarMobile;
+    if (forceShow) {
+      return (
+        <div className="d-block d-md-none">
+          <div className="row">
+            <div className="col-12">{this.sidebar()}</div>
+          </div>
+        </div>
+      );
+    }
+
+    const { showSidebarMobile } = this.state;
+
     return (
       <div className="d-block d-md-none">
-        <div className="row">
-          <div className="col-12">{showSidebar && this.sidebar()}</div>
-        </div>
+        <Offcanvas
+          id="community-sidebar-offcanvas"
+          show={showSidebarMobile}
+          onClose={() => handleShowSidebarMobile(this, false)}
+        >
+          {this.sidebar()}
+        </Offcanvas>
       </div>
     );
   }

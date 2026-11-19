@@ -4,7 +4,6 @@ import { I18NextService } from "../../services";
 import { BannerIconHeader } from "../common/banner-icon-header";
 import { Icon } from "../common/icon";
 import { CommunityLink } from "./community-link";
-import { LoadingEllipses } from "../common/loading-ellipses";
 
 type CommunityHeaderProps = {
   community?: Community;
@@ -15,6 +14,8 @@ type CommunityHeaderProps = {
 export class CommunityHeader extends Component<CommunityHeaderProps> {
   render() {
     const { community, urlCommunityName } = this.props;
+    const title = community?.title ?? urlCommunityName;
+
     return (
       <div className="mb-2">
         {community && (
@@ -26,15 +27,11 @@ export class CommunityHeader extends Component<CommunityHeaderProps> {
             data-tippy-content={
               community?.posting_restricted_to_mods
                 ? I18NextService.i18n.t("community_locked")
-                : ""
+                : undefined
             }
+            data-tippy-placement={"bottom"}
           >
-            {community?.title ?? (
-              <>
-                {urlCommunityName}
-                <LoadingEllipses />
-              </>
-            )}
+            {title}
           </h1>
           {community?.posting_restricted_to_mods && (
             <Icon icon="lock" inline classes="text-danger fs-4 ms-2" />

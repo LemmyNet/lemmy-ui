@@ -10,6 +10,7 @@ import {
   searchUsers,
   setIsoData,
   showLocal,
+  WithHead,
 } from "@utils/app";
 import { scrollMixin } from "./mixins/scroll-mixin";
 import {
@@ -54,7 +55,7 @@ import {
   wrapClient,
 } from "../services/HttpService";
 import { CommentNodes } from "./comment/comment-nodes";
-import { HtmlTags } from "./common/html-tags";
+import { htmlTags } from "./common/html-tags";
 import { Icon, Spinner } from "./common/icon";
 import { PersonListing } from "./person/person-listing";
 import { PostListing } from "./post/post-listing";
@@ -72,6 +73,7 @@ import { SearchTypeDropdown } from "./common/search-type-dropdown";
 import { FilterChipCheckbox } from "./common/filter-chip-checkbox";
 import { NoOptionI18nKeys } from "i18next";
 import { FilterChipSelect } from "./common/filter-chip-select";
+import { Separator } from "./common/separators";
 
 interface SearchProps {
   q?: string;
@@ -185,7 +187,7 @@ const communityListing = (
             />
           </div>
         ))}
-        <hr className="border m-2" />
+        <Separator classes="m-2" />
       </>
     )
   );
@@ -213,7 +215,7 @@ const multiCommunityListing = (
             />
           </div>
         ))}
-        <hr className="border m-2" />
+        <Separator classes="m-2" />
       </>
     )
   );
@@ -247,7 +249,7 @@ const personListing = (
             />
           </div>
         ))}
-        <hr className="border m-2" />
+        <Separator classes="m-2" />
       </>
     )
   );
@@ -318,7 +320,7 @@ const postListing = (
             />
           </div>
         ))}
-        <hr className="border m-2" />
+        <Separator classes="m-2" />
       </>
     )
   );
@@ -387,14 +389,16 @@ const commentListing = (
             />
           </div>
         ))}
-        <hr className="border m-2" />
+        <Separator classes="m-2" />
       </>
     )
   );
 };
 
 type SearchPathProps = Record<string, never>;
-type SearchRouteProps = RouteComponentProps<SearchPathProps> & SearchProps;
+type SearchRouteProps = RouteComponentProps<SearchPathProps> &
+  SearchProps &
+  WithHead;
 export type SearchFetchConfig = IRoutePropsWithFetch<
   SearchData,
   SearchPathProps,
@@ -667,12 +671,14 @@ export class Search extends Component<SearchRouteProps, SearchState> {
   render() {
     const { type } = this.props;
 
+    htmlTags({
+      head: this.props.head,
+      title: this.documentTitle,
+      context: this.context as RouterContext,
+    });
+
     return (
       <div className="search container-lg">
-        <HtmlTags
-          title={this.documentTitle}
-          context={this.context as RouterContext}
-        />
         <h1 className="h4 mb-4">{I18NextService.i18n.t("search")}</h1>
         {this.selects}
         {this.searchForm}
