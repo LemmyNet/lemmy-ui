@@ -1,4 +1,6 @@
 import {
+  Community,
+  CommunityView,
   GetSiteResponse,
   ListingType,
   MyUserInfo,
@@ -12,6 +14,7 @@ import { ListingTypeDropdown } from "./listing-type-dropdown";
 import { PostSortDropdown } from "./sort-dropdown";
 import {
   allRSSUrl,
+  communityRSSUrl,
   hasFollows,
   localRSSUrl,
   showLocal,
@@ -21,6 +24,7 @@ import { getQueryString } from "@utils/helpers";
 import { relTags } from "@utils/config";
 import { Icon } from "./icon";
 import { I18NextService } from "@services/I18NextService";
+import { CommunityTagDropdown } from "./community-tag-dropdown";
 
 type GetPostsFilterBarProps = {
   listingType: ListingType;
@@ -28,9 +32,12 @@ type GetPostsFilterBarProps = {
   sort: PostSortType;
   time: Interval;
   siteRes: GetSiteResponse;
-  myUserInfo?: MyUserInfo;
-  showHidden?: boolean;
-  showRead?: boolean;
+  myUserInfo: MyUserInfo | undefined;
+  // If this is passed, it means its a community type feed
+  communityView: CommunityView | undefined;
+  communityTagId: number | undefined;
+  showHidden: boolean;
+  showRead: boolean;
   hidePostsWithMedia?: boolean;
   showSubscribedMobile: boolean;
   showSidebarMobile: boolean;
@@ -45,6 +52,7 @@ type GetPostsFilterBarProps = {
   onShowHiddenChange: (hidden: boolean) => void;
   onHideReadChange: (hideRead: boolean) => void;
   onHidePostsWithMediaChange: (hidePostsWithMedia: boolean) => void;
+  onCommunityTagIdChange: (id: string) => void;
 };
 export function GetPostsFilterBar({
   siteRes,
@@ -55,6 +63,8 @@ export function GetPostsFilterBar({
   time,
   showHidden,
   showRead,
+  communityView,
+  communityTagId,
   hidePostsWithMedia,
   showSubscribedMobile,
   showSidebarMobile,
@@ -69,13 +79,16 @@ export function GetPostsFilterBar({
   onShowHiddenChange,
   onHideReadChange,
   onHidePostsWithMediaChange,
+  onCommunityTagIdChange,
 }: GetPostsFilterBarProps) {
   const hideTimeSelect = sort === "new" || sort === "old";
+  const tags = communityView?.tags;
 
   return (
     <>
       {/* Only show these two selects on mobile */}
-      {hasFollows(myUserInfo) && (
+      {/* No need to show subscribed for community feeds */}
+      {hasFollows(myUserInfo) && !communityView && (
         <div className="d-block d-md-none col">
           <ExpandChipCheckbox
             option="subscribed"
@@ -99,19 +112,31 @@ export function GetPostsFilterBar({
           showLabel
         />
       </div>
-      <div className="col">
-        <ListingTypeDropdown
-          currentOption={listingType}
-          showLocal={showLocal(siteRes)}
-          showSubscribed
-          showSuggested={
-            !!siteRes.site_view.local_site.suggested_multi_community_id
-          }
-          showLabel
-          myUserInfo={myUserInfo}
-          onSelect={onListingTypeChange}
-        />
-      </div>
+      {/* No need to show the listing types for community feeds */}
+      {!communityView && (
+        <div className="col">
+          <ListingTypeDropdown
+            currentOption={listingType}
+            showLocal={showLocal(siteRes)}
+            showSubscribed
+            showSuggested={
+              !!siteRes.site_view.local_site.suggested_multi_community_id
+            }
+            showLabel
+            myUserInfo={myUserInfo}
+            onSelect={onListingTypeChange}
+          />
+        </div>
+      )}
+      {tags && tags.length > 0 && (
+        <div className="col">
+          <CommunityTagDropdown
+            tags={tags}
+            currentOption={communityTagId?.toString() ?? "0"}
+            onSelect={onCommunityTagIdChange}
+          />
+        </div>
+      )}
       <div className="col">
         <PostListingModeDropdown
           currentOption={listingMode}
@@ -125,7 +150,12 @@ export function GetPostsFilterBar({
         </div>
       )}
       <div className="col">
-        {getRss(listingType, sort, siteRes.my_feed_token)}
+        {getRss(
+          listingType,
+          sort,
+          communityView?.community,
+          siteRes.my_feed_token,
+        )}
       </div>
       {myUserInfo && (
         <button
@@ -173,23 +203,28 @@ export function GetPostsFilterBar({
 function getRss(
   listingType: ListingType,
   sort: PostSortType,
+  community?: Community,
   feedToken?: string,
 ) {
   let rss: string | undefined = undefined;
 
   const queryString = getQueryString({ sort });
-  switch (listingType) {
-    case "all": {
-      rss = allRSSUrl(queryString);
-      break;
-    }
-    case "local": {
-      rss = localRSSUrl(queryString);
-      break;
-    }
-    case "subscribed": {
-      rss = feedToken ? subscribedRSSUrl(feedToken, queryString) : undefined;
-      break;
+  if (community) {
+    rss = communityRSSUrl(community, sort);
+  } else {
+    switch (listingType) {
+      case "all": {
+        rss = allRSSUrl(queryString);
+        break;
+      }
+      case "local": {
+        rss = localRSSUrl(queryString);
+        break;
+      }
+      case "subscribed": {
+        rss = feedToken ? subscribedRSSUrl(feedToken, queryString) : undefined;
+        break;
+      }
     }
   }
 

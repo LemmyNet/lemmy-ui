@@ -882,11 +882,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             sort={sort}
             time={time}
             siteRes={siteRes}
+            communityView={undefined}
+            communityTagId={undefined}
             showSubscribedMobile={showSubscribedMobile}
             showSidebarMobile={showSidebarMobile}
             myUserInfo={myUserInfo}
-            showHidden={showHidden}
-            showRead={showRead}
+            showHidden={showHidden || true}
+            showRead={showRead || true}
             hidePostsWithMedia={hidePostsWithMedia}
             selectButtonsHidden={selectButtonsHidden}
             onShowSubscribedMobile={show =>
@@ -898,7 +900,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
               handleListingTypeChange(this, listingType)
             }
             onListingModeChange={listingMode =>
-              handlePostListingModeChange(this, listingMode)
+              handlePostListingModeChange(this, listingMode, myUserInfo)
             }
             onTimeIntervalChange={time => handleTimeChange(this, time)}
             onHideSelectButtons={() => handleHideSelectButtons(this)}
@@ -907,6 +909,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             onHidePostsWithMediaChange={hidePostsWithMedia =>
               handleHidePostsWithMediaChange(this, hidePostsWithMedia)
             }
+            onCommunityTagIdChange={() => {}}
           />
         )}
         {postOrCommentType === "comment" && (
@@ -1111,7 +1114,7 @@ function handleListingTypeChange(i: Home, val: ListingType) {
 async function handlePostListingModeChange(
   i: Home,
   val: PostListingMode,
-  myUserInfo?: MyUserInfo,
+  myUserInfo: MyUserInfo | undefined,
 ) {
   i.setState({ postListingMode: val });
 
