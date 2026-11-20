@@ -278,8 +278,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       lemmy-js-client:
-        specifier: 1.0.0-feed-only-jwt.0
-        version: 1.0.0-feed-only-jwt.0(supports-color@8.1.1)
+        specifier: 1.0.0-low-bandwidth-mode.2
+        version: 1.0.0-low-bandwidth-mode.2(supports-color@8.1.1)
       markdown-it:
         specifier: ^14.3.3
         version: 14.3.3
@@ -3737,8 +3737,8 @@ packages:
   leac@0.7.0:
     resolution: {integrity: sha512-qMrZeyEekgdRQ9o6a4NAB2EQZrv827GJdn1vnapwSJ90hWRB4TzUSunvacPkxQ2TnNqHNI1/zSt0hlo0crG8Jw==}
 
-  lemmy-js-client@1.0.0-feed-only-jwt.0:
-    resolution: {integrity: sha512-W0332G9GR2VkeNhTtJCpZ1QIvEHlo+16X9IxGZoq+aoF9M5158EuNjCiyIgi2cW6c2q2k7TpQjOZamTpRt7j/g==}
+  lemmy-js-client@1.0.0-low-bandwidth-mode.2:
+    resolution: {integrity: sha512-ZlfFPB8KJ0T6dWSOCBVbBLT3b7lLBL7jBHzMng6UTw2sOmaLBdZf1s2ZCFNBqOdS/4n7PSMS2ENuL5jADJzg4Q==}
 
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
@@ -8787,7 +8787,7 @@ snapshots:
 
   leac@0.7.0: {}
 
-  lemmy-js-client@1.0.0-feed-only-jwt.0(supports-color@8.1.1):
+  lemmy-js-client@1.0.0-low-bandwidth-mode.2(supports-color@8.1.1):
     dependencies:
       '@tsoa/runtime': 6.6.0(supports-color@8.1.1)
     transitivePeerDependencies:

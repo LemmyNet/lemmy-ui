@@ -6,9 +6,10 @@ import { I18NextService } from "@services/index";
 import {
   postIsInteractable,
   setIsoData,
+  toast,
   userNotLoggedInOrBanned,
 } from "@utils/app";
-import { share } from "@utils/browser";
+import { isBrowser, share } from "@utils/browser";
 import { futureDaysToUnixTime } from "@utils/date";
 import { httpFrontendUrl } from "@utils/env";
 import { unreadCommentsCount } from "@utils/helpers";
@@ -171,6 +172,12 @@ export function PostActionBar(props: PostActionBarProps, context: object) {
             handleShare(props.postView.post, setIsoData(context))
           }
           onMarkPostAsRead={() => handleMarkPostAsRead(props)}
+          onCopyMarkdownLink={() =>
+            handleCopyMarkdownLink(props.postView.post, setIsoData(context))
+          }
+          onCopyEmbedLink={() =>
+            handleCopyEmbedLink(props.postView.post, setIsoData(context))
+          }
         />
       </div>
     </div>
@@ -302,7 +309,9 @@ function crossPostBody(
     if (post.creator_id === myUserInfo?.local_user_view?.person?.id) {
       bodyOut = body;
     } else {
-      bodyOut = `${I18NextService.i18n.t("cross_posted_from_url", { ap_id: post.ap_id })}
+      bodyOut = `${I18NextService.i18n.t("cross_posted_from_url", {
+        ap_id: post.ap_id,
+      })}
       \n\n${body.replace(/^/gm, "> ")}`;
     }
   } else {
@@ -330,6 +339,30 @@ function handleMarkPostAsRead(props: PostActionBarProps) {
     post_id: props.postView.post.id,
     read,
   });
+}
+
+async function handleCopyMarkdownLink(
+  post: Post,
+  isoData: IsoDataOptionalSite,
+) {
+  if (isBrowser()) {
+    const { name, id } = post;
+
+    const postUrl = httpFrontendUrl(`/post/${id}`, isoData);
+    const markdownLinkCode = `[${name}](${postUrl})`;
+
+    await navigator.clipboard.writeText(markdownLinkCode);
+    toast(I18NextService.i18n.t("markdown_link_copied"));
+  }
+}
+
+async function handleCopyEmbedLink(post: Post, isoData: IsoDataOptionalSite) {
+  if (isBrowser()) {
+    const embedUrl = httpFrontendUrl(`/embed/post/${post.id}`, isoData);
+    const iframeCode = `<iframe src="${embedUrl}" style="border: none; width: 100%; max-width: 640px;" height="400" loading="lazy"></iframe>`;
+    await navigator.clipboard.writeText(iframeCode);
+    toast(I18NextService.i18n.t("embed_link_copied"));
+  }
 }
 
 function handleReport(i: PostActionBarProps, reason: string) {

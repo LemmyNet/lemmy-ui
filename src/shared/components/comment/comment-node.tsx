@@ -871,7 +871,7 @@ function CommentHeader({
         personActions={person_actions}
       />
       {language_id !== 0 && (
-        <span className="badge text-bg-light d-none d-sm-inline me-2">
+        <span className="badge text-bg-light d-none d-sm-inline mx-1">
           {allLanguages.find(lang => lang.id === language_id)?.name}
         </span>
       )}

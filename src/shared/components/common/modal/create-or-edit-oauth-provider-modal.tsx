@@ -258,6 +258,18 @@ export default class CreateOrEditOAuthProviderModal extends Component<
                     }
                   />
                   <ProviderTextField
+                    id="username-claim"
+                    i18nKey="oauth_username_claim"
+                    value={provider?.username_claim}
+                    disabled={data.type === "edit"}
+                    onInput={event =>
+                      handleTextPropertyChange(
+                        { modal: this, property: "username_claim" },
+                        event,
+                      )
+                    }
+                  />
+                  <ProviderTextField
                     id="client-secret"
                     i18nKey="oauth_client_secret"
                     onInput={event =>
