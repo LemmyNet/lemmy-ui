@@ -30,12 +30,16 @@ import {
   localStorageKeys,
   setLocalStorageItem,
 } from "@utils/local-storage";
+import {
+  bootstrapBreakpoints,
+  isBreakpointDown,
+  subscribeBreakpointDown,
+} from "@utils/breakpoints";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode } from "inferno";
-import { T } from "inferno-i18next-dess";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -155,6 +159,7 @@ interface HomeState {
   markPageAsReadLoading: boolean;
   postListingMode: PostListingMode;
   selectButtonsHidden: boolean;
+  isMobile: boolean;
 }
 
 interface HomeProps {
@@ -313,6 +318,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     markPageAsReadLoading: false,
     postListingMode: defaultPostListingMode(this.isoData),
     selectButtonsHidden: true,
+    isMobile: false,
   };
 
   loadingSettled(): boolean {
@@ -361,6 +367,14 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   componentDidMount() {
     restoreSidebarCollapseState(this);
+    if (isBreakpointDown(bootstrapBreakpoints.md)) {
+      this.setState({ isMobile: true });
+    }
+
+    this.unsubscribeMobileBreakpoint = subscribeBreakpointDown(
+      bootstrapBreakpoints.md,
+      isMobile => handleMobileMediaChange(this, isMobile),
+    );
   }
 
   static fetchInitialData = async ({
@@ -466,7 +480,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             </div>
             {/* Only show the sidebar on md or larger */}
             <aside className="d-none d-md-block col-md-4 col-lg-3">
-              {this.mySidebar}
+              {!this.state.isMobile && this.sidebarContent}
             </aside>
           </div>
         )}
@@ -484,14 +498,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     return !!mui && mui.multi_community_follows.length > 0;
   }
 
-  get mobileSidebarAndSubscribed() {
-    const {
-      siteRes: {
-        site_view: { local_site, site },
-        admins,
-      },
-      showSidebarMobile,
-    } = this.state;
+  get mobileSidebarDrawer() {
+    const { showSidebarMobile, isMobile } = this.state;
 
     return (
       <div className="d-block d-md-none">
@@ -500,30 +508,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           show={showSidebarMobile}
           onClose={() => handleShowSidebarMobile(this, false)}
         >
-          <SiteSidebar
-            site={site}
-            admins={admins}
-            localSite={local_site}
-            isMobile
-            myUserInfo={this.isoData.myUserInfo}
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
-            activePlugins={this.state.siteRes.active_plugins}
-          />
-          {this.hasFollows && (
-            <div className="card mb-3">{this.subscribedCommunities(true)}</div>
-          )}
-          {this.hasMultiFollows && (
-            <div className="card mb-3">
-              {this.subscribedMultiCommunities(true)}
-            </div>
-          )}
+          {isMobile && this.sidebarContent}
         </Offcanvas>
       </div>
     );
   }
 
-  get mySidebar() {
+  get sidebarContent() {
     const {
       siteRes: {
         site_view: { local_site, site },
@@ -541,6 +532,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           allLanguages={this.state.siteRes.all_languages}
           siteLanguages={this.state.siteRes.discussion_languages}
           activePlugins={this.state.siteRes.active_plugins}
+          isMobile={this.state.isMobile}
         />
         {this.hasFollows && (
           <div className="accordion">
@@ -576,11 +568,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             aria-expanded={!subscribedCollapsed}
             aria-controls={bodyId}
           >
-            <h6 className="mb-0">
-              <T className="d-inline" i18nKey="communities">
-                #<span>#</span>
-              </T>
-            </h6>
+            <h6 className="mb-0">{I18NextService.i18n.t("communities")}</h6>
             <Icon
               icon="chevrons-down"
               classes="icon-inline text-muted flex-shrink-0 ms-2 subscription-accordion-chevron"
@@ -705,7 +693,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       <div className="main-content-wrapper">
         <div>
           {this.selects}
-          {this.mobileSidebarAndSubscribed}
+          {this.mobileSidebarDrawer}
           {this.listings}
           <div className="row">
             <div className="col">
@@ -1576,4 +1564,11 @@ function restoreSidebarCollapseState(instance: Home) {
       subscribedMultisCollapsed,
     });
   }
+}
+
+function handleMobileMediaChange(instance: Home, isMobile: boolean) {
+  instance.setState({
+    isMobile,
+    showSidebarMobile: isMobile ? instance.state.showSidebarMobile : false,
+  });
 }
