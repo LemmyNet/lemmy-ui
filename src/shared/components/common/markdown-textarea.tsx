@@ -591,9 +591,11 @@ function handleInsertImage(i: MarkdownTextArea, url: string) {
   });
 }
 
-// Inserts text at cursor position, replaces selected text. The cursor moves
-// to the end of the inserted text. `moveStart` and `moveEnd` move the
-// selection relative to the new cursor position.
+/**
+ * Inserts text at cursor position, replaces selected text. The cursor moves to
+ * the end of the inserted text. `moveStart` and `moveEnd` move the selection
+ * relative to the new cursor position.
+ */
 function handleInsertText(
   i: MarkdownTextArea,
   text: string,
@@ -842,7 +844,7 @@ function handleInsertItalic(i: MarkdownTextArea) {
 
 function handleInsertCode(i: MarkdownTextArea) {
   if (i.getSelectedText().split(/\r*\n/).length > 1) {
-    handleSimpleSurround(i, "\n````\n");
+    handleSimpleSurround(i, "\n```\n");
   } else {
     handleSimpleSurround(i, "`");
   }
