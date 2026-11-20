@@ -20,8 +20,8 @@ export class ErrorPage extends Component<object, unknown> {
         </h1>
         {errorPageData ? (
           <T i18nKey="error_page_paragraph" className="p-4" parent="p">
-            #<a href="https://lemmy.ml/c/lemmy_support">#</a>#
-            <a href="https://matrix.to/#/#lemmy-space:matrix.org">#</a>#
+            <a href="https://lemmy.ml/c/lemmy_support">#</a>
+            <a href="https://matrix.to/#/#lemmy-space:matrix.org">#</a>
           </T>
         ) : (
           <p>{I18NextService.i18n.t("not_found_page_message")}</p>
