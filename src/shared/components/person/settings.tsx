@@ -45,6 +45,7 @@ import {
   CommunityId,
   MyUserInfo,
   UserSettingsBackup,
+  LowBandwidthMode,
 } from "lemmy-js-client";
 import { matrixUrl, fetchLimit, relTags } from "@utils/config";
 import { FirstLoadService, UserService } from "../../services";
@@ -102,6 +103,7 @@ import { InterfaceLanguageDropdown } from "@components/common/interface-language
 import { ThemeDropdown } from "@components/common/theme-dropdown";
 import { FilterChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { FilterChipSelect } from "@components/common/filter-chip-select";
+import { LowBandwidthModeDropdown } from "@components/common/low-bandwidth-mode-dropdown";
 
 type SettingsData = RouteDataResponse<{
   instancesRes: PagedResponse<FederatedInstanceView>;
@@ -1065,6 +1067,18 @@ export class Settings extends Component<SettingsRouteProps, SettingsState> {
               showLabel={false}
             />
           </div>
+          <label className="col-sm-3 col-form-label">
+            {I18NextService.i18n.t("low_bandwidth_mode")}
+          </label>
+          <div className="col-sm-9">
+            <LowBandwidthModeDropdown
+              currentOption={
+                this.state.saveUserSettingsForm.low_bandwidth_mode ?? "auto"
+              }
+              onSelect={val => handleLowBandwidthModeChange(this, val)}
+              showLabel={false}
+            />
+          </div>
         </div>
         <div className="row mb-3">
           <div className="col">
@@ -1969,6 +1983,10 @@ function handleDiscussionLanguageChange(i: Settings, val: number[]) {
 
 function handlePostListingModeChange(i: Settings, val: PostListingMode) {
   i.setState(s => ((s.saveUserSettingsForm.post_listing_mode = val), s));
+}
+
+function handleLowBandwidthModeChange(i: Settings, val: LowBandwidthMode) {
+  i.setState(s => ((s.saveUserSettingsForm.low_bandwidth_mode = val), s));
 }
 
 function handlePostSortTypeChange(i: Settings, val: PostSortType) {
