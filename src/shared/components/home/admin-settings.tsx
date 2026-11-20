@@ -19,7 +19,6 @@ import {
   EditOAuthProvider,
   EditSite,
   FederatedInstanceView,
-  GetSiteResponse,
   LemmyHttp,
   ListCustomEmojisResponse,
   LocalImageView,
@@ -27,6 +26,8 @@ import {
   EditTagline,
   PaginationCursor,
   GetFederatedInstancesKind,
+  MyUserInfo,
+  AddAdminResponse,
 } from "lemmy-js-client";
 import { InitialFetchRequest } from "@utils/types";
 import { FirstLoadService, I18NextService } from "../../services";
@@ -87,7 +88,7 @@ interface AdminSettingsState {
   instancesDomainFilter?: string;
   usersCursor?: PaginationCursor;
   allOrBanned: AllOrBanned;
-  leaveAdminTeamRes: RequestState<GetSiteResponse>;
+  leaveAdminTeamRes: RequestState<AddAdminResponse>;
   showConfirmLeaveAdmin: boolean;
   uploadsRes: RequestState<PagedResponse<LocalImageView>>;
   uploadsCursor?: PaginationCursor;
@@ -528,7 +529,7 @@ export class AdminSettings extends Component<
           message={I18NextService.i18n.t("leave_admin_team_confirmation")}
           loadingMessage={I18NextService.i18n.t("leaving_admin_team")}
           onNo={() => handleToggleShowLeaveAdminConfirmation(this)}
-          onYes={() => handleLeaveAdminTeam(this)}
+          onYes={() => handleLeaveAdminTeam(this, this.isoData.myUserInfo)}
           show={this.state.showConfirmLeaveAdmin}
         />
       </>
@@ -943,17 +944,25 @@ function handleToggleShowLeaveAdminConfirmation(i: AdminSettings) {
   }));
 }
 
-async function handleLeaveAdminTeam(i: AdminSettings) {
-  i.setState({ leaveAdminTeamRes: LOADING_REQUEST });
-  i.setState({
-    leaveAdminTeamRes: await HttpService.client.leaveAdmin(),
-  });
+async function handleLeaveAdminTeam(
+  i: AdminSettings,
+  myUserInfo: MyUserInfo | undefined,
+) {
+  if (myUserInfo) {
+    i.setState({ leaveAdminTeamRes: LOADING_REQUEST });
+    i.setState({
+      leaveAdminTeamRes: await HttpService.client.addAdmin({
+        person_id: myUserInfo.local_user_view.person.id,
+        added: false,
+      }),
+    });
 
-  if (i.state.leaveAdminTeamRes.state === "success") {
-    toast(I18NextService.i18n.t("left_admin_team"));
-    i.setState({ showConfirmLeaveAdmin: false });
-    const context = i.context as RouterContext;
-    context.router.history.replace("/");
+    if (i.state.leaveAdminTeamRes.state === "success") {
+      toast(I18NextService.i18n.t("left_admin_team"));
+      i.setState({ showConfirmLeaveAdmin: false });
+      const context = i.context as RouterContext;
+      context.router.history.replace("/");
+    }
   }
 }
 
