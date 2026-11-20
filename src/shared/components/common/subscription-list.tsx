@@ -142,7 +142,6 @@ export class CommunitySubscriptionLink extends Component<
 > {
   render() {
     const { community, myUserInfo, shouldUseFirstLetterFallback } = this.props;
-    const title = community.name || community.title;
     const { link, serverStr } = communityLink(community);
     const icon = community.icon;
     const hideAvatar =
@@ -155,7 +154,7 @@ export class CommunitySubscriptionLink extends Component<
     return (
       <SubscriptionLink
         to={link}
-        label={title}
+        label={community.name}
         serverStr={serverStr}
         iconSrc={!hideAvatar ? icon : undefined}
         nsfw={community.nsfw}
@@ -171,13 +170,12 @@ export class MultiCommunitySubscriptionLink extends Component<
 > {
   render() {
     const { multiCommunity, shouldUseFirstLetterFallback } = this.props;
-    const title = multiCommunity.title ?? multiCommunity.name;
     const { link, serverStr } = multiCommunityLink(multiCommunity);
 
     return (
       <SubscriptionLink
         to={link}
-        label={title}
+        label={multiCommunity.name}
         serverStr={serverStr}
         shouldUseFirstLetterFallback={shouldUseFirstLetterFallback}
       />

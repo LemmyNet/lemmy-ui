@@ -30,11 +30,7 @@ import {
   localStorageKeys,
   setLocalStorageItem,
 } from "@utils/local-storage";
-import {
-  bootstrapBreakpoints,
-  isBreakpointDown,
-  subscribeBreakpointDown,
-} from "@utils/breakpoints";
+import { isBreakpointDown, subscribeBreakpointDown } from "@utils/breakpoints";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
@@ -303,6 +299,7 @@ export type HomeFetchConfig = IRoutePropsWithFetch<
 @tippyMixin
 export class Home extends Component<HomeRouteProps, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
+  private unsubscribeMobileBreakpoint?: () => void;
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
@@ -367,14 +364,17 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   componentDidMount() {
     restoreSidebarCollapseState(this);
-    if (isBreakpointDown(bootstrapBreakpoints.md)) {
+    if (isBreakpointDown("md")) {
       this.setState({ isMobile: true });
     }
 
-    this.unsubscribeMobileBreakpoint = subscribeBreakpointDown(
-      bootstrapBreakpoints.md,
-      isMobile => handleMobileMediaChange(this, isMobile),
+    this.unsubscribeMobileBreakpoint = subscribeBreakpointDown("md", isMobile =>
+      handleMobileMediaChange(this, isMobile),
     );
+  }
+  componentWillUnmount() {
+    this.unsubscribeMobileBreakpoint?.();
+    this.unsubscribeMobileBreakpoint = undefined;
   }
 
   static fetchInitialData = async ({
