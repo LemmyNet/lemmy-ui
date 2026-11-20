@@ -1552,18 +1552,16 @@ function restoreSidebarCollapseState(instance: Home) {
   const subscribedCollapsed =
     getLocalStorageItem(
       localStorageKeys.homeSidebarSubscribedCommunitiesCollapsed,
-    ) !== "false";
+    ) === "true";
   const subscribedMultisCollapsed =
     getLocalStorageItem(
       localStorageKeys.homeSidebarMultiCommunitiesCollapsed,
-    ) !== "false";
+    ) === "true";
 
-  if (!subscribedCollapsed || !subscribedMultisCollapsed) {
-    instance.setState({
-      subscribedCollapsed,
-      subscribedMultisCollapsed,
-    });
-  }
+  instance.setState({
+    subscribedCollapsed,
+    subscribedMultisCollapsed,
+  });
 }
 
 function handleMobileMediaChange(instance: Home, isMobile: boolean) {
