@@ -36,12 +36,9 @@ import {
   linkTarget,
   mark_as_read_i18n,
   postIsInteractable,
-  setIsoData,
-  toast,
   userNotLoggedInOrBanned,
 } from "@utils/app";
 import { canShare } from "@utils/browser";
-import { httpFrontendUrl } from "@utils/env";
 
 // TODO there is no reason to try to combine these. It should be completely split into simple PostActionsDropdown, and CommentActionDropdowns, pushing up the simple forms.
 interface ContentActionDropdownPropsBase {
@@ -90,6 +87,8 @@ export type ContentPostProps = {
   onHidePost: () => void;
   onSharePost: () => void;
   onMarkPostAsRead: () => void;
+  onCopyMarkdownLink: () => void;
+  onCopyEmbedLink: () => void;
 } & ContentActionDropdownPropsBase;
 
 type ContentActionDropdownProps = ContentCommentProps | ContentPostProps;
@@ -301,11 +300,14 @@ export default class ContentActionDropdown extends Component<
                   <ActionButton
                     icon="code"
                     label={I18NextService.i18n.t("copy_embed_link")}
-                    onClick={() =>
-                      handleCopyEmbedLink(
-                        (this.props as ContentPostProps).postView,
-                      )
-                    }
+                    onClick={this.props.onCopyEmbedLink}
+                  />
+                )}
+                {type === "post" && (
+                  <ActionButton
+                    icon="code"
+                    label={I18NextService.i18n.t("copy_markdown_link")}
+                    onClick={this.props.onCopyMarkdownLink}
                   />
                 )}
                 {this.props.myUserInfo && (
@@ -1057,16 +1059,6 @@ export default class ContentActionDropdown extends Component<
     const { creator } = this.contentInfo;
     return canAdmin(creator.id, this.props.admins, this.props.myUserInfo, true);
   }
-}
-
-async function handleCopyEmbedLink(postView: PostView) {
-  const embedUrl = httpFrontendUrl(
-    `/embed/post/${postView.post.id}`,
-    setIsoData(window),
-  );
-  const iframeCode = `<iframe src="${embedUrl}" style="border: none; width: 100%; max-width: 640px;" height="400" loading="lazy"></iframe>`;
-  await navigator.clipboard.writeText(iframeCode);
-  toast(I18NextService.i18n.t("embed_link_copied"));
 }
 
 function handleDropdownToggleClick(i: ContentActionDropdown) {
