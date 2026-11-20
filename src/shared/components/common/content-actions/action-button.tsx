@@ -40,9 +40,9 @@ export default class ActionButton extends Component<
     return (
       <button
         className={classNames(
-          "btn btn-sm border-light-subtle",
+          "btn border-light-subtle",
           inline || inlineWithText
-            ? "btn-animate text-body"
+            ? "btn-sm btn-animate text-body"
             : "d-flex align-items-center rounded-0 dropdown-item",
         )}
         onClick={onClick}
@@ -54,7 +54,13 @@ export default class ActionButton extends Component<
           <Spinner />
         ) : (
           <>
-            <Icon classes={classNames(iconClass)} icon={icon} inline />
+            <Icon
+              classes={classNames(iconClass, {
+                "me-2": !inline || inlineWithText,
+              })}
+              icon={icon}
+              inline
+            />
             {(!inline || inlineWithText) && label}
           </>
         )}
