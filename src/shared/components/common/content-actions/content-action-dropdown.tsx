@@ -515,7 +515,7 @@ export default class ContentActionDropdown extends Component<
                   )}
                 <li>
                   <Link
-                    className="btn btn-light border-light-subtle btn-sm d-flex align-items-center rounded-0 dropdown-item"
+                    className="btn btn-light border-light-subtle d-flex align-items-center rounded-0 dropdown-item"
                     to={`/modlog?userId=${creator.id}`}
                     title={modHistoryUserTranslation}
                     aria-label={modHistoryUserTranslation}
@@ -527,7 +527,7 @@ export default class ContentActionDropdown extends Component<
                 </li>
                 <li>
                   <Link
-                    className="btn btn-light border-light-subtle btn-sm d-flex align-items-center rounded-0 dropdown-item"
+                    className="btn btn-light border-light-subtle d-flex align-items-center rounded-0 dropdown-item"
                     to={modHistoryItemLink}
                     title={modHistoryItemTranslation}
                     aria-label={modHistoryItemTranslation}
