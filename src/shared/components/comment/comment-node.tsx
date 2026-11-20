@@ -825,7 +825,7 @@ function CommentHeader({
   const {
     creator_banned_from_community,
     creator_banned,
-    comment: { deleted, removed, language_id, distinguished, locked, post_id },
+    comment: { language_id, distinguished, locked, post_id },
     creator,
     person_actions,
   } = node.view.comment_view;
@@ -883,22 +883,7 @@ function CommentHeader({
           <Icon icon="lock" classes="icon-inline" />
         </span>
       )}
-      {deleted && (
-        <span
-          className="mx-1"
-          data-tippy-content={I18NextService.i18n.t("deleted")}
-        >
-          <Icon icon={"trash"} classes="icon-inline" />
-        </span>
-      )}
-      {removed && (
-        <span
-          className="mx-1"
-          data-tippy-content={I18NextService.i18n.t("removed")}
-        >
-          <Icon icon={"x"} classes="icon-inline text-danger" />
-        </span>
-      )}
+      {/* Removed and deleted are already shown in the comment body, so no need for them in the header*/}
     </>
   );
 }
@@ -916,7 +901,7 @@ function CommentContent({
   const commentUnlessRemoved = comment.removed
     ? `*${I18NextService.i18n.t("removed")}*`
     : comment.deleted
-      ? `*${I18NextService.i18n.t("deleted")}*`
+      ? `*${I18NextService.i18n.t("comment_deleted")}*`
       : comment.content;
 
   return (
