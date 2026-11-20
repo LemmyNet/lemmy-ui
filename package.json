@@ -76,7 +76,7 @@
     "inferno-router": "^10.0.0",
     "inferno-server": "^10.0.0",
     "jwt-decode": "^4.0.0",
-    "lemmy-js-client": "1.0.0-low-bandwidth-mode.1",
+    "lemmy-js-client": "1.0.0-low-bandwidth-mode.2",
     "markdown-it": "^14.3.3",
     "markdown-it-bidi": "^0.2.0",
     "markdown-it-container": "^4.0.0",
