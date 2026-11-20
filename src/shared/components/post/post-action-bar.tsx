@@ -175,6 +175,9 @@ export function PostActionBar(props: PostActionBarProps, context: object) {
           onCopyMarkdownLink={() =>
             handleCopyMarkdownLink(props.postView.post, setIsoData(context))
           }
+          onCopyEmbedLink={() =>
+            handleCopyEmbedLink(props.postView.post, setIsoData(context))
+          }
         />
       </div>
     </div>
@@ -338,16 +341,27 @@ function handleMarkPostAsRead(props: PostActionBarProps) {
   });
 }
 
-function handleCopyMarkdownLink(post: Post, isoData: IsoDataOptionalSite) {
+async function handleCopyMarkdownLink(
+  post: Post,
+  isoData: IsoDataOptionalSite,
+) {
   if (isBrowser()) {
     const { name, id } = post;
 
     const postUrl = httpFrontendUrl(`/post/${id}`, isoData);
     const markdownLinkCode = `[${name}](${postUrl})`;
 
-    void navigator.clipboard
-      .writeText(markdownLinkCode)
-      .then(() => toast(I18NextService.i18n.t("markdown_link_copied")));
+    await navigator.clipboard.writeText(markdownLinkCode);
+    toast(I18NextService.i18n.t("markdown_link_copied"));
+  }
+}
+
+async function handleCopyEmbedLink(post: Post, isoData: IsoDataOptionalSite) {
+  if (isBrowser()) {
+    const embedUrl = httpFrontendUrl(`/embed/post/${post.id}`, isoData);
+    const iframeCode = `<iframe src="${embedUrl}" style="border: none; width: 100%; max-width: 640px;" height="400" loading="lazy"></iframe>`;
+    await navigator.clipboard.writeText(iframeCode);
+    toast(I18NextService.i18n.t("embed_link_copied"));
   }
 }
 
