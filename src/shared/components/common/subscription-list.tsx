@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Component } from "inferno";
+import { Component, type InfernoNode } from "inferno";
 import { Link } from "inferno-router";
 import { Community, MultiCommunity, MyUserInfo } from "lemmy-js-client";
 import { hideAnimatedImage, showAvatars, showMedia } from "@utils/app.ts";
@@ -7,18 +7,28 @@ import { communityLink } from "../community/community-link.tsx";
 import { multiCommunityLink } from "../multi-community/multi-community-link.tsx";
 import { PictrsImage } from "./pictrs-image";
 import { Icon } from "./icon.tsx";
+import { getFirstCharacter } from "@utils/helpers";
+
+type IconOrFirstLetterProps = {
+  iconSrc?: string;
+  iconName?: string;
+  nsfw?: boolean;
+  label: string;
+  shouldUseFirstLetterFallback?: boolean;
+};
+
+type ItemTypeAndItems =
+  | { itemType: "community"; items: Community[] }
+  | { itemType: "multiCommunity"; items: MultiCommunity[] };
 
 type SubscriptionListProps = {
-  manageTo?: string;
-  manageLabel?: string;
+  manageTo: string;
+  manageLabel: string;
   myUserInfo?: MyUserInfo;
   shouldUseFirstLetterFallback?: boolean;
-} & (
-  | { itemType: "community"; items: Community[] }
-  | { itemType: "multiCommunity"; items: MultiCommunity[] }
-);
+} & ItemTypeAndItems;
 
-interface SubscriptionLinkProps {
+type SubscriptionLinkProps = {
   to: string;
   label: string;
   serverStr?: string;
@@ -27,18 +37,18 @@ interface SubscriptionLinkProps {
   nsfw?: boolean;
   shouldUseFirstLetterFallback?: boolean;
   isAction?: boolean;
-}
+};
 
-interface CommunitySubscriptionLinkProps {
+type CommunitySubscriptionLinkProps = {
   community: Community;
   myUserInfo?: MyUserInfo;
   shouldUseFirstLetterFallback?: boolean;
-}
+};
 
-interface MultiCommunitySubscriptionLinkProps {
+type MultiCommunitySubscriptionLinkProps = {
   multiCommunity: MultiCommunity;
   shouldUseFirstLetterFallback?: boolean;
-}
+};
 
 export class SubscriptionList extends Component<SubscriptionListProps, never> {
   render() {
@@ -46,7 +56,7 @@ export class SubscriptionList extends Component<SubscriptionListProps, never> {
       this.props;
 
     return (
-      <div className="subscription-list">
+      <div className="subscription-list list-group">
         {manageTo && manageLabel && (
           <SubscriptionLink
             to={manageTo}
@@ -80,114 +90,120 @@ export class SubscriptionList extends Component<SubscriptionListProps, never> {
   }
 }
 
-export class SubscriptionLink extends Component<SubscriptionLinkProps, never> {
-  render() {
-    const { to, label, serverStr, isAction } = this.props;
-    const fullTitle = serverStr ? `${label}${serverStr}` : label;
+export function SubscriptionLink({
+  to,
+  label,
+  serverStr,
+  iconSrc,
+  iconName,
+  nsfw,
+  shouldUseFirstLetterFallback,
+  isAction,
+}: SubscriptionLinkProps) {
+  const fullTitle = serverStr ? `${label}${serverStr}` : label;
 
-    return (
-      <Link
-        title={fullTitle}
-        className={classNames("subscription-link", {
+  return (
+    <Link
+      title={fullTitle}
+      className={classNames(
+        "list-group-item-action d-flex align-items-center gap-1 py-2 py-md-1 px-2 rounded text-body text-decoration-none small",
+        {
           "fw-medium": isAction,
-        })}
-        to={to}
+        },
+      )}
+      to={to}
+    >
+      <IconOrFirstLetter
+        iconSrc={iconSrc}
+        iconName={iconName}
+        nsfw={nsfw}
+        label={label}
+        shouldUseFirstLetterFallback={shouldUseFirstLetterFallback}
+      />
+      <span className="text-truncate">
+        {label}
+        {serverStr && <small className="text-muted">{serverStr}</small>}
+      </span>
+    </Link>
+  );
+}
+
+function IconOrFirstLetter({
+  iconSrc,
+  iconName,
+  nsfw,
+  label,
+  shouldUseFirstLetterFallback,
+}: IconOrFirstLetterProps) {
+  let content: InfernoNode = null;
+
+  if (iconSrc) {
+    content = (
+      <span className="img-icon me-1 rounded-circle overflow-hidden d-inline-flex flex-shrink-0">
+        <PictrsImage src={iconSrc} type="icon" nsfw={nsfw} />
+      </span>
+    );
+  } else if (iconName) {
+    content = (
+      <span
+        className="img-icon me-1 d-inline-flex align-items-center justify-content-center flex-shrink-0 text-body-secondary"
+        aria-hidden="true"
       >
-        {this.renderIcon()}
-        <span className="text-truncate">
-          {label}
-          {serverStr && <small className="text-muted">{serverStr}</small>}
-        </span>
-      </Link>
+        <Icon icon={iconName} />
+      </span>
+    );
+  } else if (shouldUseFirstLetterFallback) {
+    content = (
+      <span
+        className="img-icon me-1 rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0 bg-body-secondary text-body-secondary fw-semibold"
+        aria-hidden="true"
+      >
+        {getFirstCharacter(label)}
+      </span>
     );
   }
 
-  private renderIcon() {
-    const { iconSrc, iconName, nsfw, label, shouldUseFirstLetterFallback } =
-      this.props;
-
-    if (iconSrc) {
-      return <PictrsImage src={iconSrc} type="icon" nsfw={nsfw} />;
-    }
-
-    if (iconName) {
-      return (
-        <span
-          className="subscription-link-icon text-body-secondary"
-          aria-hidden="true"
-        >
-          <Icon icon={iconName} />
-        </span>
-      );
-    }
-
-    if (shouldUseFirstLetterFallback) {
-      return (
-        <span
-          className="subscription-link-icon subscription-link-icon-fallback"
-          aria-hidden="true"
-        >
-          {getFirstCharacter(label)}
-        </span>
-      );
-    }
-
-    return null;
-  }
+  return content;
 }
 
-export class CommunitySubscriptionLink extends Component<
-  CommunitySubscriptionLinkProps,
-  never
-> {
-  render() {
-    const { community, myUserInfo, shouldUseFirstLetterFallback } = this.props;
-    const { link, serverStr } = communityLink(community);
-    const icon = community.icon;
-    const hideAvatar =
-      !icon ||
-      community.removed ||
-      hideAnimatedImage(icon, myUserInfo) ||
-      !showAvatars(myUserInfo) ||
-      !showMedia(myUserInfo);
+export function CommunitySubscriptionLink({
+  community,
+  myUserInfo,
+  shouldUseFirstLetterFallback,
+}: CommunitySubscriptionLinkProps) {
+  const { link, serverStr } = communityLink(community);
+  const icon = community.icon;
+  const hideAvatar =
+    !icon ||
+    community.removed ||
+    hideAnimatedImage(icon, myUserInfo) ||
+    !showAvatars(myUserInfo) ||
+    !showMedia(myUserInfo);
 
-    return (
-      <SubscriptionLink
-        to={link}
-        label={community.name}
-        serverStr={serverStr}
-        iconSrc={!hideAvatar ? icon : undefined}
-        nsfw={community.nsfw}
-        shouldUseFirstLetterFallback={shouldUseFirstLetterFallback}
-      />
-    );
-  }
+  return (
+    <SubscriptionLink
+      to={link}
+      label={community.title ?? community.name}
+      serverStr={serverStr}
+      iconSrc={!hideAvatar ? icon : undefined}
+      nsfw={community.nsfw}
+      shouldUseFirstLetterFallback={shouldUseFirstLetterFallback}
+    />
+  );
 }
 
-export class MultiCommunitySubscriptionLink extends Component<
-  MultiCommunitySubscriptionLinkProps,
-  never
-> {
-  render() {
-    const { multiCommunity, shouldUseFirstLetterFallback } = this.props;
-    const { link, serverStr } = multiCommunityLink(multiCommunity);
+export function MultiCommunitySubscriptionLink({
+  multiCommunity,
+  shouldUseFirstLetterFallback,
+}: MultiCommunitySubscriptionLinkProps) {
+  const { link, serverStr } = multiCommunityLink(multiCommunity);
 
-    return (
-      <SubscriptionLink
-        to={link}
-        label={multiCommunity.name}
-        serverStr={serverStr}
-        shouldUseFirstLetterFallback={shouldUseFirstLetterFallback}
-      />
-    );
-  }
-}
-
-function getFirstCharacter(text: string): string {
-  const trimmed = text.trim();
-  // Use codePointAt so titles starting with an emoji don't split into a broken surrogate char
-  const codePoint = trimmed.codePointAt(0);
-  return codePoint !== undefined
-    ? String.fromCodePoint(codePoint).toUpperCase()
-    : "";
+  return (
+    <SubscriptionLink
+      to={link}
+      label={multiCommunity.title ?? multiCommunity.name}
+      serverStr={serverStr}
+      shouldUseFirstLetterFallback={shouldUseFirstLetterFallback}
+    />
+  );
 }

@@ -627,64 +627,8 @@ em-emoji-picker {
   transition-duration: 0.1s; /* 0.3s -> 0.1s */
 }
 
-.subscription-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 2rem; /* 32px desktop */
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem; /* matches aside .md-div */
-  border-radius: var(--bs-border-radius);
-  color: var(--bs-body-color);
-  text-decoration: none;
-  transition: background-color 0.15s ease-in-out;
-}
-
-@media (max-width: 767.98px) {
-  .subscription-link {
-    min-height: 2.5rem; /* 40px touch target on mobile */
-  }
-}
-
-.subscription-link:hover,
-.subscription-link:focus-visible {
-  background-color: rgba(var(--bs-emphasis-color-rgb), 0.08);
-  color: var(--bs-body-color);
-  text-decoration: none;
-}
-
-.subscription-link picture {
-  display: inline-flex;
-  flex-shrink: 0;
-}
-
-.subscription-link .img-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  border-radius: 50%;
-}
-
-.subscription-link-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-}
-
-.subscription-link-icon-fallback {
-  background-color: var(--bs-secondary-bg);
-  color: var(--bs-secondary-color);
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
 .subscription-collapse {
-  display: grid;
   grid-template-rows: 0fr;
-  visibility: hidden;
   transition:
     grid-template-rows 0.25s ease,
     visibility 0s linear 0.25s;
@@ -692,15 +636,9 @@ em-emoji-picker {
 
 .subscription-collapse.open {
   grid-template-rows: 1fr;
-  visibility: visible;
   transition:
     grid-template-rows 0.25s ease,
     visibility 0s;
-}
-
-.subscription-collapse-inner {
-  overflow: hidden;
-  min-height: 0;
 }
 
 .subscription-accordion-chevron {
@@ -712,7 +650,6 @@ em-emoji-picker {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .subscription-link,
   .subscription-collapse,
   .subscription-accordion-chevron {
     transition: none;

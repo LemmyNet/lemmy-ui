@@ -579,11 +579,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           id={bodyId}
           aria-labelledby={headerId}
           aria-hidden={subscribedCollapsed}
-          className={classNames("subscription-collapse", {
-            open: !subscribedCollapsed,
+          className={classNames("subscription-collapse d-grid", {
+            "open visible": !subscribedCollapsed,
+            invisible: subscribedCollapsed,
           })}
         >
-          <div className="subscription-collapse-inner">
+          <div className="subscription-collapse-inner overflow-hidden min-h-0">
             <div className="card-body p-2">
               <SubscriptionList
                 itemType="community"
@@ -633,11 +634,12 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           id={bodyId}
           aria-labelledby={headerId}
           aria-hidden={subscribedMultisCollapsed}
-          className={classNames("subscription-collapse", {
-            open: !subscribedMultisCollapsed,
+          className={classNames("subscription-collapse d-grid", {
+            "open visible": !subscribedMultisCollapsed,
+            invisible: subscribedMultisCollapsed,
           })}
         >
-          <div className="subscription-collapse-inner">
+          <div className="subscription-collapse-inner overflow-hidden min-h-0">
             <div className="card-body p-2">
               <SubscriptionList
                 itemType="multiCommunity"
