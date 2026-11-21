@@ -136,7 +136,7 @@ import {
   TimeIntervalFilter,
 } from "@components/common/time-interval-filter";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
-import { Offcanvas } from "../common/offcanvas/offcanvas";
+import { Offcanvas } from "@components/common/offcanvas/offcanvas";
 import { SubscriptionList } from "../common/subscription-list";
 
 interface HomeState {
