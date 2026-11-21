@@ -16,6 +16,8 @@ interface SubscribeButtonProps {
   onUnFollow: MouseEventHandler;
   loading?: boolean;
   isLink?: boolean;
+  compact?: boolean;
+  modalId?: string;
   showRemoteFetch: boolean;
 }
 
@@ -26,12 +28,22 @@ export function SubscribeButton({
   onUnFollow,
   loading = false,
   isLink = false,
+  compact = false,
+  modalId = "remoteFetchModal",
   showRemoteFetch,
 }: SubscribeButtonProps) {
   const buttonClass = classNames("btn", {
     "btn-link p-0": isLink,
+    "btn-sm rounded-pill text-nowrap": compact && !isLink,
+    "btn-light border-light-subtle": compact && !isLink && !followState,
+    "btn-outline-secondary": compact && !isLink && followState === "accepted",
+    "btn-warning border-light-subtle":
+      compact &&
+      !isLink &&
+      followState !== undefined &&
+      followState !== "accepted",
     [`btn-${followState === "pending" ? "warning" : "secondary"} border-light-subtle d-block w-100`]:
-      !isLink,
+      !isLink && !compact,
   });
 
   if (showRemoteFetch) {
@@ -41,11 +53,11 @@ export function SubscribeButton({
           type="button"
           className={buttonClass}
           data-bs-toggle="modal"
-          data-bs-target="#remoteFetchModal"
+          data-bs-target={`#${modalId}`}
         >
           {I18NextService.i18n.t("subscribe")}
         </button>
-        <RemoteFetchModal apId={apId} />
+        <RemoteFetchModal apId={apId} modalId={modalId} />
       </>
     );
   }
@@ -54,6 +66,7 @@ export function SubscribeButton({
     <button
       type="button"
       className={buttonClass}
+      disabled={loading}
       onClick={!followState ? onFollow : onUnFollow}
     >
       {loading ? (
@@ -91,6 +104,7 @@ function followStateKey(
 interface RemoteFetchModalProps {
   apId: string;
   show?: boolean;
+  modalId: string;
 }
 
 interface RemoteFetchModalState {
@@ -151,19 +165,21 @@ class RemoteFetchModal extends Component<
   }
 
   render() {
+    const { modalId } = this.props;
+    const titleId = `${modalId}Title`;
     return (
       <div
         className="modal fade"
-        id="remoteFetchModal"
+        id={modalId}
         tabIndex={-1}
         aria-hidden
-        aria-labelledby="#remoteFetchModalTitle"
+        aria-labelledby={titleId}
         ref={this.modalDivRef}
       >
         <div className="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
           <div className="modal-content">
             <header className="modal-header">
-              <h3 className="modal-title" id="remoteFetchModalTitle">
+              <h3 className="modal-title" id={titleId}>
                 {I18NextService.i18n.t("remote_follow_modal_title")}
               </h3>
               <button
