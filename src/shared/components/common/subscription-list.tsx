@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Component, type InfernoNode } from "inferno";
+import type { InfernoNode } from "inferno";
 import { Link } from "inferno-router";
 import { Community, MultiCommunity, MyUserInfo } from "lemmy-js-client";
 import { hideAnimatedImage, showAvatars, showMedia } from "@utils/app.ts";
@@ -50,44 +50,46 @@ type MultiCommunitySubscriptionLinkProps = {
   shouldUseFirstLetterFallback?: boolean;
 };
 
-export class SubscriptionList extends Component<SubscriptionListProps, never> {
-  render() {
-    const { manageTo, manageLabel, myUserInfo, shouldUseFirstLetterFallback } =
-      this.props;
-
-    return (
-      <div className="subscription-list list-group">
-        {manageTo && manageLabel && (
-          <SubscriptionLink
-            to={manageTo}
-            label={manageLabel}
-            iconName="settings"
-            isAction
-          />
-        )}
-        <ul className="list-unstyled mb-0">
-          {this.props.itemType === "community"
-            ? this.props.items.map(community => (
-                <li key={community.id}>
-                  <CommunitySubscriptionLink
-                    community={community}
-                    myUserInfo={myUserInfo}
-                    shouldUseFirstLetterFallback={shouldUseFirstLetterFallback}
-                  />
-                </li>
-              ))
-            : this.props.items.map(multiCommunity => (
-                <li key={multiCommunity.id}>
-                  <MultiCommunitySubscriptionLink
-                    multiCommunity={multiCommunity}
-                    shouldUseFirstLetterFallback={shouldUseFirstLetterFallback}
-                  />
-                </li>
-              ))}
-        </ul>
-      </div>
-    );
-  }
+export function SubscriptionList({
+  manageTo,
+  manageLabel,
+  myUserInfo,
+  itemType,
+  items,
+  shouldUseFirstLetterFallback,
+}: SubscriptionListProps) {
+  return (
+    <div className="subscription-list list-group">
+      {manageTo && manageLabel && (
+        <SubscriptionLink
+          to={manageTo}
+          label={manageLabel}
+          iconName="settings"
+          isAction
+        />
+      )}
+      <ul className="list-unstyled mb-0">
+        {itemType === "community"
+          ? items.map(community => (
+              <li key={community.id}>
+                <CommunitySubscriptionLink
+                  community={community}
+                  myUserInfo={myUserInfo}
+                  shouldUseFirstLetterFallback={shouldUseFirstLetterFallback}
+                />
+              </li>
+            ))
+          : items.map(multiCommunity => (
+              <li key={multiCommunity.id}>
+                <MultiCommunitySubscriptionLink
+                  multiCommunity={multiCommunity}
+                  shouldUseFirstLetterFallback={shouldUseFirstLetterFallback}
+                />
+              </li>
+            ))}
+      </ul>
+    </div>
+  );
 }
 
 export function SubscriptionLink({
