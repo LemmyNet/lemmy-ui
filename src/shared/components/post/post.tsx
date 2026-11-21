@@ -126,8 +126,9 @@ import { Action } from "history";
 import { CommentSortDropdown } from "@components/common/sort-dropdown";
 import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dropdown";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
-import { Offcanvas } from "../common/offcanvas/offcanvas";
+import { Offcanvas } from "@components/common/offcanvas/offcanvas";
 import { Separator } from "@components/common/separators";
+import { subscribeMobileSidebar } from "@utils/breakpoints";
 
 const commentsShownInterval = 15;
 
@@ -152,6 +153,7 @@ interface PostState {
   votePostRes: RequestState<PostResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
+  isMobile: boolean;
   maxCommentsShown: number;
   isIsomorphic: boolean;
   lastCreatedCommentId?: CommentId;
@@ -283,6 +285,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   private commentScrollDebounced: () => void;
   private shouldScrollToComments: boolean = false;
   private commentSectionRef = createRef<HTMLDivElement>();
+  private unsubscribeMobileBreakpoint?: () => void;
   state: PostState = {
     postRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
@@ -299,6 +302,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     voteCommentRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
+    isMobile: false,
     maxCommentsShown: commentsShownInterval,
     isIsomorphic: false,
     notifications: "replies_and_mentions",
@@ -451,6 +455,8 @@ export class Post extends Component<PostRouteProps, PostState> {
 
   componentWillUnmount() {
     document.removeEventListener("scroll", this.commentScrollDebounced);
+    this.unsubscribeMobileBreakpoint?.();
+    this.unsubscribeMobileBreakpoint = undefined;
   }
 
   async componentWillMount() {
@@ -468,6 +474,10 @@ export class Post extends Component<PostRouteProps, PostState> {
   componentDidMount() {
     this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
     document.addEventListener("scroll", this.commentScrollDebounced);
+
+    this.unsubscribeMobileBreakpoint = subscribeMobileSidebar("lg", updater =>
+      this.setState(updater),
+    );
 
     if (this.state.isIsomorphic) {
       this.maybeScrollToComments();
@@ -609,7 +619,14 @@ export class Post extends Component<PostRouteProps, PostState> {
 
         return (
           <div className="row">
-            <div className="col-12 col-md-8 col-lg-9 mb-3">
+            <div className="col-12 col-lg-9 mb-3">
+              <div className="d-block d-lg-none mb-2">
+                <ExpandChipCheckbox
+                  option="sidebar"
+                  isChecked={this.state.showSidebarMobile}
+                  onCheck={show => handleShowSidebarMobile(this, show)}
+                />
+              </div>
               <PostListing
                 postView={res.post_view}
                 crossPosts={res.cross_posts}
@@ -701,18 +718,13 @@ export class Post extends Component<PostRouteProps, PostState> {
                   imageUploadDisabled={imageUploadDisabled}
                 />
               )}
-              <div className="d-block d-md-none">
-                <ExpandChipCheckbox
-                  option="sidebar"
-                  isChecked={this.state.showSidebarMobile}
-                  onCheck={show => handleShowSidebarMobile(this, show)}
-                />
+              <div className="d-block d-lg-none">
                 <Offcanvas
                   id="post-sidebar-offcanvas"
                   show={this.state.showSidebarMobile}
                   onClose={() => handleShowSidebarMobile(this, false)}
                 >
-                  {this.sidebar()}
+                  {this.state.isMobile && this.sidebar()}
                 </Offcanvas>
               </div>
               <Separator />
@@ -742,9 +754,11 @@ export class Post extends Component<PostRouteProps, PostState> {
               {this.props.view === "tree" && this.commentsTree()}
               {this.props.view === "flat" && this.commentsFlat()}
             </div>
-            <aside className="d-none d-md-block col-md-4 col-lg-3">
-              {this.sidebar()}
-            </aside>
+            {!this.state.isMobile && (
+              <aside className="d-none d-lg-block col-lg-3">
+                {this.sidebar()}
+              </aside>
+            )}
           </div>
         );
       }
