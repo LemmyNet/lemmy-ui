@@ -85,7 +85,7 @@ export function PostBadges({ post, tags, allLanguages }: PostBadgesProps) {
       {post.deleted && (
         <small
           className="unselectable pointer me-2 text-muted fst-italic"
-          data-tippy-content={I18NextService.i18n.t("deleted")}
+          data-tippy-content={I18NextService.i18n.t("post_deleted")}
         >
           <Icon icon="trash" classes="icon-inline text-danger" />
         </small>

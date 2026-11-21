@@ -789,7 +789,7 @@ async function handleEditComment(i: Notifications, form: EditComment) {
 async function handleDeleteComment(i: Notifications, form: DeleteComment) {
   const res = await HttpService.client.deleteComment(form);
   if (res.state === "success") {
-    toast(I18NextService.i18n.t("deleted"));
+    toast(I18NextService.i18n.t("comment_deleted"));
     i.findAndUpdateComment(res);
   }
 }
