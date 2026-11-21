@@ -48,8 +48,10 @@ import { toast } from "@utils/app";
 import { isBrowser } from "@utils/browser";
 import { NoOptionI18nKeys } from "i18next";
 import { CommunitySidebar } from "@components/community/community-sidebar";
-import { Icon } from "@components/common/icon";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
+import { isBreakpointDown, subscribeBreakpointDown } from "@utils/breakpoints";
+import { ExpandChipCheckbox } from "@components/common/filter-chip-checkbox";
+import { Offcanvas } from "@components/common/offcanvas/offcanvas";
 
 export interface CreatePostProps {
   communityId?: number;
@@ -103,6 +105,7 @@ interface CreatePostState {
   isIsomorphic: boolean;
   resetCounter: number; // resets PostForm when changed
   showSidebarMobile: boolean;
+  isMobile: boolean;
 }
 
 type CreatePostPathProps = Record<string, never>;
@@ -121,6 +124,7 @@ export class CreatePost extends Component<
   CreatePostState
 > {
   private isoData = setIsoData<CreatePostData>(this.context);
+  private unsubscribeMobileBreakpoint?: () => void;
   state: CreatePostState = {
     createPostRes: EMPTY_REQUEST,
     initialCommunitiesRes: EMPTY_REQUEST,
@@ -128,6 +132,7 @@ export class CreatePost extends Component<
     resetCounter: 0,
     selectedCommunityIsNsfw: false,
     showSidebarMobile: false,
+    isMobile: false,
   };
 
   constructor(props: CreatePostRouteProps, context: object) {
@@ -151,6 +156,21 @@ export class CreatePost extends Component<
         };
       }
     }
+  }
+
+  componentDidMount() {
+    if (isBreakpointDown("lg")) {
+      this.setState({ isMobile: true });
+    }
+
+    this.unsubscribeMobileBreakpoint = subscribeBreakpointDown("lg", isMobile =>
+      handleMobileMediaChange(this, isMobile),
+    );
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeMobileBreakpoint?.();
+    this.unsubscribeMobileBreakpoint = undefined;
   }
 
   async fetchCommunity({ communityId }: CreatePostProps) {
@@ -228,6 +248,7 @@ export class CreatePost extends Component<
       showSidebarMobile,
       resetCounter,
       initialCommunitiesRes,
+      isMobile,
     } = this.state;
     const {
       body,
@@ -266,7 +287,16 @@ export class CreatePost extends Component<
     return (
       <div className="create-post container-lg" key={resetCounter}>
         <div className="row">
-          <div id="createPostForm" className="col-12 col-lg-6 offset-lg-2 mb-4">
+          <div id="createPostForm" className="col-12 col-lg-8 col-xl-9">
+            {selectedCommunity && (
+              <div className="d-block d-lg-none mb-2">
+                <ExpandChipCheckbox
+                  option="sidebar"
+                  isChecked={showSidebarMobile}
+                  onCheck={show => handleShowSidebarMobile(this, show)}
+                />
+              </div>
+            )}
             <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
             <PostForm
               onCreate={(form, bypassNav) =>
@@ -309,22 +339,20 @@ export class CreatePost extends Component<
               isNsfwCommunity={selectedCommunityIsNsfw}
             />
           </div>
-          <div className="d-block d-md-none">
-            <button
-              className="btn btn-light border-light-subtle d-inline-block mb-2 me-3"
-              onClick={() => handleShowSidebarMobile(this)}
+          <div className="d-block d-lg-none">
+            <Offcanvas
+              id="create-post-sidebar-offcanvas"
+              show={showSidebarMobile && !!selectedCommunity}
+              onClose={() => handleShowSidebarMobile(this, false)}
             >
-              {I18NextService.i18n.t("sidebar")}{" "}
-              <Icon
-                icon={showSidebarMobile ? `minus-square` : `plus-square`}
-                classes="icon-inline"
-              />
-            </button>
-            {showSidebarMobile && this.sidebar()}
+              {isMobile && this.sidebar()}
+            </Offcanvas>
           </div>
-          <aside className="d-none d-md-block col-md-4 col-lg-3">
-            {this.sidebar()}
-          </aside>
+          {!isMobile && (
+            <aside className="d-none d-lg-block col-lg-4 col-xl-3">
+              {this.sidebar()}
+            </aside>
+          )}
         </div>
       </div>
     );
@@ -490,6 +518,13 @@ async function handlePostCreate(
   }
 }
 
-function handleShowSidebarMobile(i: CreatePost) {
-  i.setState({ showSidebarMobile: !i.state.showSidebarMobile });
+function handleShowSidebarMobile(i: CreatePost, show: boolean) {
+  i.setState({ showSidebarMobile: show });
+}
+
+function handleMobileMediaChange(instance: CreatePost, isMobile: boolean) {
+  instance.setState({
+    isMobile,
+    showSidebarMobile: isMobile ? instance.state.showSidebarMobile : false,
+  });
 }
