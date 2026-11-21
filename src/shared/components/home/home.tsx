@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import {
   allRSSUrl,
   commentsToFlatNodes,
@@ -24,13 +25,17 @@ import {
   getQueryString,
   resourcesSettled,
 } from "@utils/helpers";
+import {
+  getLocalStorageItem,
+  localStorageKeys,
+  setLocalStorageItem,
+} from "@utils/local-storage";
+import { isBreakpointDown, subscribeBreakpointDown } from "@utils/breakpoints";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
 import { NoOptionI18nKeys } from "i18next";
 import { Component, InfernoNode } from "inferno";
-import { T } from "inferno-i18next-dess";
-import { Link } from "inferno-router";
 import {
   AddAdmin,
   AddModToCommunity,
@@ -101,7 +106,6 @@ import { PostOrCommentTypeDropdown } from "../common/post-or-comment-type-dropdo
 import { htmlTags } from "../common/html-tags";
 import { Icon, Spinner } from "../common/icon";
 import { CommentSortDropdown, PostSortDropdown } from "../common/sort-dropdown";
-import { CommunityLink } from "../community/community-link";
 import { PostListings } from "../post/post-listings";
 import { SiteSidebar } from "./site-sidebar";
 import { PaginatorCursor } from "../common/paginator-cursor";
@@ -117,7 +121,6 @@ import { DonationDialog } from "./donation-dialog";
 import { nowBoolean } from "@utils/date";
 import { BannedDialog } from "./banned-dialog";
 import { PostListingModeDropdown } from "@components/common/post-listing-mode-dropdown";
-import { MultiCommunityLink } from "@components/multi-community/multi-community-link";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
 import {
   ExpandChipCheckbox,
@@ -133,7 +136,8 @@ import {
   TimeIntervalFilter,
 } from "@components/common/time-interval-filter";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
-import { Offcanvas } from "../common/offcanvas/offcanvas";
+import { Offcanvas } from "@components/common/offcanvas/offcanvas";
+import { SubscriptionList } from "../common/subscription-list";
 
 interface HomeState {
   postsRes: RequestState<PagedResponse<PostView>>;
@@ -151,6 +155,7 @@ interface HomeState {
   markPageAsReadLoading: boolean;
   postListingMode: PostListingMode;
   selectButtonsHidden: boolean;
+  isMobile: boolean;
 }
 
 interface HomeProps {
@@ -294,6 +299,7 @@ export type HomeFetchConfig = IRoutePropsWithFetch<
 @tippyMixin
 export class Home extends Component<HomeRouteProps, HomeState> {
   private isoData = setIsoData<HomeData>(this.context);
+  private unsubscribeMobileBreakpoint?: () => void;
   state: HomeState = {
     postsRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
@@ -303,12 +309,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     votePostRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
-    subscribedCollapsed: false,
-    subscribedMultisCollapsed: false,
+    subscribedCollapsed: true,
+    subscribedMultisCollapsed: true,
     isIsomorphic: false,
     markPageAsReadLoading: false,
     postListingMode: defaultPostListingMode(this.isoData),
     selectButtonsHidden: true,
+    isMobile: false,
   };
 
   loadingSettled(): boolean {
@@ -353,6 +360,21 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     nextProps: HomeRouteProps & { children?: InfernoNode },
   ) {
     await this.fetchData(nextProps);
+  }
+
+  componentDidMount() {
+    restoreSidebarCollapseState(this);
+    if (isBreakpointDown("md")) {
+      this.setState({ isMobile: true });
+    }
+
+    this.unsubscribeMobileBreakpoint = subscribeBreakpointDown("md", isMobile =>
+      handleMobileMediaChange(this, isMobile),
+    );
+  }
+  componentWillUnmount() {
+    this.unsubscribeMobileBreakpoint?.();
+    this.unsubscribeMobileBreakpoint = undefined;
   }
 
   static fetchInitialData = async ({
@@ -458,7 +480,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             </div>
             {/* Only show the sidebar on md or larger */}
             <aside className="d-none d-md-block col-md-4 col-lg-3">
-              {this.mySidebar}
+              {!this.state.isMobile && this.sidebarContent}
             </aside>
           </div>
         )}
@@ -476,14 +498,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     return !!mui && mui.multi_community_follows.length > 0;
   }
 
-  get mobileSidebarAndSubscribed() {
-    const {
-      siteRes: {
-        site_view: { local_site, site },
-        admins,
-      },
-      showSidebarMobile,
-    } = this.state;
+  get mobileSidebarDrawer() {
+    const { showSidebarMobile, isMobile } = this.state;
 
     return (
       <div className="d-block d-md-none">
@@ -492,30 +508,13 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           show={showSidebarMobile}
           onClose={() => handleShowSidebarMobile(this, false)}
         >
-          <SiteSidebar
-            site={site}
-            admins={admins}
-            localSite={local_site}
-            isMobile
-            myUserInfo={this.isoData.myUserInfo}
-            allLanguages={this.state.siteRes.all_languages}
-            siteLanguages={this.state.siteRes.discussion_languages}
-            activePlugins={this.state.siteRes.active_plugins}
-          />
-          {this.hasFollows && (
-            <div className="card mb-3">{this.subscribedCommunities(true)}</div>
-          )}
-          {this.hasMultiFollows && (
-            <div className="card mb-3">
-              {this.subscribedMultiCommunities(true)}
-            </div>
-          )}
+          {isMobile && this.sidebarContent}
         </Offcanvas>
       </div>
     );
   }
 
-  get mySidebar() {
+  get sidebarContent() {
     const {
       siteRes: {
         site_view: { local_site, site },
@@ -533,6 +532,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           allLanguages={this.state.siteRes.all_languages}
           siteLanguages={this.state.siteRes.discussion_languages}
           activePlugins={this.state.siteRes.active_plugins}
+          isMobile={this.state.isMobile}
         />
         {this.hasFollows && (
           <div className="accordion">
@@ -554,132 +554,105 @@ export class Home extends Component<HomeRouteProps, HomeState> {
 
   subscribedCommunities(isMobile = false) {
     const { subscribedCollapsed } = this.state;
+    const prefix = isMobile ? "mobile-" : "";
+    const headerId = `${prefix}sidebarSubscribedHeader`;
+    const bodyId = `${prefix}sidebarSubscribedBody`;
 
     return (
       <>
-        <header
-          className="card-header d-flex align-items-center"
-          id="sidebarSubscribedHeader"
-        >
-          <h5 className="mb-0 d-inline">
-            <T className="d-inline" i18nKey="subscribed_to_communities">
-              #
-              <Link className="text-body" to="/communities">
-                #
-              </Link>
-            </T>
-          </h5>
-          {!isMobile && (
-            <button
-              type="button"
-              className="btn btn-sm text-muted"
-              onClick={() => handleCollapseSubscribe(this)}
-              aria-label={
-                subscribedCollapsed
-                  ? I18NextService.i18n.t("expand")
-                  : I18NextService.i18n.t("collapse")
-              }
-              data-tippy-content={
-                subscribedCollapsed
-                  ? I18NextService.i18n.t("expand")
-                  : I18NextService.i18n.t("collapse")
-              }
-              aria-expanded="true"
-              aria-controls="sidebarSubscribedBody"
-            >
-              <Icon
-                icon={`${subscribedCollapsed ? "plus" : "minus"}-square`}
-                classes="icon-inline"
-              />
-            </button>
-          )}
-        </header>
-        {!subscribedCollapsed && (
-          <div
-            id="sidebarSubscribedBody"
-            aria-labelledby="sidebarSubscribedHeader"
+        <header className="card-header p-0" id={headerId}>
+          <button
+            type="button"
+            className="btn w-100 d-flex align-items-center justify-content-between text-start px-3 py-2 border-0 text-body"
+            onClick={() => handleCollapseSubscribe(this)}
+            aria-expanded={!subscribedCollapsed}
+            aria-controls={bodyId}
           >
-            <div className="card-body">
-              <ul className="list-inline mb-0">
-                {this.isoData.myUserInfo?.follows.map(cfv => (
-                  <li
-                    key={cfv.community.id}
-                    className="list-inline-item d-inline-block"
-                  >
-                    <CommunityLink
-                      community={cfv.community}
-                      myUserInfo={this.isoData.myUserInfo}
-                      muted={false}
-                    />
-                  </li>
-                ))}
-              </ul>
+            <h6 className="mb-0">{I18NextService.i18n.t("communities")}</h6>
+            <Icon
+              icon="chevrons-down"
+              classes="icon-inline text-muted flex-shrink-0 ms-2 subscription-accordion-chevron"
+            />
+          </button>
+        </header>
+        <div
+          id={bodyId}
+          aria-labelledby={headerId}
+          aria-hidden={subscribedCollapsed}
+          className={classNames("subscription-collapse", {
+            open: !subscribedCollapsed,
+          })}
+        >
+          <div className="subscription-collapse-inner">
+            <div className="card-body p-2">
+              <SubscriptionList
+                itemType="community"
+                items={
+                  this.isoData.myUserInfo?.follows.map(
+                    follow => follow.community,
+                  ) ?? []
+                }
+                myUserInfo={this.isoData.myUserInfo}
+                manageTo="/communities?listingType=subscribed"
+                manageLabel={I18NextService.i18n.t("manage_communities")}
+                shouldUseFirstLetterFallback
+              />
             </div>
           </div>
-        )}
+        </div>
       </>
     );
   }
 
   subscribedMultiCommunities(isMobile = false) {
     const { subscribedMultisCollapsed } = this.state;
+    const prefix = isMobile ? "mobile-" : "";
+    const headerId = `${prefix}sidebarSubscribedMultisHeader`;
+    const bodyId = `${prefix}sidebarSubscribedMultisBody`;
 
     return (
       <>
-        <header
-          className="card-header d-flex align-items-center"
-          id="sidebarSubscribedMultisHeader"
-        >
-          <h5 className="mb-0 d-inline text-body">
-            {I18NextService.i18n.t("multi_communities")}
-          </h5>
-          {!isMobile && (
-            <button
-              type="button"
-              className="btn btn-sm text-muted"
-              onClick={() => handleCollapseMultisSubscribe(this)}
-              aria-label={
-                subscribedMultisCollapsed
-                  ? I18NextService.i18n.t("expand")
-                  : I18NextService.i18n.t("collapse")
-              }
-              data-tippy-content={
-                subscribedMultisCollapsed
-                  ? I18NextService.i18n.t("expand")
-                  : I18NextService.i18n.t("collapse")
-              }
-              aria-expanded="true"
-              aria-controls="sidebarSubscribedMultisBody"
-            >
-              <Icon
-                icon={`${subscribedMultisCollapsed ? "plus" : "minus"}-square`}
-                classes="icon-inline"
-              />
-            </button>
-          )}
-        </header>
-        {!subscribedMultisCollapsed && (
-          <div
-            id="sidebarSubscribedMultisBody"
-            aria-labelledby="sidebarSubscribedMultisHeader"
+        <header className="card-header p-0" id={headerId}>
+          <button
+            type="button"
+            className="btn w-100 d-flex align-items-center justify-content-between text-start px-3 py-2 border-0 text-body"
+            onClick={() => handleCollapseMultisSubscribe(this)}
+            aria-expanded={!subscribedMultisCollapsed}
+            aria-controls={bodyId}
           >
-            <div className="card-body">
-              <ul className="list-inline mb-0">
-                {this.isoData.myUserInfo?.multi_community_follows.map(mv => (
-                  <li
-                    key={mv.multi.id}
-                    className="list-inline-item d-inline-block"
-                  >
-                    <MultiCommunityLink
-                      multiCommunity={mv.multi}
-                      myUserInfo={this.isoData.myUserInfo}
-                    />
-                  </li>
-                ))}
-              </ul>
+            <h6 className="mb-0">
+              {I18NextService.i18n.t("multi_communities")}
+            </h6>
+            <Icon
+              icon="chevrons-down"
+              classes="icon-inline text-muted flex-shrink-0 ms-2 subscription-accordion-chevron"
+            />
+          </button>
+        </header>
+        <div
+          id={bodyId}
+          aria-labelledby={headerId}
+          aria-hidden={subscribedMultisCollapsed}
+          className={classNames("subscription-collapse", {
+            open: !subscribedMultisCollapsed,
+          })}
+        >
+          <div className="subscription-collapse-inner">
+            <div className="card-body p-2">
+              <SubscriptionList
+                itemType="multiCommunity"
+                items={
+                  this.isoData.myUserInfo?.multi_community_follows.map(
+                    community => community.multi,
+                  ) ?? []
+                }
+                manageTo="/multi_communities"
+                manageLabel={I18NextService.i18n.t("manage_multi_communities")}
+                shouldUseFirstLetterFallback
+              />
             </div>
           </div>
-        )}
+        </div>
       </>
     );
   }
@@ -720,7 +693,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
       <div className="main-content-wrapper">
         <div>
           {this.selects}
-          {this.mobileSidebarAndSubscribed}
+          {this.mobileSidebarDrawer}
           {this.listings}
           <div className="row">
             <div className="col">
@@ -1181,14 +1154,22 @@ function handleShowSidebarMobile(i: Home, show: boolean) {
   i.setState({ showSidebarMobile: show });
 }
 
-function handleCollapseSubscribe(i: Home) {
-  i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
+function handleCollapseSubscribe(instance: Home) {
+  const subscribedCollapsed = !instance.state.subscribedCollapsed;
+  instance.setState({ subscribedCollapsed });
+  setLocalStorageItem(
+    localStorageKeys.homeSidebarSubscribedCommunitiesCollapsed,
+    String(subscribedCollapsed),
+  );
 }
 
-function handleCollapseMultisSubscribe(i: Home) {
-  i.setState({
-    subscribedMultisCollapsed: !i.state.subscribedMultisCollapsed,
-  });
+function handleCollapseMultisSubscribe(instance: Home) {
+  const subscribedMultisCollapsed = !instance.state.subscribedMultisCollapsed;
+  instance.setState({ subscribedMultisCollapsed });
+  setLocalStorageItem(
+    localStorageKeys.homeSidebarMultiCommunitiesCollapsed,
+    String(subscribedMultisCollapsed),
+  );
 }
 
 function handlePageChange(i: Home, cursor?: PaginationCursor) {
@@ -1566,4 +1547,26 @@ async function handleHideDonationDialog(myUserInfo?: MyUserInfo) {
 
 function handleHideSelectButtons(i: Home) {
   i.setState({ selectButtonsHidden: !i.state.selectButtonsHidden });
+}
+function restoreSidebarCollapseState(instance: Home) {
+  const subscribedCollapsed =
+    getLocalStorageItem(
+      localStorageKeys.homeSidebarSubscribedCommunitiesCollapsed,
+    ) === "true";
+  const subscribedMultisCollapsed =
+    getLocalStorageItem(
+      localStorageKeys.homeSidebarMultiCommunitiesCollapsed,
+    ) === "true";
+
+  instance.setState({
+    subscribedCollapsed,
+    subscribedMultisCollapsed,
+  });
+}
+
+function handleMobileMediaChange(instance: Home, isMobile: boolean) {
+  instance.setState({
+    isMobile,
+    showSidebarMobile: isMobile ? instance.state.showSidebarMobile : false,
+  });
 }
