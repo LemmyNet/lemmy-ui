@@ -429,7 +429,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           local_site: { site_setup },
         },
       },
-      showSidebarMobile,
     } = this.state;
     const myUserInfo = this.isoData.myUserInfo;
 
@@ -465,7 +464,7 @@ export class Home extends Component<HomeRouteProps, HomeState> {
             </div>
             {/* Only show the sidebar on md or larger */}
             <aside className="d-none d-md-block col-md-4 col-lg-3">
-              {!showSidebarMobile && this.sidebarContent}
+              {this.sidebarContent}
             </aside>
           </div>
         )}
