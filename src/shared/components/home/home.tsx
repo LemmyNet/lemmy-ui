@@ -1122,18 +1122,18 @@ function handleShowSidebarMobile(i: Home, show: boolean) {
   i.setState({ showSidebarMobile: show });
 }
 
-function handleCollapseSubscribe(instance: Home) {
-  const subscribedCollapsed = !instance.state.subscribedCollapsed;
-  instance.setState({ subscribedCollapsed });
+function handleCollapseSubscribe(i: Home) {
+  const subscribedCollapsed = !i.state.subscribedCollapsed;
+  i.setState({ subscribedCollapsed });
   setLocalStorageItem(
     localStorageKeys.homeSidebarSubscribedCommunitiesCollapsed,
     String(subscribedCollapsed),
   );
 }
 
-function handleCollapseMultisSubscribe(instance: Home) {
-  const subscribedMultisCollapsed = !instance.state.subscribedMultisCollapsed;
-  instance.setState({ subscribedMultisCollapsed });
+function handleCollapseMultisSubscribe(i: Home) {
+  const subscribedMultisCollapsed = !i.state.subscribedMultisCollapsed;
+  i.setState({ subscribedMultisCollapsed });
   setLocalStorageItem(
     localStorageKeys.homeSidebarMultiCommunitiesCollapsed,
     String(subscribedMultisCollapsed),
@@ -1516,7 +1516,7 @@ async function handleHideDonationDialog(myUserInfo?: MyUserInfo) {
 function handleHideSelectButtons(i: Home) {
   i.setState({ selectButtonsHidden: !i.state.selectButtonsHidden });
 }
-function restoreSidebarCollapseState(instance: Home) {
+function restoreSidebarCollapseState(i: Home) {
   const subscribedCollapsed =
     getLocalStorageItem(
       localStorageKeys.homeSidebarSubscribedCommunitiesCollapsed,
@@ -1526,7 +1526,7 @@ function restoreSidebarCollapseState(instance: Home) {
       localStorageKeys.homeSidebarMultiCommunitiesCollapsed,
     ) === "true";
 
-  instance.setState({
+  i.setState({
     subscribedCollapsed,
     subscribedMultisCollapsed,
   });
