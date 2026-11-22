@@ -83,7 +83,7 @@ export class MultiCommunitySidebar extends Component<Props, never> {
           </span>
           {multiCommunity.deleted && (
             <small className="me-2 text-muted fst-italic">
-              {I18NextService.i18n.t("deleted")}
+              {I18NextService.i18n.t("multi_community_deleted")}
             </small>
           )}
         </h2>
