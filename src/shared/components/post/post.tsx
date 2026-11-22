@@ -128,7 +128,6 @@ import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dr
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
 import { Offcanvas } from "@components/common/offcanvas/offcanvas";
 import { Separator } from "@components/common/separators";
-import { subscribeMobileSidebar } from "@utils/breakpoints";
 
 const commentsShownInterval = 15;
 
@@ -153,7 +152,6 @@ interface PostState {
   votePostRes: RequestState<PostResponse>;
   siteRes: GetSiteResponse;
   showSidebarMobile: boolean;
-  isMobile: boolean;
   maxCommentsShown: number;
   isIsomorphic: boolean;
   lastCreatedCommentId?: CommentId;
@@ -285,7 +283,6 @@ export class Post extends Component<PostRouteProps, PostState> {
   private commentScrollDebounced: () => void;
   private shouldScrollToComments: boolean = false;
   private commentSectionRef = createRef<HTMLDivElement>();
-  private unsubscribeMobileBreakpoint?: () => void;
   state: PostState = {
     postRes: EMPTY_REQUEST,
     commentsRes: EMPTY_REQUEST,
@@ -302,7 +299,6 @@ export class Post extends Component<PostRouteProps, PostState> {
     voteCommentRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
-    isMobile: false,
     maxCommentsShown: commentsShownInterval,
     isIsomorphic: false,
     notifications: "replies_and_mentions",
@@ -455,8 +451,6 @@ export class Post extends Component<PostRouteProps, PostState> {
 
   componentWillUnmount() {
     document.removeEventListener("scroll", this.commentScrollDebounced);
-    this.unsubscribeMobileBreakpoint?.();
-    this.unsubscribeMobileBreakpoint = undefined;
   }
 
   async componentWillMount() {
@@ -474,10 +468,6 @@ export class Post extends Component<PostRouteProps, PostState> {
   componentDidMount() {
     this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
     document.addEventListener("scroll", this.commentScrollDebounced);
-
-    this.unsubscribeMobileBreakpoint = subscribeMobileSidebar("lg", updater =>
-      this.setState(updater),
-    );
 
     if (this.state.isIsomorphic) {
       this.maybeScrollToComments();
@@ -724,7 +714,7 @@ export class Post extends Component<PostRouteProps, PostState> {
                   show={this.state.showSidebarMobile}
                   onClose={() => handleShowSidebarMobile(this, false)}
                 >
-                  {this.state.isMobile && this.sidebar()}
+                  {this.state.showSidebarMobile && this.sidebar()}
                 </Offcanvas>
               </div>
               <Separator />
@@ -754,11 +744,9 @@ export class Post extends Component<PostRouteProps, PostState> {
               {this.props.view === "tree" && this.commentsTree()}
               {this.props.view === "flat" && this.commentsFlat()}
             </div>
-            {!this.state.isMobile && (
-              <aside className="d-none d-lg-block col-lg-3">
-                {this.sidebar()}
-              </aside>
-            )}
+            <aside className="d-none d-lg-block col-lg-3">
+              {this.sidebar()}
+            </aside>
           </div>
         );
       }
