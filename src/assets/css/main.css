@@ -626,32 +626,3 @@ em-emoji-picker {
 .viewer-transition {
   transition-duration: 0.1s; /* 0.3s -> 0.1s */
 }
-
-.subscription-collapse {
-  grid-template-rows: 0fr;
-  transition:
-    grid-template-rows 0.25s ease,
-    visibility 0s linear 0.25s;
-}
-
-.subscription-collapse.open {
-  grid-template-rows: 1fr;
-  transition:
-    grid-template-rows 0.25s ease,
-    visibility 0s;
-}
-
-.subscription-accordion-chevron {
-  transition: transform 0.25s ease;
-}
-
-[aria-expanded="true"] .subscription-accordion-chevron {
-  transform: rotate(180deg);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .subscription-collapse,
-  .subscription-accordion-chevron {
-    transition: none;
-  }
-}
