@@ -610,13 +610,6 @@ export class Post extends Component<PostRouteProps, PostState> {
         return (
           <div className="row">
             <div className="col-12 col-lg-9 mb-3">
-              <div className="d-block d-lg-none mb-2">
-                <ExpandChipCheckbox
-                  option="sidebar"
-                  isChecked={this.state.showSidebarMobile}
-                  onCheck={show => handleShowSidebarMobile(this, show)}
-                />
-              </div>
               <PostListing
                 postView={res.post_view}
                 crossPosts={res.cross_posts}
@@ -708,6 +701,13 @@ export class Post extends Component<PostRouteProps, PostState> {
                   imageUploadDisabled={imageUploadDisabled}
                 />
               )}
+              <div className="d-block d-lg-none mb-2">
+                <ExpandChipCheckbox
+                  option="sidebar"
+                  isChecked={this.state.showSidebarMobile}
+                  onCheck={show => handleShowSidebarMobile(this, show)}
+                />
+              </div>
               <div className="d-block d-lg-none">
                 <Offcanvas
                   id="post-sidebar-offcanvas"
