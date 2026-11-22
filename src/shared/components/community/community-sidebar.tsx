@@ -326,7 +326,7 @@ export class CommunitySidebar extends Component<SidebarProps, SidebarState> {
           )}
           {community.deleted && (
             <small className="me-2 text-muted fst-italic">
-              {I18NextService.i18n.t("deleted")}
+              {I18NextService.i18n.t("community_deleted")}
             </small>
           )}
           {community.nsfw && (

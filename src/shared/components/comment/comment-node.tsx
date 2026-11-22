@@ -916,7 +916,7 @@ function CommentContent({
   const commentUnlessRemoved = comment.removed
     ? `*${I18NextService.i18n.t("removed")}*`
     : comment.deleted
-      ? `*${I18NextService.i18n.t("deleted")}*`
+      ? `*${I18NextService.i18n.t("comment_deleted")}*`
       : comment.content;
 
   return (
