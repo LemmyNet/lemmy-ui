@@ -268,6 +268,7 @@ export class CreatePost extends Component<
       <div className="create-post container-lg" key={resetCounter}>
         <div className="row">
           <div id="createPostForm" className="col-12 col-lg-8 col-xl-9">
+            <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
             {selectedCommunity && (
               <div className="d-block d-lg-none mb-2">
                 <ExpandChipCheckbox
@@ -277,7 +278,6 @@ export class CreatePost extends Component<
                 />
               </div>
             )}
-            <h1 className="h4 mb-4">{I18NextService.i18n.t("create_post")}</h1>
             <PostForm
               onCreate={(form, bypassNav) =>
                 handlePostCreate(this, form, bypassNav)
