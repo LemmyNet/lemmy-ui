@@ -49,7 +49,6 @@ import { isBrowser } from "@utils/browser";
 import { NoOptionI18nKeys } from "i18next";
 import { CommunitySidebar } from "@components/community/community-sidebar";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
-import { isBreakpointDown, subscribeBreakpointDown } from "@utils/breakpoints";
 import { ExpandChipCheckbox } from "@components/common/filter-chip-checkbox";
 import { Offcanvas } from "@components/common/offcanvas/offcanvas";
 
@@ -105,7 +104,6 @@ interface CreatePostState {
   isIsomorphic: boolean;
   resetCounter: number; // resets PostForm when changed
   showSidebarMobile: boolean;
-  isMobile: boolean;
 }
 
 type CreatePostPathProps = Record<string, never>;
@@ -124,7 +122,6 @@ export class CreatePost extends Component<
   CreatePostState
 > {
   private isoData = setIsoData<CreatePostData>(this.context);
-  private unsubscribeMobileBreakpoint?: () => void;
   state: CreatePostState = {
     createPostRes: EMPTY_REQUEST,
     initialCommunitiesRes: EMPTY_REQUEST,
@@ -132,7 +129,6 @@ export class CreatePost extends Component<
     resetCounter: 0,
     selectedCommunityIsNsfw: false,
     showSidebarMobile: false,
-    isMobile: false,
   };
 
   constructor(props: CreatePostRouteProps, context: object) {
@@ -156,21 +152,6 @@ export class CreatePost extends Component<
         };
       }
     }
-  }
-
-  componentDidMount() {
-    if (isBreakpointDown("lg")) {
-      this.setState({ isMobile: true });
-    }
-
-    this.unsubscribeMobileBreakpoint = subscribeBreakpointDown("lg", isMobile =>
-      handleMobileMediaChange(this, isMobile),
-    );
-  }
-
-  componentWillUnmount() {
-    this.unsubscribeMobileBreakpoint?.();
-    this.unsubscribeMobileBreakpoint = undefined;
   }
 
   async fetchCommunity({ communityId }: CreatePostProps) {
@@ -248,7 +229,6 @@ export class CreatePost extends Component<
       showSidebarMobile,
       resetCounter,
       initialCommunitiesRes,
-      isMobile,
     } = this.state;
     const {
       body,
@@ -345,14 +325,12 @@ export class CreatePost extends Component<
               show={showSidebarMobile && !!selectedCommunity}
               onClose={() => handleShowSidebarMobile(this, false)}
             >
-              {isMobile && this.sidebar()}
+              {showSidebarMobile && this.sidebar()}
             </Offcanvas>
           </div>
-          {!isMobile && (
-            <aside className="d-none d-lg-block col-lg-4 col-xl-3">
-              {this.sidebar()}
-            </aside>
-          )}
+          <aside className="d-none d-lg-block col-lg-4 col-xl-3">
+            {this.sidebar()}
+          </aside>
         </div>
       </div>
     );
@@ -520,11 +498,4 @@ async function handlePostCreate(
 
 function handleShowSidebarMobile(i: CreatePost, show: boolean) {
   i.setState({ showSidebarMobile: show });
-}
-
-function handleMobileMediaChange(instance: CreatePost, isMobile: boolean) {
-  instance.setState({
-    isMobile,
-    showSidebarMobile: isMobile ? instance.state.showSidebarMobile : false,
-  });
 }
