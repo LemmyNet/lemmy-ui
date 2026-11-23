@@ -626,8 +626,12 @@ em-emoji-picker {
 .viewer-transition {
   transition-duration: 0.1s; /* 0.3s -> 0.1s */
 }
-.community-list-item .img-icon {
-  margin-right: 0 !important;
+/*.community-list-item .img-icon {*/
+/*  margin-right: 0 !important;*/
+/*}*/
+
+.fs-xs {
+  font-size: 0.8125rem;
 }
 
 .community-list-summary {
@@ -641,8 +645,4 @@ em-emoji-picker {
   .communities-search-col {
     max-width: 24rem;
   }
-}
-
-.community-list-stats {
-  font-size: 0.8125rem;
 }

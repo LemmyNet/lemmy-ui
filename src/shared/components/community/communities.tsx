@@ -228,7 +228,7 @@ export class Communities extends Component<
                 showLabel
               />
             </div>
-            <div className="col-12 col-md ms-md-auto communities-search-col">
+            <div className="col-12 col-md-5 col-lg-4 ms-md-auto">
               {this.searchForm()}
             </div>
           </div>

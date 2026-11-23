@@ -34,7 +34,7 @@ export function SubscribeButton({
 }: SubscribeButtonProps) {
   const buttonClass = classNames("btn", {
     "btn-link p-0": isLink,
-    "btn-sm rounded-pill text-nowrap": compact && !isLink,
+    "btn-sm py-1 px-2 rounded-pill text-nowrap": compact && !isLink,
     "btn-light border-light-subtle": compact && !isLink && !followState,
     "btn-outline-secondary": compact && !isLink && followState === "accepted",
     "btn-warning border-light-subtle":
