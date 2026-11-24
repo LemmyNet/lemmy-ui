@@ -46,26 +46,35 @@ export class PaginatorCursor extends Component<PaginatorCursorProps, never> {
   }
 
   render() {
+    const isLoading = this.props.resource.state === "loading";
+    const showBackToFirstPage =
+      !isLoading &&
+      this.props.resource.state !== "empty" &&
+      !this.prevPage &&
+      !this.nextPage &&
+      !!this.props.current;
+
     return (
       <div className="paginator my-2">
-        {this.prevPage && (
+        <button
+          type="button"
+          className="btn btn-light border-light-subtle"
+          disabled={isLoading || !this.prevPage}
+          onClick={() => handlePrev(this)}
+        >
+          {I18NextService.i18n.t("prev")}
+        </button>
+        <button
+          type="button"
+          className="btn btn-light border-light-subtle ms-2"
+          disabled={isLoading || !this.nextPage}
+          onClick={() => handleNext(this)}
+        >
+          {I18NextService.i18n.t("next")}
+        </button>
+        {showBackToFirstPage && (
           <button
-            className="btn btn-light border-light-subtle"
-            onClick={() => handlePrev(this)}
-          >
-            {I18NextService.i18n.t("prev")}
-          </button>
-        )}
-        {this.nextPage && (
-          <button
-            className="btn btn-light border-light-subtle ms-2"
-            onClick={() => handleNext(this)}
-          >
-            {I18NextService.i18n.t("next")}
-          </button>
-        )}
-        {!this.prevPage && !this.nextPage && this.props.current && (
-          <button
+            type="button"
             className="btn btn-light border-light-subtle ms-2"
             onClick={() => handleFirstPage(this)}
           >
