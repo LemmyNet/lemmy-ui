@@ -63,7 +63,6 @@ import {
   FollowCommunity,
   GetComments,
   PagedResponse,
-  CommentView,
   GetCommunityResponse,
   GetPost,
   GetPostResponse,
@@ -133,7 +132,7 @@ const commentsShownInterval = 15;
 
 type PostData = RouteDataResponse<{
   postRes: GetPostResponse;
-  commentsRes: PagedResponse<CommentView>;
+  commentsRes: PagedResponse<CommentSlimView>;
 }>;
 
 interface PostState {
@@ -440,7 +439,7 @@ export class Post extends Component<PostRouteProps, PostState> {
 
     const [postRes, commentsRes] = await Promise.all([
       client.getPost(postForm),
-      client.getComments(commentsForm),
+      client.getCommentsSlim(commentsForm),
     ]);
 
     return {
