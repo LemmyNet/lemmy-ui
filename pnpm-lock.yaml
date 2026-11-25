@@ -187,6 +187,9 @@ importers:
       '@babel/runtime':
         specifier: ^7.29.10
         version: 7.29.10
+      '@mdit/plugin-img-lazyload':
+        specifier: ^1.1.5
+        version: 1.1.5(markdown-it@14.3.3)
       autosize:
         specifier: ^6.0.1
         version: 6.0.1
@@ -1722,6 +1725,24 @@ packages:
 
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
+
+  '@mdit/helper@1.2.1':
+    resolution: {integrity: sha512-OS++ECXryTqYD3IQFngmYI5Eag8ZftewAmsFnZ8EqBV+YpoTNVFubb9fFgQDkxdNdDT/oh5wtEzcj1Tu1/BLSQ==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      markdown-it: ^15.0.3
+    peerDependenciesMeta:
+      markdown-it:
+        optional: true
+
+  '@mdit/plugin-img-lazyload@1.1.5':
+    resolution: {integrity: sha512-qCOd6cKqmbXEMj6/l6DRZj2ClAcTtfTEjxZNf0KDPS1R9Eh69TLcdoczoCNPWIhw/r8CqpGTQDirX2b7evqlxw==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      markdown-it: ^15.0.3
+    peerDependenciesMeta:
+      markdown-it:
+        optional: true
 
   '@noble/hashes@1.8.0':
     resolution: {integrity: sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==}
@@ -6527,6 +6548,16 @@ snapshots:
   '@keyv/serialize@1.1.1': {}
 
   '@leichtgewicht/ip-codec@2.0.5': {}
+
+  '@mdit/helper@1.2.1(markdown-it@14.3.3)':
+    optionalDependencies:
+      markdown-it: 14.3.3
+
+  '@mdit/plugin-img-lazyload@1.1.5(markdown-it@14.3.3)':
+    dependencies:
+      '@mdit/helper': 1.2.1(markdown-it@14.3.3)
+    optionalDependencies:
+      markdown-it: 14.3.3
 
   '@noble/hashes@1.8.0': {}
 
