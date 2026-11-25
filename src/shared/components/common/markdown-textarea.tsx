@@ -548,36 +548,50 @@ async function handleUploadImages(i: MarkdownTextArea, files: File[]) {
   const filesCopy = [...files];
   while (filesCopy.length > 0 && !errorOccurred) {
     try {
-      await Promise.all(
+      const uploadSingleImageResults = await Promise.all(
         filesCopy.splice(0, concurrentImageUpload).map(async file => {
-          await handleUploadSingleImage(i, file);
-
-          i.setState(({ imageUploadStatus }) => ({
-            imageUploadStatus: {
-              ...(imageUploadStatus as Required<ImageUploadStatus>),
-              uploaded: (imageUploadStatus?.uploaded ?? 0) + 1,
-            },
-          }));
+          return await handleUploadSingleImage(file);
         }),
       );
+
+      uploadSingleImageResults.forEach(result => {
+        if (typeof result === "undefined") {
+          return;
+        }
+
+        handleInsertImage(i, result.image_url);
+        pictrsDeleteToast(result.filename);
+      });
+
+      i.setState(({ imageUploadStatus }) => ({
+        imageUploadStatus: {
+          ...(imageUploadStatus as Required<ImageUploadStatus>),
+          uploaded:
+            (imageUploadStatus?.uploaded ?? 0) +
+            uploadSingleImageResults.length,
+        },
+      }));
+
+      // Save after each batch of images uploaded
+      handleSubmitContentChange(i);
     } catch {
+      i.setState({ imageUploadStatus: undefined });
       errorOccurred = true;
     }
   }
 }
 
-async function handleUploadSingleImage(i: MarkdownTextArea, image: File) {
+async function handleUploadSingleImage(image: File) {
   const res = await HttpService.client.uploadImage({ image });
   if (res.state === "success") {
-    handleInsertImage(i, res.data.image_url);
-    pictrsDeleteToast(res.data.filename);
+    return res.data;
   } else if (res.state === "failed") {
-    i.setState({ imageUploadStatus: undefined });
     console.error(res.err.name);
     toast(res.err.name, "danger");
 
     throw res.err;
   }
+  return undefined;
 }
 
 function handleInsertImage(i: MarkdownTextArea, url: string) {
@@ -621,6 +635,7 @@ function handleInsertText(
 function handleSubmitContentChange(i: MarkdownTextArea) {
   // Coerces the undefineds to empty strings, for replacing in the DB
   const content = i.state.content ?? "";
+  localStorage.setItem(localStorageKey(i.props.typeAndId), content);
   i.props.onContentChange?.(content);
 }
 
@@ -629,7 +644,6 @@ function handleContentChange(
   event: FormEvent<HTMLTextAreaElement>,
 ) {
   i.setState({ content: event.target.value });
-  localStorage.setItem(localStorageKey(i.props.typeAndId), event.target.value);
   handleSubmitContentChange(i);
   if (
     event instanceof InputEvent &&
