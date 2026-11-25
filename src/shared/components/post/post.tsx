@@ -126,7 +126,7 @@ import { Action } from "history";
 import { CommentSortDropdown } from "@components/common/sort-dropdown";
 import { CommentViewTypeDropdown } from "@components/common/comment-view-type-dropdown";
 import { removeLocalStorageMarkdown } from "@components/common/markdown-textarea";
-import { Offcanvas } from "../common/offcanvas/offcanvas";
+import { Offcanvas } from "@components/common/offcanvas/offcanvas";
 import { Separator } from "@components/common/separators";
 
 const commentsShownInterval = 15;
@@ -609,7 +609,7 @@ export class Post extends Component<PostRouteProps, PostState> {
 
         return (
           <div className="row">
-            <div className="col-12 col-md-8 col-lg-9 mb-3">
+            <div className="col-12 col-lg-9 mb-3">
               <PostListing
                 postView={res.post_view}
                 crossPosts={res.cross_posts}
@@ -701,18 +701,20 @@ export class Post extends Component<PostRouteProps, PostState> {
                   imageUploadDisabled={imageUploadDisabled}
                 />
               )}
-              <div className="d-block d-md-none">
+              <div className="d-block d-lg-none mb-2">
                 <ExpandChipCheckbox
                   option="sidebar"
                   isChecked={this.state.showSidebarMobile}
                   onCheck={show => handleShowSidebarMobile(this, show)}
                 />
+              </div>
+              <div className="d-block d-lg-none">
                 <Offcanvas
                   id="post-sidebar-offcanvas"
                   show={this.state.showSidebarMobile}
                   onClose={() => handleShowSidebarMobile(this, false)}
                 >
-                  {this.sidebar()}
+                  {this.state.showSidebarMobile && this.sidebar()}
                 </Offcanvas>
               </div>
               <Separator />
@@ -742,7 +744,7 @@ export class Post extends Component<PostRouteProps, PostState> {
               {this.props.view === "tree" && this.commentsTree()}
               {this.props.view === "flat" && this.commentsFlat()}
             </div>
-            <aside className="d-none d-md-block col-md-4 col-lg-3">
+            <aside className="d-none d-lg-block col-lg-3">
               {this.sidebar()}
             </aside>
           </div>
