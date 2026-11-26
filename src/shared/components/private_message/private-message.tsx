@@ -302,7 +302,7 @@ export class PrivateMessage extends Component<
   get messageUnlessRemoved(): string {
     const message = this.props.private_message_view.private_message;
     return message.deleted || message.deleted_by_recipient
-      ? `*${I18NextService.i18n.t("deleted")}*`
+      ? `*${I18NextService.i18n.t("private_message_deleted")}*`
       : message.content;
   }
 }
