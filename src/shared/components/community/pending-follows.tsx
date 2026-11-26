@@ -25,7 +25,11 @@ import {
 } from "lemmy-js-client";
 import { fetchLimit } from "@utils/config";
 import { InitialFetchRequest } from "@utils/types";
-import { FirstLoadService, I18NextService } from "../../services";
+import {
+  FirstLoadService,
+  I18NextService,
+  UnreadCounterService,
+} from "../../services";
 import {
   EMPTY_REQUEST,
   HttpService,
@@ -272,6 +276,7 @@ export class PendingFollows extends Component<
     if (token === this.refetchToken) {
       this.setState({ appsRes });
     }
+    await UnreadCounterService.Instance.updateUnreadCounts();
   }
 
   updateUrl(props: Partial<PendingFollowsProps>) {
