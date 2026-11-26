@@ -1,8 +1,8 @@
 import { setIsoData, updateMyUserInfo, WithHead } from "@utils/app";
 import { refreshTheme } from "@utils/browser";
-import { getQueryParams, validEmail } from "@utils/helpers";
+import { getQueryParams } from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
-import { RouteComponentProps, RouterContext } from "inferno-router";
+import { Link, RouteComponentProps, RouterContext } from "inferno-router";
 import { LoginResponse } from "lemmy-js-client";
 import { I18NextService } from "@services/I18NextService";
 import { UserService } from "@services/UserService";
@@ -47,7 +47,6 @@ interface State {
   };
   show2faModal: boolean;
   showOAuthModal: boolean;
-  showResendVerificationEmailBtn: boolean;
 }
 
 type LoginRouteProps = RouteComponentProps<Record<string, never>> &
@@ -72,7 +71,6 @@ export class Login extends Component<LoginRouteProps, State> {
     },
     show2faModal: false,
     showOAuthModal: false,
-    showResendVerificationEmailBtn: false,
   };
 
   get documentTitle(): string {
@@ -127,15 +125,6 @@ export class Login extends Component<LoginRouteProps, State> {
                 required
                 minLength={3}
               />
-              {this.state.showResendVerificationEmailBtn &&
-                validEmail(this.state.form.username_or_email) && (
-                  <button
-                    className="btn p-0 btn-link d-inline-block float-right text-muted small font-weight-bold pointer-events not-allowed"
-                    onClick={() => handleResendVerificationEmail(this)}
-                  >
-                    {I18NextService.i18n.t("resend_verification_email")}
-                  </button>
-                )}
             </div>
           </div>
           <div className="mb-3">
@@ -176,6 +165,12 @@ export class Login extends Component<LoginRouteProps, State> {
             </div>
           </div>
         </form>
+        {this.isoData.siteRes.site_view.local_site
+          .email_verification_required && (
+          <Link to="/resend_verification_email">
+            {I18NextService.i18n.t("resend_verification_email")}
+          </Link>
+        )}
       </div>
     );
   }
@@ -255,9 +250,6 @@ async function handleLoginSubmit(i: Login, event: FormEvent<HTMLFormElement>) {
           toast(I18NextService.i18n.t("incorrect_login"), "danger");
         } else if (loginRes.err.name === "email_not_verified") {
           toast(I18NextService.i18n.t(loginRes.err.name), "danger");
-
-          // Show the resend verification email button
-          i.setState({ showResendVerificationEmailBtn: true });
         } else {
           let errStr: string = I18NextService.i18n.t(
             loginRes.err.name === "registration_application_is_pending"
@@ -304,21 +296,4 @@ function handleStayLoggedInChange(
 
 function handleClose2faModal(i: Login) {
   i.setState({ show2faModal: false });
-}
-
-async function handleResendVerificationEmail(i: Login) {
-  const res = await HttpService.client.resendVerificationEmail({
-    email: i.state.form.username_or_email,
-  });
-
-  const successful = res.state === "success";
-  if (successful) {
-    toast(I18NextService.i18n.t("verify_email_sent"));
-  } else {
-    toast(I18NextService.i18n.t("incorrect_login"), "danger");
-  }
-
-  i.setState({ showResendVerificationEmailBtn: false });
-
-  return successful;
 }

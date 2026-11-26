@@ -110,6 +110,11 @@ export class VerifyEmail extends Component<RouteProps, State> {
           )}
         </div>
         <div className="d-flex flex-wrap gap-2">
+          {unavailable && (
+            <Link className="btn btn-secondary" to="/resend_verification_email">
+              {I18NextService.i18n.t("resend_verification_email")}
+            </Link>
+          )}
           {!unavailable && (
             <button
               type="button"
