@@ -78,6 +78,12 @@ export default function OAuthProviderListItem({
               i18nKey="oauth_client_id"
               data={provider.client_id}
             />
+            {provider.username_claim && (
+              <TextInfoField
+                i18nKey="oauth_username_claim"
+                data={provider.username_claim}
+              />
+            )}
             <TextInfoField i18nKey="oauth_scopes" data={provider.scopes} />
             <TextInfoField
               i18nKey="oauth_auto_verify_email"

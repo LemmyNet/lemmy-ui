@@ -3,12 +3,13 @@ import { numToSI, randomStr } from "@utils/helpers";
 import autosize from "autosize";
 import classNames from "classnames";
 import { NoOptionI18nKeys } from "i18next";
-import { Component, FormEvent } from "inferno";
+import { Component, InfernoNode, FormEvent } from "inferno";
 import { createElement } from "inferno-create-element";
 import { Prompt } from "inferno-router";
 import { Language, LanguageId, MyUserInfo } from "lemmy-js-client";
 import {
   concurrentImageUpload,
+  indentationLevelBreak,
   markdownFieldCharacterLimit,
   markdownHelpUrl,
   maxUploadImages,
@@ -29,6 +30,12 @@ import { LanguageSelect } from "./language-select";
 import ProgressBar from "./progress-bar";
 import { validURL } from "@utils/helpers";
 import { createRef, RefObject } from "inferno";
+
+const listIndentReg = /^(?<indent>[ ]*[-*+][ ]*)(?<rest>[^-*+][^$]*)?$/;
+const numberListIndentReg =
+  /^(?<indent>(?<head>[ ]*)(?<number>[0-9]+)(?<token>[.)])(?<tail>[ ]+))(?<rest>[^-*+][^$]*)?$/;
+const quoteIndentReg = /^(?<indent>[> ]*>[ ]*)(?<rest>[^>][^$]*)?$/;
+const spaceIndentReg = /^(?<indent>[ ]+)(?<rest>[^ ][^$]*)?$/;
 
 type MarkdownTextAreaType =
   | "post"
@@ -101,6 +108,7 @@ interface MarkdownTextAreaState {
   languageId?: number;
   previewMode: boolean;
   imageUploadStatus?: ImageUploadStatus;
+  lastAutoIndent: string;
 }
 
 @tippyMixin
@@ -116,6 +124,7 @@ export class MarkdownTextArea extends Component<
     content: undefined,
     languageId: this.props.initialLanguageId,
     previewMode: false,
+    lastAutoIndent: "",
   };
 
   async componentDidMount() {
@@ -135,12 +144,28 @@ export class MarkdownTextArea extends Component<
           autosize.update(textarea);
         });
 
-        handleQuoteInsert(this);
+        handleInsertInitialQuote(this);
 
         if (this.props.focus) {
           textarea.focus();
         }
       }
+    }
+  }
+
+  componentWillUnmount() {
+    const textarea = this.textAreaRef.current;
+    if (textarea) {
+      autosize.destroy(textarea);
+    }
+  }
+
+  componentDidUpdate(
+    _: MarkdownTextAreaProps & { children?: InfernoNode },
+    prevState: Readonly<MarkdownTextAreaState>,
+  ) {
+    if (this.state.content !== prevState.content && this.textAreaRef.current) {
+      autosize.update(this.textAreaRef.current);
     }
   }
 
@@ -405,13 +430,33 @@ export class MarkdownTextArea extends Component<
 
   getSelectedText(): string {
     const textarea = this.textAreaRef.current;
-    if (!textarea) {
-      return "";
-    }
-    const { selectionStart: start, selectionEnd: end } = textarea;
-    return start !== end
-      ? (this.state.content?.substring(start, end) ?? "")
-      : "";
+    return (
+      textarea?.value.substring(
+        textarea.selectionStart,
+        textarea.selectionEnd,
+      ) ?? ""
+    );
+  }
+
+  beforeSelectionEndsWith(chars: string): boolean {
+    const { selectionStart = 0, value = "" } = this.textAreaRef.current ?? {};
+    return value.endsWith(chars, selectionStart);
+  }
+
+  afterSelectionStartsWith(chars: string): boolean {
+    const { selectionEnd = 0, value = "" } = this.textAreaRef.current ?? {};
+    return value.startsWith(chars, selectionEnd);
+  }
+
+  startOfSelectedLines(): number {
+    const { selectionStart = 0, value = "" } = this.textAreaRef.current ?? {};
+    return value.lastIndexOf("\n", selectionStart - 1) + 1;
+  }
+
+  endOfSelectedLines(): number {
+    const { selectionEnd = 0, value = "" } = this.textAreaRef.current ?? {};
+    const end = value.indexOf("\n", selectionEnd);
+    return end < 0 ? value.length : end;
   }
 
   get isDisabled() {
@@ -431,7 +476,7 @@ function handleEmoji(i: MarkdownTextArea, e: EmojiEvent) {
       value = `![${emoji.alt_text}](${emoji.image_url} "emoji ${emoji.shortcode}")`;
     }
   }
-  handleInsertAtCursor(i, value);
+  handleInsertText(i, value);
 }
 
 async function handlePaste(i: MarkdownTextArea, event: ClipboardEvent) {
@@ -456,30 +501,10 @@ function handleUrlPaste(
   url: string,
   event: ClipboardEvent,
 ) {
-  const textarea = i.textAreaRef.current;
-
-  if (textarea) {
-    const { selectionStart, selectionEnd } = textarea;
-
-    // if no selection, just insert url
-    if (selectionStart === selectionEnd) return;
-
+  // if no selection, just insert url
+  if (i.getSelectedText() !== "") {
     event.preventDefault();
-    const selectedText = i.getSelectedText();
-
-    // update textarea content
-    i.setState(({ content }) => ({
-      content: `${
-        content?.substring(0, selectionStart) ?? ""
-      }[${selectedText}](${url})${content?.substring(selectionEnd) ?? ""}`,
-    }));
-    handleSubmitContentChange(i);
-
-    // shift selection 1 to the right
-    textarea.setSelectionRange(
-      selectionStart + 1,
-      selectionStart + 1 + selectedText.length,
-    );
+    handleSimpleSurroundBeforeAfter(i, "[", `](${url})`);
   }
 }
 
@@ -544,9 +569,7 @@ async function handleUploadImages(i: MarkdownTextArea, files: File[]) {
 async function handleUploadSingleImage(i: MarkdownTextArea, image: File) {
   const res = await HttpService.client.uploadImage({ image });
   if (res.state === "success") {
-    const imageMarkdown = `![](${res.data.image_url})`;
-    handleInsertAtCursor(i, imageMarkdown);
-
+    handleInsertImage(i, res.data.image_url);
     pictrsDeleteToast(res.data.filename);
   } else if (res.state === "failed") {
     i.setState({ imageUploadStatus: undefined });
@@ -557,37 +580,42 @@ async function handleUploadSingleImage(i: MarkdownTextArea, image: File) {
   }
 }
 
-// Insert the given string at the current cursor position. By default the cursor is
-// placed right after the newly inserted text, but this can be changed with
-// `cursorOffset`.
-function handleInsertAtCursor(
+function handleInsertImage(i: MarkdownTextArea, url: string) {
+  handleMoveForwardToLineBreak(i);
+  const imageMarkdown = `\n![](${url})`;
+  const move = -imageMarkdown.length + 3;
+  handleInsertText(i, imageMarkdown, move, move);
+  // Wait for textarea to be enabled
+  setTimeout(() => {
+    i.textAreaRef.current?.focus();
+  });
+}
+
+/**
+ * Inserts text at cursor position, replaces selected text. The cursor moves to
+ * the end of the inserted text. `moveStart` and `moveEnd` move the selection
+ * relative to the new cursor position.
+ */
+function handleInsertText(
   i: MarkdownTextArea,
   text: string,
-  cursorOffset: number = 0,
+  moveStart = 0,
+  moveEnd = 0,
 ) {
   const textarea = i.textAreaRef.current;
-  if (!textarea) {
-    return;
-  }
-  const cursorPosition = textarea.selectionStart;
-
-  i.setState(({ content }) => {
-    const currentContent = content ?? "";
-    return {
-      content:
-        currentContent.slice(0, cursorPosition) +
-        text +
-        currentContent.slice(cursorPosition),
-    };
-  });
-  handleSubmitContentChange(i);
-  // Update cursor position to after the inserted image link
-  setTimeout(() => {
-    textarea.selectionStart = cursorPosition + text.length + cursorOffset;
-    textarea.selectionEnd = cursorPosition + text.length + cursorOffset;
+  if (textarea) {
     textarea.focus();
-    autosize.update(textarea);
-  }, 10);
+    const head = textarea.value.substring(0, textarea.selectionStart);
+    const tail = textarea.value.substring(textarea.selectionEnd);
+    i.setState({ content: head + text + tail });
+    const pos = head.length + text.length;
+    // Note: When end is lower than start, start becomes equal to end.
+    textarea.setSelectionRange(
+      pos + moveStart,
+      pos + moveEnd,
+      textarea.selectionDirection,
+    );
+  }
 }
 
 function handleSubmitContentChange(i: MarkdownTextArea) {
@@ -603,6 +631,14 @@ function handleContentChange(
   i.setState({ content: event.target.value });
   localStorage.setItem(localStorageKey(i.props.typeAndId), event.target.value);
   handleSubmitContentChange(i);
+  if (
+    event instanceof InputEvent &&
+    (event.inputType === "insertLineBreak" ||
+      /* chromium does this instead of insertLineBreak in some cases */
+      (event.inputType === "insertText" && event.data === null))
+  ) {
+    handleAutoIndent(i);
+  }
 }
 
 // Keybind handler
@@ -612,41 +648,49 @@ function handleKeyBinds(i: MarkdownTextArea, event: KeyboardEvent) {
     switch (event.key) {
       case "k": {
         handleInsertLink(i);
+        event.preventDefault();
         break;
       }
       case "Enter": {
         if (!i.isDisabled) {
           handleSubmit(i, event);
         }
-
+        event.preventDefault();
         break;
       }
       case "b": {
         handleInsertBold(i);
+        event.preventDefault();
         break;
       }
       case "i": {
         handleInsertItalic(i);
+        event.preventDefault();
         break;
       }
       case "e": {
         handleInsertCode(i);
+        event.preventDefault();
         break;
       }
       case "8": {
         handleInsertList(i);
+        event.preventDefault();
         break;
       }
       case "s": {
         handleInsertSpoiler(i);
+        event.preventDefault();
         break;
       }
       case "p": {
         if (i.state.content) handlePreviewToggle(i);
+        event.preventDefault();
         break;
       }
       case ".": {
         handleInsertQuote(i);
+        event.preventDefault();
         break;
       }
     }
@@ -674,45 +718,27 @@ function handleReplyCancel(i: MarkdownTextArea) {
 }
 
 function handleInsertLink(i: MarkdownTextArea) {
-  const textarea = i.textAreaRef.current;
-  if (!textarea) {
-    return;
-  }
-  const start: number = textarea.selectionStart;
-  const end: number = textarea.selectionEnd;
-
-  const content = i.state.content ?? "";
-
-  if (!i.state.content) {
-    i.setState({ content: "" });
-  }
-
-  if (start !== end) {
-    const selectedText = content?.substring(start, end);
-    i.setState({
-      content: `${content?.substring(
-        0,
-        start,
-      )}[${selectedText}]()${content?.substring(end)}`,
-    });
-    textarea.focus();
-    setTimeout(() => (textarea.selectionEnd = end + 3), 10);
+  if (i.getSelectedText()) {
+    handleSimpleSurroundBeforeAfter(i, "[", "]()");
   } else {
-    handleInsertAtCursor(i, "[]()", -3);
+    handleSimpleSurroundBeforeAfter(i, "[](", ")", "");
   }
-  handleSubmitContentChange(i);
 }
 
-function handleSimpleSurround(i: MarkdownTextArea, chars: string) {
-  handleSimpleSurroundBeforeAfter(i, chars, chars);
+function handleSimpleSurround(
+  i: MarkdownTextArea,
+  chars: string,
+  emptyChars = "___",
+) {
+  handleSimpleSurroundBeforeAfter(i, chars, chars, emptyChars);
 }
 
-function handleSimpleBeginningofLine(i: MarkdownTextArea, chars: string) {
-  handleSimpleSurroundBeforeAfter(i, `${chars}`, "", "");
-}
-
-function handleSimpleSurroundEscapeWords(i: MarkdownTextArea, chars: string) {
-  handleSimpleSurroundBeforeAfter(i, chars, chars, "", true);
+function handleSimpleSurroundEscapeWords(
+  i: MarkdownTextArea,
+  chars: string,
+  emptyChars = "___",
+) {
+  handleSimpleSurroundBeforeAfter(i, chars, chars, emptyChars, true);
 }
 
 function handleSimpleSurroundBeforeAfter(
@@ -722,58 +748,90 @@ function handleSimpleSurroundBeforeAfter(
   emptyChars = "___",
   escapeWords = false,
 ) {
-  const content = i.state.content ?? "";
-  if (!i.state.content) {
-    i.setState({ content: "" });
-  }
-
-  const textarea = i.textAreaRef.current;
-  if (!textarea) {
-    return;
-  }
-  const start: number = textarea.selectionStart;
-  const end: number = textarea.selectionEnd;
-
-  let escapeSpaces = 0;
-
-  if (start !== end) {
-    let selectedText = content?.substring(start, end);
-
-    if (escapeWords) {
-      escapeSpaces = (selectedText.match(/ /g) || []).length;
-      selectedText = selectedText.replaceAll(" ", "\\ ");
+  let selected = i.getSelectedText();
+  if (
+    i.beforeSelectionEndsWith(beforeChars) &&
+    i.afterSelectionStartsWith(afterChars)
+  ) {
+    const textarea = i.textAreaRef.current;
+    if (textarea) {
+      textarea.setSelectionRange(
+        textarea.selectionStart - beforeChars.length,
+        textarea.selectionEnd + afterChars.length,
+        textarea.selectionDirection,
+      );
+      if (selected === emptyChars) {
+        handleInsertText(i, "");
+      } else {
+        if (escapeWords && selected) {
+          selected = selected.replaceAll("\\ ", " ");
+        }
+        handleInsertText(i, selected, -selected.length);
+      }
     }
-
-    i.setState({
-      content: `${content?.substring(
-        0,
-        start,
-      )}${beforeChars}${selectedText}${afterChars}${content?.substring(end)}`,
-    });
   } else {
-    i.setState({
-      content: `${content}${beforeChars}${emptyChars}${afterChars}`,
-    });
-  }
-  handleSubmitContentChange(i);
-
-  textarea.focus();
-
-  if (start !== end) {
-    textarea.setSelectionRange(
-      start + beforeChars.length,
-      end + afterChars.length + escapeSpaces,
-    );
-  } else {
-    textarea.setSelectionRange(
-      start + beforeChars.length,
-      end + emptyChars.length + afterChars.length + escapeSpaces,
+    if (escapeWords && selected) {
+      selected = selected.replaceAll(" ", "\\ ");
+    }
+    const newContent = beforeChars + (selected || emptyChars) + afterChars;
+    handleInsertText(
+      i,
+      newContent,
+      -(selected || emptyChars).length - afterChars.length,
+      -afterChars.length,
     );
   }
+}
 
-  setTimeout(() => {
-    autosize.update(textarea);
-  }, 10);
+function handleSimpleIndentLines(
+  i: MarkdownTextArea,
+  prefixForLine: (line: string) => { indent: string; skip: number },
+) {
+  const textarea = i.textAreaRef.current;
+  if (textarea) {
+    const { selectionStart, selectionEnd, selectionDirection } = textarea;
+
+    // Expand selection to full lines.
+    const start = i.startOfSelectedLines();
+    const end = i.endOfSelectedLines();
+    textarea.setSelectionRange(start, end, selectionDirection);
+
+    // Add/remove prefixes
+    const lines = i.getSelectedText().split("\n");
+    const newLines = lines.map(line => {
+      const { indent, skip } = prefixForLine(line);
+      return indent + line.substring(skip);
+    });
+
+    // Replace selected text and restore original selection start/end.
+    const newContent = newLines.join("\n");
+    const firstLineOffset = newLines[0].length - lines[0].length;
+    const startOffset = Math.max(0, firstLineOffset + selectionStart - start);
+    const endOffset = Math.min(0, selectionEnd - end);
+    handleInsertText(
+      i,
+      newContent,
+      -newContent.length + startOffset,
+      endOffset,
+    );
+  }
+}
+
+function handleInsertInitialQuote(i: MarkdownTextArea) {
+  const selectedText = window.getSelection()?.toString();
+  if (selectedText) {
+    handleInsertText(i, selectedText, -selectedText.length);
+    // Not using handleInsertQuote here to avoid undoing indentation levels.
+    handleSimpleIndentLines(i, () => ({ indent: "> ", skip: 0 }));
+  }
+}
+
+function handleMoveForwardToLineBreak(i: MarkdownTextArea) {
+  const textarea = i.textAreaRef.current;
+  if (textarea) {
+    const end = i.endOfSelectedLines();
+    textarea.setSelectionRange(end, end, textarea.selectionDirection);
+  }
 }
 
 function handleInsertBold(i: MarkdownTextArea) {
@@ -781,12 +839,12 @@ function handleInsertBold(i: MarkdownTextArea) {
 }
 
 function handleInsertItalic(i: MarkdownTextArea) {
-  handleSimpleSurround(i, "*");
+  handleSimpleSurround(i, "_", "---");
 }
 
 function handleInsertCode(i: MarkdownTextArea) {
   if (i.getSelectedText().split(/\r*\n/).length > 1) {
-    handleSimpleSurroundBeforeAfter(i, "```\n", "\n```");
+    handleSimpleSurround(i, "\n```\n");
   } else {
     handleSimpleSurround(i, "`");
   }
@@ -797,15 +855,35 @@ function handleInsertStrikethrough(i: MarkdownTextArea) {
 }
 
 function handleInsertList(i: MarkdownTextArea) {
-  handleSimpleBeginningofLine(i, `-${i.getSelectedText() ? " " : ""}`);
-}
-
-function handleInsertQuote(i: MarkdownTextArea) {
-  handleSimpleBeginningofLine(i, ">");
+  const ignoreEmptyLines =
+    i.getSelectedText().includes("\n") && i.getSelectedText().trim();
+  handleSimpleIndentLines(i, (line: string) => {
+    const match = line.match(/^[ ]*[-*+][ ]?/);
+    if (match && line.startsWith(" ".repeat(indentationLevelBreak * 2 - 1))) {
+      return { indent: "", skip: match[0].length };
+    }
+    if (ignoreEmptyLines && !line.trim()) return { indent: "", skip: 0 };
+    // Extend indentation
+    if (match) return { indent: "  ", skip: 0 };
+    // Start new indentation
+    return { indent: " - ", skip: 0 };
+  });
 }
 
 function handleInsertHeader(i: MarkdownTextArea) {
-  handleSimpleBeginningofLine(i, "#");
+  const ignoreEmptyLines =
+    i.getSelectedText().includes("\n") && i.getSelectedText().trim();
+  handleSimpleIndentLines(i, (line: string) => {
+    const match = line.match(/^[#]*#[ ]?/);
+    if (match && match[0].length > indentationLevelBreak) {
+      return { indent: "", skip: match[0].length };
+    }
+    if (ignoreEmptyLines && !line.trim()) return { indent: "", skip: 0 };
+    // Extend indentation
+    if (match) return { indent: "#", skip: 0 };
+    // Start indentation
+    return { indent: "# ", skip: 0 };
+  });
 }
 
 function handleInsertSubscript(i: MarkdownTextArea) {
@@ -822,29 +900,62 @@ function handleInsertSpoiler(i: MarkdownTextArea) {
   handleSimpleSurroundBeforeAfter(i, beforeChars, afterChars);
 }
 
-function handleQuoteInsert(i: MarkdownTextArea) {
-  const textarea = i.textAreaRef.current;
-  const selectedText = window.getSelection()?.toString();
-  let { content } = i.state;
-  if (textarea && selectedText) {
-    const quotedText =
-      selectedText
-        .split("\n")
-        .map(t => `> ${t}`)
-        .join("\n") + "\n\n";
-
-    if (!content) {
-      content = "";
-    } else {
-      content = `${content}\n\n`;
+function handleInsertQuote(i: MarkdownTextArea) {
+  handleSimpleIndentLines(i, (line: string) => {
+    const match = line.match(/^[> ]*[>][ ]?/);
+    if (match && match[0].split(">").length > indentationLevelBreak) {
+      return { indent: "", skip: match[0].length };
     }
+    // Start or extend indentation
+    return { indent: "> ", skip: 0 };
+  });
+}
 
-    i.setState({
-      content: `${content}${quotedText}`,
-    });
-    handleSubmitContentChange(i);
-    // Not sure why this needs a delay
-    setTimeout(() => autosize.update(textarea), 10);
+function handleAutoIndent(i: MarkdownTextArea) {
+  const textarea = i.textAreaRef.current;
+  if (!textarea) {
+    return;
+  }
+
+  const { value, selectionStart } = textarea;
+  // Expects to be called immediately after inserting a linebreak.
+  if (value[selectionStart - 1] !== "\n") {
+    return;
+  }
+  const lastLineBreak = value.lastIndexOf("\n", selectionStart - 2);
+  const lastLine = value.substring(lastLineBreak + 1, selectionStart - 1);
+
+  const match =
+    lastLine.match(listIndentReg) ??
+    lastLine.match(numberListIndentReg) ??
+    lastLine.match(quoteIndentReg) ??
+    lastLine.match(spaceIndentReg);
+
+  if (!match) {
+    i.setState({ lastAutoIndent: "" });
+  } else {
+    const {
+      rest = "",
+      head = "",
+      number = "",
+      token = "",
+      tail = "",
+    } = match.groups ?? {};
+    let { indent = "" } = match.groups ?? {};
+    if (rest) {
+      if (number && token) {
+        indent = `${head}${Number(number) + 1}${token}${tail}`;
+      }
+      handleInsertText(i, indent);
+      i.setState({ lastAutoIndent: indent });
+    } else {
+      // Only an indentation. If it matches the last auto indent, remove it.
+      if (i.state.lastAutoIndent === indent) {
+        textarea.selectionStart -= lastLine.length + 1;
+        handleInsertText(i, "\n");
+        i.setState({ lastAutoIndent: "" });
+      }
+    }
   }
 }
 

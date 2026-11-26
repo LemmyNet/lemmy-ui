@@ -24,6 +24,7 @@ import markdown_it_highlightjs from "markdown-it-highlightjs/core";
 import markdown_it_cjk_friendly from "markdown-it-cjk-friendly";
 import { getStaticDir } from "./env";
 import mila from "markdown-it-link-attributes";
+import { imgLazyload } from "@mdit/plugin-img-lazyload";
 import { buildPictrsSrc } from "@components/common/pictrs-image";
 import { TributeCollection } from "tributejs";
 import Token from "markdown-it/lib/token.mjs";
@@ -191,7 +192,8 @@ export function setupMarkdown() {
     .use(localInstanceLinkParser)
     .use(markdown_it_bidi as PluginSimple)
     .use(markdown_it_cjk_friendly)
-    .use(mila as PluginSimple, milaAttrs);
+    .use(mila as PluginSimple, milaAttrs)
+    .use(imgLazyload);
   // .use(markdown_it_emoji, {
   //   defs: emojiDefs,
   // });

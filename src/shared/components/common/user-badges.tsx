@@ -114,8 +114,8 @@ export class UserBadges extends Component<UserBadgesProps> {
           {isDeleted && (
             <span className="col-auto">
               <RoleLabelPill
-                label={I18NextService.i18n.t("deleted")}
-                tooltip={I18NextService.i18n.t("deleted")}
+                label={I18NextService.i18n.t("user_deleted")}
+                tooltip={I18NextService.i18n.t("user_deleted")}
               />
             </span>
           )}
