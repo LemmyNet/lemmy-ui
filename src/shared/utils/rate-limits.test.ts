@@ -2,19 +2,15 @@ import { strict as assert } from "node:assert";
 import { test } from "node:test";
 import { toRateLimitEditSite } from "./rate-limits.ts";
 
-void test("admin form saves separate IP and account resend limits, including zero", () => {
+void test("admin form saves the resend limit, including zero", () => {
   assert.deepEqual(
     toRateLimitEditSite({
-      resend_verification_email_max_requests: 10,
+      resend_verification_email_max_requests: 0,
       resend_verification_email_interval_seconds: 120,
-      resend_verification_email_per_account_max_requests: 0,
-      resend_verification_email_per_account_interval_seconds: 3600,
     }),
     {
-      rate_limit_resend_verification_email_max_requests: 10,
+      rate_limit_resend_verification_email_max_requests: 0,
       rate_limit_resend_verification_email_interval_seconds: 120,
-      rate_limit_resend_verification_email_per_account_max_requests: 0,
-      rate_limit_resend_verification_email_per_account_interval_seconds: 3600,
     },
   );
 });

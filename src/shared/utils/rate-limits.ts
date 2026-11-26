@@ -9,7 +9,6 @@ export const rateLimitTypes = [
   "search",
   "import_user_settings",
   "resend_verification_email",
-  "resend_verification_email_per_account",
 ] as const;
 
 export type RateLimitType = (typeof rateLimitTypes)[number];
@@ -18,8 +17,6 @@ export type RateLimitType = (typeof rateLimitTypes)[number];
 interface VerificationEmailRateLimits {
   resend_verification_email_max_requests?: number;
   resend_verification_email_interval_seconds?: number;
-  resend_verification_email_per_account_max_requests?: number;
-  resend_verification_email_per_account_interval_seconds?: number;
 }
 
 export type SiteRateLimits = LocalSiteRateLimit & VerificationEmailRateLimits;
