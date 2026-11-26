@@ -1,7 +1,7 @@
 // The extension has to end the path. It may be followed by a query or a
 // fragment, as in `https://example.com/image.png?width=640#top`.
 const imageRegex =
-  /^(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp|avif))(?:[?#]|$)/;
+  /^(http)?s?:?(\/\/[^"']*\.(?:jpg|jpeg|gif|png|svg|webp|avif|jxl))(?:[?#]|$)/;
 
 export function isImage(url: string) {
   return imageRegex.test(url);
