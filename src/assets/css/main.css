@@ -2,11 +2,6 @@ body {
   overflow-y: scroll !important;
 }
 
-.navbar-expand-lg .navbar-nav .nav-link {
-  padding-right: 0.75rem !important;
-  padding-left: 0.75rem !important;
-}
-
 .pointer {
   cursor: pointer;
 }
@@ -625,4 +620,20 @@ em-emoji-picker {
 /* A faster animation for viewerjs */
 .viewer-transition {
   transition-duration: 0.1s; /* 0.3s -> 0.1s */
+}
+
+@media (max-width: 991.98px) {
+  #navbarOffcanvas {
+    --bs-offcanvas-width: min(17.5rem, 80vw);
+  }
+  #navbarOffcanvas .nav-link {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    border-radius: var(--bs-border-radius);
+  }
+  #navbarOffcanvas .nav-link.active {
+    color: var(--bs-emphasis-color);
+    background-color: var(--bs-tertiary-bg);
+    font-weight: 600;
+  }
 }

@@ -10,6 +10,10 @@ interface OffcanvasProps {
   onClose: () => void;
   children: InfernoNode;
   placement?: "start" | "end" | "top" | "bottom";
+  title?: string;
+  isAlwaysMounted?: boolean;
+  headerClasses?: string;
+  bodyClasses?: string;
 }
 
 interface OffcanvasState {
@@ -46,10 +50,23 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
   }
 
   render() {
-    const { id, show, children, placement = "end", onClose } = this.props;
+    const {
+      id,
+      show,
+      children,
+      placement = "end",
+      onClose,
+      title,
+      isAlwaysMounted = false,
+      headerClasses,
+      bodyClasses,
+    } = this.props;
     const isOpen = show && this.state.isShown;
+    const isHiding = !show && this.state.isShown;
+    const showBackdrop = show || this.state.isShown;
+    const isDialogActive = !isAlwaysMounted || isOpen;
 
-    if (!show && !this.state.isShown) {
+    if (!isAlwaysMounted && !show && !this.state.isShown) {
       return null;
     }
 
@@ -59,13 +76,22 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
           id={id}
           className={classNames("offcanvas", `offcanvas-${placement}`, {
             show: isOpen,
-            hiding: !isOpen,
+            hiding: isHiding,
           })}
-          tabIndex={-1}
-          role="dialog"
-          aria-modal="true"
+          tabIndex={isDialogActive ? -1 : undefined}
+          role={isDialogActive ? "dialog" : undefined}
+          aria-modal={isDialogActive ? "true" : undefined}
+          aria-labelledby={title ? `${id}Label` : undefined}
         >
-          <div className="offcanvas-header">
+          <div className={classNames("offcanvas-header", headerClasses)}>
+            {title && (
+              <h5
+                className="offcanvas-title fs-6 fw-semibold"
+                id={`${id}Label`}
+              >
+                {title}
+              </h5>
+            )}
             <button
               type="button"
               className="btn-close"
@@ -73,18 +99,22 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
               onClick={onClose}
             />
           </div>
-          <div className="offcanvas-body">{children}</div>
+          <div className={classNames("offcanvas-body", bodyClasses)}>
+            {children}
+          </div>
         </div>
 
-        <button
-          type="button"
-          tabIndex={-1}
-          aria-hidden="true"
-          className={classNames("offcanvas-backdrop fade border-0 p-0", {
-            show: isOpen,
-          })}
-          onClick={onClose}
-        />
+        {showBackdrop && (
+          <button
+            type="button"
+            tabIndex={-1}
+            aria-hidden="true"
+            className={classNames("offcanvas-backdrop fade border-0 p-0", {
+              show: isOpen,
+            })}
+            onClick={onClose}
+          />
+        )}
       </>
     );
   }
