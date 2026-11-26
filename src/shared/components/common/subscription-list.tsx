@@ -1,5 +1,4 @@
 import classNames from "classnames";
-import type { InfernoNode } from "inferno";
 import { Link } from "inferno-router";
 import { Community, MultiCommunity, MyUserInfo } from "lemmy-js-client";
 import { hideAnimatedImage, showAvatars, showMedia } from "@utils/app.ts";
@@ -137,16 +136,14 @@ function IconOrFirstLetter({
   label,
   shouldUseFirstLetterFallback,
 }: IconOrFirstLetterProps) {
-  let content: InfernoNode = null;
-
   if (iconSrc) {
-    content = (
+    return (
       <span className="img-icon me-1 rounded-circle overflow-hidden d-inline-flex flex-shrink-0">
         <PictrsImage src={iconSrc} type="icon" nsfw={nsfw} />
       </span>
     );
   } else if (iconName) {
-    content = (
+    return (
       <span
         className="img-icon me-1 d-inline-flex align-items-center justify-content-center flex-shrink-0 text-body-secondary"
         aria-hidden="true"
@@ -155,7 +152,7 @@ function IconOrFirstLetter({
       </span>
     );
   } else if (shouldUseFirstLetterFallback) {
-    content = (
+    return (
       <span
         className="img-icon me-1 rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0 bg-body-secondary text-body-secondary fw-semibold"
         aria-hidden="true"
@@ -163,9 +160,9 @@ function IconOrFirstLetter({
         {getFirstCharacter(label)}
       </span>
     );
+  } else {
+    return null;
   }
-
-  return content;
 }
 
 export function CommunitySubscriptionLink({

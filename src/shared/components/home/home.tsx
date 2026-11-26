@@ -24,11 +24,6 @@ import {
   getQueryString,
   resourcesSettled,
 } from "@utils/helpers";
-import {
-  getLocalStorageItem,
-  localStorageKeys,
-  setLocalStorageItem,
-} from "@utils/local-storage";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import type { ItemIdAndRes, QueryParams } from "@utils/types";
 import { itemLoading, RouteDataResponse } from "@utils/types";
@@ -305,8 +300,8 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     votePostRes: { id: 0, res: EMPTY_REQUEST },
     siteRes: this.isoData.siteRes,
     showSidebarMobile: false,
-    subscribedCollapsed: true,
-    subscribedMultisCollapsed: true,
+    subscribedCollapsed: false,
+    subscribedMultisCollapsed: false,
     isIsomorphic: false,
     markPageAsReadLoading: false,
     postListingMode: defaultPostListingMode(this.isoData),
@@ -355,10 +350,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     nextProps: HomeRouteProps & { children?: InfernoNode },
   ) {
     await this.fetchData(nextProps);
-  }
-
-  componentDidMount() {
-    restoreSidebarCollapseState(this);
   }
 
   static fetchInitialData = async ({
@@ -472,16 +463,6 @@ export class Home extends Component<HomeRouteProps, HomeState> {
     );
   }
 
-  get hasFollows(): boolean {
-    const mui = this.isoData.myUserInfo;
-    return !!mui && mui.follows.length > 0;
-  }
-
-  get hasMultiFollows(): boolean {
-    const mui = this.isoData.myUserInfo;
-    return !!mui && mui.multi_community_follows.length > 0;
-  }
-
   get mobileSidebarDrawer() {
     const { showSidebarMobile } = this.state;
 
@@ -517,110 +498,110 @@ export class Home extends Component<HomeRouteProps, HomeState> {
           siteLanguages={this.state.siteRes.discussion_languages}
           activePlugins={this.state.siteRes.active_plugins}
         />
-        {this.hasFollows && (
-          <div className="accordion">
-            <section id="sidebarSubscribed" className="card mb-3">
-              {this.subscribedCommunities}
-            </section>
-          </div>
-        )}
-        {this.hasMultiFollows && (
-          <div className="accordion">
-            <section id="sidebarSubscribedMultis" className="card mb-3">
-              {this.subscribedMultiCommunities}
-            </section>
-          </div>
-        )}
+        {this.subscribedCommunities}
+        {this.subscribedMultiCommunities}
       </div>
     );
   }
 
   get subscribedCommunities() {
+    const follows = this.isoData.myUserInfo?.follows ?? [];
+    if (!follows.length) {
+      return null;
+    }
+
     const { subscribedCollapsed } = this.state;
     const headerId = "sidebarSubscribedHeader";
     const bodyId = "sidebarSubscribedBody";
+    const communities = follows.map(follow => follow.community);
 
     return (
-      <>
-        <header className="card-header p-0" id={headerId}>
-          <button
-            type="button"
-            className="btn w-100 d-flex align-items-center justify-content-between text-start px-3 py-2 border-0 text-body"
-            onClick={() => handleCollapseSubscribe(this)}
-            aria-expanded={!subscribedCollapsed}
-            aria-controls={bodyId}
-          >
-            <h6 className="mb-0">{I18NextService.i18n.t("communities")}</h6>
-            <Icon
-              icon={subscribedCollapsed ? "chevrons-down" : "chevrons-up"}
-              classes="icon-inline text-muted flex-shrink-0 ms-2"
-            />
-          </button>
-        </header>
-        {!subscribedCollapsed && (
-          <div id={bodyId} aria-labelledby={headerId}>
-            <div className="card-body p-2">
-              <SubscriptionList
-                itemType="community"
-                items={
-                  this.isoData.myUserInfo?.follows.map(
-                    follow => follow.community,
-                  ) ?? []
-                }
-                myUserInfo={this.isoData.myUserInfo}
-                manageTo="/communities?listingType=subscribed"
-                manageLabel={I18NextService.i18n.t("manage_communities")}
-                shouldUseFirstLetterFallback
+      <div className="accordion">
+        <section id="sidebarSubscribed" className="card mb-3">
+          <header className="card-header p-0" id={headerId}>
+            <button
+              type="button"
+              className="btn w-100 d-flex align-items-center justify-content-between text-start px-3 py-2 border-0 text-body"
+              onClick={() => handleCollapseSubscribe(this)}
+              aria-expanded={!subscribedCollapsed}
+              aria-controls={bodyId}
+            >
+              <h6 className="mb-0">{I18NextService.i18n.t("communities")}</h6>
+              <Icon
+                icon={subscribedCollapsed ? "chevrons-down" : "chevrons-up"}
+                classes="icon-inline text-muted flex-shrink-0 ms-2"
               />
+            </button>
+          </header>
+          {!subscribedCollapsed && (
+            <div id={bodyId} aria-labelledby={headerId}>
+              <div className="card-body p-2">
+                <SubscriptionList
+                  itemType="community"
+                  items={communities}
+                  myUserInfo={this.isoData.myUserInfo}
+                  manageTo="/communities?listingType=subscribed"
+                  manageLabel={I18NextService.i18n.t("manage_communities")}
+                  shouldUseFirstLetterFallback
+                />
+              </div>
             </div>
-          </div>
-        )}
-      </>
+          )}
+        </section>
+      </div>
     );
   }
 
   get subscribedMultiCommunities() {
+    const multiFollows = this.isoData.myUserInfo?.multi_community_follows ?? [];
+    if (!multiFollows.length) {
+      return null;
+    }
+
     const { subscribedMultisCollapsed } = this.state;
     const headerId = "sidebarSubscribedMultisHeader";
     const bodyId = "sidebarSubscribedMultisBody";
+    const multiCommunities = multiFollows.map(follow => follow.multi);
 
     return (
-      <>
-        <header className="card-header p-0" id={headerId}>
-          <button
-            type="button"
-            className="btn w-100 d-flex align-items-center justify-content-between text-start px-3 py-2 border-0 text-body"
-            onClick={() => handleCollapseMultisSubscribe(this)}
-            aria-expanded={!subscribedMultisCollapsed}
-            aria-controls={bodyId}
-          >
-            <h6 className="mb-0">
-              {I18NextService.i18n.t("multi_communities")}
-            </h6>
-            <Icon
-              icon={subscribedMultisCollapsed ? "chevrons-down" : "chevrons-up"}
-              classes="icon-inline text-muted flex-shrink-0 ms-2"
-            />
-          </button>
-        </header>
-        {!subscribedMultisCollapsed && (
-          <div id={bodyId} aria-labelledby={headerId}>
-            <div className="card-body p-2">
-              <SubscriptionList
-                itemType="multiCommunity"
-                items={
-                  this.isoData.myUserInfo?.multi_community_follows.map(
-                    community => community.multi,
-                  ) ?? []
+      <div className="accordion">
+        <section id="sidebarSubscribedMultis" className="card mb-3">
+          <header className="card-header p-0" id={headerId}>
+            <button
+              type="button"
+              className="btn w-100 d-flex align-items-center justify-content-between text-start px-3 py-2 border-0 text-body"
+              onClick={() => handleCollapseMultisSubscribe(this)}
+              aria-expanded={!subscribedMultisCollapsed}
+              aria-controls={bodyId}
+            >
+              <h6 className="mb-0">
+                {I18NextService.i18n.t("multi_communities")}
+              </h6>
+              <Icon
+                icon={
+                  subscribedMultisCollapsed ? "chevrons-down" : "chevrons-up"
                 }
-                manageTo="/multi_communities"
-                manageLabel={I18NextService.i18n.t("manage_multi_communities")}
-                shouldUseFirstLetterFallback
+                classes="icon-inline text-muted flex-shrink-0 ms-2"
               />
+            </button>
+          </header>
+          {!subscribedMultisCollapsed && (
+            <div id={bodyId} aria-labelledby={headerId}>
+              <div className="card-body p-2">
+                <SubscriptionList
+                  itemType="multiCommunity"
+                  items={multiCommunities}
+                  manageTo="/multi_communities"
+                  manageLabel={I18NextService.i18n.t(
+                    "manage_multi_communities",
+                  )}
+                  shouldUseFirstLetterFallback
+                />
+              </div>
             </div>
-          </div>
-        )}
-      </>
+          )}
+        </section>
+      </div>
     );
   }
 
@@ -1122,21 +1103,11 @@ function handleShowSidebarMobile(i: Home, show: boolean) {
 }
 
 function handleCollapseSubscribe(i: Home) {
-  const subscribedCollapsed = !i.state.subscribedCollapsed;
-  i.setState({ subscribedCollapsed });
-  setLocalStorageItem(
-    localStorageKeys.homeSidebarSubscribedCommunitiesCollapsed,
-    String(subscribedCollapsed),
-  );
+  i.setState({ subscribedCollapsed: !i.state.subscribedCollapsed });
 }
 
 function handleCollapseMultisSubscribe(i: Home) {
-  const subscribedMultisCollapsed = !i.state.subscribedMultisCollapsed;
-  i.setState({ subscribedMultisCollapsed });
-  setLocalStorageItem(
-    localStorageKeys.homeSidebarMultiCommunitiesCollapsed,
-    String(subscribedMultisCollapsed),
-  );
+  i.setState({ subscribedMultisCollapsed: !i.state.subscribedMultisCollapsed });
 }
 
 function handlePageChange(i: Home, cursor?: PaginationCursor) {
@@ -1514,19 +1485,4 @@ async function handleHideDonationDialog(myUserInfo?: MyUserInfo) {
 
 function handleHideSelectButtons(i: Home) {
   i.setState({ selectButtonsHidden: !i.state.selectButtonsHidden });
-}
-function restoreSidebarCollapseState(i: Home) {
-  const subscribedCollapsed =
-    getLocalStorageItem(
-      localStorageKeys.homeSidebarSubscribedCommunitiesCollapsed,
-    ) === "true";
-  const subscribedMultisCollapsed =
-    getLocalStorageItem(
-      localStorageKeys.homeSidebarMultiCommunitiesCollapsed,
-    ) === "true";
-
-  i.setState({
-    subscribedCollapsed,
-    subscribedMultisCollapsed,
-  });
 }
