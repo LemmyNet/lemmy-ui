@@ -53,7 +53,6 @@ interface CommunitiesState {
   listCommunitiesResponse: RequestState<PagedResponse<CommunityView>>;
   searchText: string;
   isIsomorphic: boolean;
-  pendingCommunityIds: Record<number, boolean>;
 }
 
 interface CommunitiesProps {
@@ -101,7 +100,6 @@ export class Communities extends Component<
     listCommunitiesResponse: EMPTY_REQUEST,
     searchText: "",
     isIsomorphic: false,
-    pendingCommunityIds: {},
   };
 
   loadingSettled() {
@@ -155,9 +153,6 @@ export class Communities extends Component<
                 key={cv.community.id}
                 communityView={cv}
                 myUserInfo={this.isoData.myUserInfo}
-                followLoading={
-                  !!this.state.pendingCommunityIds[cv.community.id]
-                }
                 onFollow={(communityId, follow) =>
                   handleFollow(this, communityId, follow)
                 }
@@ -265,7 +260,7 @@ export class Communities extends Component<
         />
         <button
           type="submit"
-          className="btn btn-sm btn-light border-light-subtle flex-shrink-0"
+          className="btn btn-sm btn-light border-light-subtle flex-shrink-0 d-inline-flex align-items-center justify-content-center"
           aria-label={I18NextService.i18n.t("search")}
         >
           <Icon icon="search" />
@@ -391,24 +386,13 @@ async function handleVisitRandomCommunity(i: Communities) {
 }
 
 async function handleFollow(
-  instance: Communities,
+  i: Communities,
   communityId: number,
   follow: boolean,
-) {
-  instance.setState(s => ({
-    pendingCommunityIds: { ...s.pendingCommunityIds, [communityId]: true },
-  }));
-  try {
-    const res = await HttpService.client.followCommunity({
-      community_id: communityId,
-      follow,
-    });
-    instance.findAndUpdateCommunity(res);
-  } finally {
-    instance.setState(s => {
-      const next = { ...s.pendingCommunityIds };
-      delete next[communityId];
-      return { pendingCommunityIds: next };
-    });
-  }
+): Promise<void> {
+  const res = await HttpService.client.followCommunity({
+    community_id: communityId,
+    follow,
+  });
+  i.findAndUpdateCommunity(res);
 }

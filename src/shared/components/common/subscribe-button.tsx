@@ -21,6 +21,16 @@ interface SubscribeButtonProps {
   showRemoteFetch: boolean;
 }
 
+interface RemoteFetchModalProps {
+  apId: string;
+  show?: boolean;
+  modalId: string;
+}
+
+interface RemoteFetchModalState {
+  instanceText: string;
+}
+
 export function SubscribeButton({
   followState,
   apId,
@@ -32,19 +42,7 @@ export function SubscribeButton({
   modalId = "remoteFetchModal",
   showRemoteFetch,
 }: SubscribeButtonProps) {
-  const buttonClass = classNames("btn", {
-    "btn-link p-0": isLink,
-    "btn-sm py-1 px-2 rounded-pill text-nowrap": compact && !isLink,
-    "btn-light border-light-subtle": compact && !isLink && !followState,
-    "btn-outline-secondary": compact && !isLink && followState === "accepted",
-    "btn-warning border-light-subtle":
-      compact &&
-      !isLink &&
-      followState !== undefined &&
-      followState !== "accepted",
-    [`btn-${followState === "pending" ? "warning" : "secondary"} border-light-subtle d-block w-100`]:
-      !isLink && !compact,
-  });
+  const buttonClass = getButtonClass(isLink, compact, followState);
 
   if (showRemoteFetch) {
     return (
@@ -65,19 +63,21 @@ export function SubscribeButton({
   return (
     <button
       type="button"
-      className={buttonClass}
+      className={classNames(buttonClass, "position-relative")}
       disabled={loading}
+      aria-busy={loading || undefined}
       onClick={!followState ? onFollow : onUnFollow}
     >
-      {loading ? (
-        <Spinner />
-      ) : (
-        <>
-          {followState === "accepted" && (
-            <Icon icon="check" classes="icon-inline me-1" />
-          )}
-          {I18NextService.i18n.t(followStateKey(followState))}
-        </>
+      <span className={classNames({ invisible: loading })}>
+        {followState === "accepted" && (
+          <Icon icon="check" classes="icon-inline me-1" />
+        )}
+        {I18NextService.i18n.t(followStateKey(followState))}
+      </span>
+      {loading && (
+        <span className="position-absolute top-50 start-50 translate-middle d-inline-flex">
+          <Spinner />
+        </span>
       )}
     </button>
   );
@@ -99,16 +99,6 @@ function followStateKey(
       return "subscribe_pending";
     }
   }
-}
-
-interface RemoteFetchModalProps {
-  apId: string;
-  show?: boolean;
-  modalId: string;
-}
-
-interface RemoteFetchModalState {
-  instanceText: string;
 }
 
 function handleInput(i: RemoteFetchModal, event: FormEvent<HTMLInputElement>) {
@@ -146,6 +136,32 @@ function submitRemoteFollow(
   window.location.href = `${instanceText}/activitypub/externalInteraction${getQueryString(
     { uri: i.props.apId },
   )}`;
+}
+
+function getCompactVariantClass(followState?: CommunityFollowerState): string {
+  if (!followState) {
+    return "btn-light border-light-subtle";
+  }
+  if (followState === "accepted") {
+    return "btn-outline-secondary";
+  }
+  return "btn-warning border-light-subtle";
+}
+
+function getButtonClass(
+  isLink: boolean,
+  compact: boolean,
+  followState?: CommunityFollowerState,
+): string {
+  if (isLink) {
+    return "btn btn-link p-0";
+  }
+  if (compact) {
+    return `btn btn-sm py-1 px-2 rounded-pill text-nowrap ${getCompactVariantClass(followState)}`;
+  }
+
+  const variant = followState === "pending" ? "btn-warning" : "btn-secondary";
+  return `btn ${variant} border-light-subtle d-block w-100`;
 }
 
 @modalMixin

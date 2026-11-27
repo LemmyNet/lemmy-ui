@@ -631,23 +631,13 @@ em-emoji-picker {
 .viewer-transition {
   transition-duration: 0.1s; /* 0.3s -> 0.1s */
 }
-/*.community-list-item .img-icon {*/
-/*  margin-right: 0 !important;*/
-/*}*/
-
 .fs-xs {
   font-size: 0.8125rem;
 }
 
-.community-list-summary {
+.line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-@media (min-width: 768px) {
-  .communities-search-col {
-    max-width: 24rem;
-  }
 }
