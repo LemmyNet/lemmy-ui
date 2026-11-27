@@ -81,6 +81,19 @@ export class Login extends Component<LoginRouteProps, State> {
     }`;
   }
 
+  get commentDraftReturn(): string | undefined {
+    const params = new URLSearchParams(this.props.location.hash.slice(1));
+    const path = params.get("commentDraftReturn");
+    // Only return to a local post or comment. The fragment is user input.
+    if (
+      path &&
+      /^\/(?:post\/\d+(?:\/\d+)?|comment\/\d+)(?:\?|#|$)/.test(path)
+    ) {
+      return path;
+    }
+    return undefined;
+  }
+
   render() {
     htmlTags({
       head: this.props.head,
@@ -99,7 +112,10 @@ export class Login extends Component<LoginRouteProps, State> {
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
-        <OAuthLogin oauth_providers={this.isoData.siteRes.oauth_providers} />
+        <OAuthLogin
+          oauth_providers={this.isoData.siteRes.oauth_providers}
+          prev={this.commentDraftReturn}
+        />
       </div>
     );
   }
@@ -220,7 +236,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
     );
   }
 
-  const { prev } = i.props;
+  const prev = i.commentDraftReturn ?? i.props.prev;
 
   if (prev) {
     i.props.history.replace(prev);

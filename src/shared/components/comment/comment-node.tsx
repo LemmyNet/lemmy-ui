@@ -71,8 +71,15 @@ type CommentNodeState = {
   showAdvanced: boolean;
 };
 
+export type CommentReplyDraft = {
+  locationKey: string;
+  content: string;
+  onCancel: () => void;
+};
+
 type CommentNodeProps = {
   node: CommentNodeType;
+  replyDraft?: CommentReplyDraft;
   admins: PersonView[];
   readCommentsAt?: string;
   noBorder?: boolean;
@@ -125,7 +132,7 @@ type CommentNodeProps = {
 @tippyMixin
 export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
   state: CommentNodeState = {
-    showReply: false,
+    showReply: !!this.props.replyDraft && this.enableCommentForm,
     showEdit: false,
     // Collapse comments that have no children and are removed by default
     collapsed: this.initCommentCollapsed(),
@@ -137,6 +144,14 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     nextProps: Readonly<{ children?: InfernoNode } & CommentNodeProps>,
   ) {
     if (
+      nextProps.replyDraft?.locationKey !== this.props.replyDraft?.locationKey
+    ) {
+      this.setState({
+        showReply: !!nextProps.replyDraft && this.enableCommentForm,
+      });
+    }
+
+    if (
       this.props.editLoading === this.props.node.view.comment_view.comment.id &&
       this.props.editLoading !== nextProps.editLoading
     ) {
@@ -146,7 +161,8 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
     if (
       this.props.createLoading ===
         this.props.node.view.comment_view.comment.id &&
-      this.props.createLoading !== nextProps.createLoading
+      this.props.createLoading !== nextProps.createLoading &&
+      !nextProps.replyDraft
     ) {
       this.setState({ showReply: false });
     }
@@ -451,7 +467,9 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
           {this.state.showReply && (
             <div className="ms-2">
               <CommentForm
+                key={this.props.replyDraft?.locationKey}
                 node={node}
+                draft={this.props.replyDraft?.content}
                 onReplyCancel={() => handleReplyCancel(this)}
                 disabled={!this.enableCommentForm}
                 focus
@@ -590,6 +608,7 @@ function handleEditClick(i: CommentNode) {
 }
 
 function handleReplyCancel(i: CommentNode) {
+  i.props.replyDraft?.onCancel();
   i.setState({ showReply: false, showEdit: false });
 }
 

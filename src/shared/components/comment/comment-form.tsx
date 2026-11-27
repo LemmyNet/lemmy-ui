@@ -1,7 +1,7 @@
 import { capitalizeFirstLetter } from "@utils/helpers";
 import { Component } from "inferno";
 import { T } from "inferno-i18next-dess";
-import { Link } from "inferno-router";
+import { Link, RouterContext } from "inferno-router";
 import {
   CreateComment,
   EditComment,
@@ -19,6 +19,7 @@ interface CommentFormProps {
    * Can either be the parent, or the editable comment. The right side is a postId.
    */
   node: CommentNodeType | number;
+  draft?: string;
   edit?: boolean;
   disabled?: boolean;
   focus?: boolean;
@@ -34,13 +35,22 @@ interface CommentFormProps {
 }
 
 export class CommentForm extends Component<CommentFormProps, never> {
+  get loginPath(): string {
+    if (!this.props.draft) return "/login";
+
+    const { pathname, search, hash } = (this.context as RouterContext).router
+      .history.location;
+    const params = new URLSearchParams({
+      commentDraftReturn: pathname + search + hash,
+    });
+    return `/login#${params}`;
+  }
+
   render() {
     const initialContent =
-      typeof this.props.node !== "number"
-        ? this.props.edit
-          ? this.props.node.view.comment_view.comment.content
-          : undefined
-        : undefined;
+      this.props.edit && typeof this.props.node !== "number"
+        ? this.props.node.view.comment_view.comment.content
+        : this.props.draft;
     const placeholder = this.props.disabled
       ? I18NextService.i18n.t("locked_post_comment_placeholder")
       : I18NextService.i18n.t("comment_here");
@@ -89,7 +99,7 @@ export class CommentForm extends Component<CommentFormProps, never> {
             <Icon icon="alert-triangle" classes="icon-inline me-2" />
             <T i18nKey="must_login" className="d-inline">
               #
-              <Link className="alert-link" to="/login">
+              <Link className="alert-link" to={this.loginPath}>
                 #
               </Link>
               <Link className="alert-link" to="/signup">

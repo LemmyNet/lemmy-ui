@@ -154,6 +154,7 @@ interface PostState {
   maxCommentsShown: number;
   isIsomorphic: boolean;
   lastCreatedCommentId?: CommentId;
+  commentDraft?: { locationKey: string; content: string };
   notifications: PostNotificationsMode;
 }
 
@@ -465,6 +466,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   componentDidMount() {
+    this.loadCommentDraft();
     this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
     document.addEventListener("scroll", this.commentScrollDebounced);
 
@@ -517,7 +519,11 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: PostRouteProps) {
+    if (prevProps.location.key !== this.props.location.key) {
+      this.loadCommentDraft();
+    }
+
     if (
       this.commentSectionRef.current &&
       this.state.postRes.state === "success" &&
@@ -525,6 +531,50 @@ export class Post extends Component<PostRouteProps, PostState> {
     ) {
       this.maybeScrollToComments();
     }
+  }
+
+  private loadCommentDraft() {
+    const { key, hash } = this.props.location;
+    const content = new URLSearchParams(hash.slice(1)).get("commentDraft");
+    if (content?.trim()) {
+      this.setState({ commentDraft: { locationKey: key, content } });
+    } else if (this.state.commentDraft) {
+      this.setState({ commentDraft: undefined });
+    }
+  }
+
+  get commentDraft() {
+    const draft = this.state.commentDraft;
+    return draft?.locationKey === this.props.location.key ? draft : undefined;
+  }
+
+  private get replyDraft() {
+    const draft = this.commentDraft;
+    const parentId = getCommentIdFromProps(this.props);
+    if (draft && parentId) {
+      return {
+        parentId,
+        locationKey: draft.locationKey,
+        content: draft.content,
+        onCancel: () => this.clearCommentDraft(draft),
+      };
+    }
+    return undefined;
+  }
+
+  clearCommentDraft(draft: NonNullable<PostState["commentDraft"]>) {
+    if (this.commentDraft !== draft) return;
+
+    // Keep the current history entry and mounted editors. Router navigation
+    // here would reset the editors or trigger their unsaved-changes prompt.
+    const url = new URL(window.location.href);
+    if (url.hash === this.props.location.hash) {
+      const params = new URLSearchParams(url.hash.slice(1));
+      params.delete("commentDraft");
+      url.hash = params.toString();
+      window.history.replaceState(window.history.state, "", url);
+    }
+    this.setState({ commentDraft: undefined });
   }
 
   maybeScrollToComments() {
@@ -682,11 +732,12 @@ export class Post extends Component<PostRouteProps, PostState> {
               ) && (
                 <CommentForm
                   key={
-                    context.router.history.location.key +
-                    this.state.lastCreatedCommentId
+                    `${context.router.history.location.key}-${this.state.lastCreatedCommentId}-${!!this.commentDraft}`
                     // reset on new location, otherwise <Prompt /> stops working
                   }
                   node={res.post_view.post.id}
+                  draft={this.commentDraft?.content}
+                  focus={!!this.commentDraft}
                   disabled={postLockedDeletedOrRemoved(res.post_view)}
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
@@ -775,6 +826,7 @@ export class Post extends Component<PostRouteProps, PostState> {
       return (
         <div>
           <CommentNodes
+            replyDraft={this.replyDraft}
             nodes={sortedFlatNodes(
               commentsRes.data.items,
               postRes.data.post_view.post.creator_id,
@@ -914,6 +966,7 @@ export class Post extends Component<PostRouteProps, PostState> {
             </>
           )}
           <CommentNodes
+            replyDraft={this.replyDraft}
             nodes={commentTree(
               commentsRes.data.items,
               postRes.data.post_view.post.creator_id,
@@ -1308,6 +1361,7 @@ async function handleCreateToplevelComment(i: Post, form: CreateComment) {
 }
 
 async function handleCreateComment(i: Post, form: CreateComment) {
+  const draft = i.commentDraft;
   i.setState({
     createCommentRes: {
       id: form.parent_id ?? 0,
@@ -1315,6 +1369,13 @@ async function handleCreateComment(i: Post, form: CreateComment) {
     },
   });
   const res = await HttpService.client.createComment(form);
+  if (
+    res.state === "success" &&
+    draft &&
+    form.parent_id === getCommentIdFromProps(i.props)
+  ) {
+    i.clearCommentDraft(draft);
+  }
   i.setState({
     createCommentRes: {
       id: form.parent_id ?? 0,
