@@ -1,6 +1,10 @@
 import { setIsoData, updateMyUserInfo, WithHead } from "@utils/app";
 import { isBrowser, refreshTheme } from "@utils/browser";
-import { resourcesSettled, validEmail } from "@utils/helpers";
+import {
+  getCommentDraftReturn,
+  resourcesSettled,
+  validEmail,
+} from "@utils/helpers";
 import { Component, FormEvent, InfernoNode } from "inferno";
 import {
   CaptchaResponse,
@@ -121,7 +125,10 @@ export class Signup extends Component<SignupRouteProps, State> {
             {this.registerForm()}
           </div>
         </div>
-        <OAuthLogin oauth_providers={this.isoData.siteRes.oauth_providers} />
+        <OAuthLogin
+          oauth_providers={this.isoData.siteRes.oauth_providers}
+          prev={getCommentDraftReturn(this.props.location.hash)}
+        />
       </div>
     );
   }
@@ -397,7 +404,9 @@ async function handleRegisterSubmit(
             );
           }
 
-          i.props.history.replace("/communities");
+          i.props.history.replace(
+            getCommentDraftReturn(i.props.location.hash) ?? "/communities",
+          );
         } else {
           if (data.verify_email_sent) {
             toast(I18NextService.i18n.t("verify_email_sent"));

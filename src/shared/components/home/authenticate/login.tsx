@@ -1,6 +1,10 @@
 import { setIsoData, updateMyUserInfo, WithHead } from "@utils/app";
 import { refreshTheme } from "@utils/browser";
-import { getQueryParams, validEmail } from "@utils/helpers";
+import {
+  getCommentDraftReturn,
+  getQueryParams,
+  validEmail,
+} from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import { RouteComponentProps, RouterContext } from "inferno-router";
 import { LoginResponse } from "lemmy-js-client";
@@ -82,16 +86,7 @@ export class Login extends Component<LoginRouteProps, State> {
   }
 
   get commentDraftReturn(): string | undefined {
-    const params = new URLSearchParams(this.props.location.hash.slice(1));
-    const path = params.get("commentDraftReturn");
-    // Only return to a local post or comment. The fragment is user input.
-    if (
-      path &&
-      /^\/(?:post\/\d+(?:\/\d+)?|comment\/\d+)(?:\?|#|$)/.test(path)
-    ) {
-      return path;
-    }
-    return undefined;
+    return getCommentDraftReturn(this.props.location.hash);
   }
 
   render() {

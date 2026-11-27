@@ -35,15 +35,15 @@ interface CommentFormProps {
 }
 
 export class CommentForm extends Component<CommentFormProps, never> {
-  get loginPath(): string {
-    if (!this.props.draft) return "/login";
+  get authDraftFragment(): string {
+    if (!this.props.draft) return "";
 
     const { pathname, search, hash } = (this.context as RouterContext).router
       .history.location;
     const params = new URLSearchParams({
       commentDraftReturn: pathname + search + hash,
     });
-    return `/login#${params}`;
+    return `#${params}`;
   }
 
   render() {
@@ -99,10 +99,16 @@ export class CommentForm extends Component<CommentFormProps, never> {
             <Icon icon="alert-triangle" classes="icon-inline me-2" />
             <T i18nKey="must_login" className="d-inline">
               #
-              <Link className="alert-link" to={this.loginPath}>
+              <Link
+                className="alert-link"
+                to={`/login${this.authDraftFragment}`}
+              >
                 #
               </Link>
-              <Link className="alert-link" to="/signup">
+              <Link
+                className="alert-link"
+                to={`/signup${this.authDraftFragment}`}
+              >
                 #
               </Link>
             </T>
