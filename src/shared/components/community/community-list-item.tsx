@@ -39,13 +39,13 @@ export class CommunityListItem extends Component<
 
     return (
       <li className="list-group-item bg-transparent community-list-item px-0 py-2 py-md-3">
-        <div className="d-flex align-items-start justify-content-between gap-2">
+        <div className="d-flex align-items-center justify-content-between gap-2">
           <div className="fw-semibold min-w-0">
             <CommunityLink
               community={community}
               myUserInfo={myUserInfo}
               muted={false}
-              className="text-decoration-none small"
+              className="d-flex align-items-center text-decoration-none small"
             />
           </div>
 
@@ -64,12 +64,12 @@ export class CommunityListItem extends Component<
         </div>
 
         {community.summary && (
-          <p className="mt-1 mb-0 text-body-secondary fs-xs line-clamp-2">
+          <p className="mt-1 mb-0 text-body-secondary small line-clamp-2">
             {community.summary}
           </p>
         )}
 
-        <div className="d-flex flex-wrap align-items-center column-gap-2 column-gap-sm-3 row-gap-1 mt-1 text-body-secondary fs-xs">
+        <div className="d-flex flex-wrap align-items-center column-gap-2 column-gap-sm-3 row-gap-1 mt-1 text-body-secondary text-xs">
           <div>
             <span className="fw-semibold text-body">
               {numToSI(community.users_active_month)}

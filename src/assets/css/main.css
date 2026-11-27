@@ -631,8 +631,9 @@ em-emoji-picker {
 .viewer-transition {
   transition-duration: 0.1s; /* 0.3s -> 0.1s */
 }
-.fs-xs {
-  font-size: 0.8125rem;
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1.25;
 }
 
 .line-clamp-2 {

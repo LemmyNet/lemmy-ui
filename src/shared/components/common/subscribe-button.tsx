@@ -157,7 +157,7 @@ function getButtonClass(
     return "btn btn-link p-0";
   }
   if (compact) {
-    return `btn btn-sm py-1 px-2 rounded-pill text-nowrap ${getCompactVariantClass(followState)}`;
+    return `btn btn-sm py-1 px-2 rounded-pill text-nowrap lh-sm text-xs ${getCompactVariantClass(followState)}`;
   }
 
   const variant = followState === "pending" ? "btn-warning" : "btn-secondary";
