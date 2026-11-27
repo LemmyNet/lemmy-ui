@@ -584,23 +584,28 @@ export class PostForm extends Component<PostFormProps, PostFormState> {
             </label>
           </div>
         )}
-        {this.editorType === "creator" && !this.props.post_view && (
-          <div className="mb-3 row">
-            <label className="col-sm-2 col-form-label" htmlFor="post-schedule">
-              {I18NextService.i18n.t("scheduled_publish_time")}
-            </label>
-            <div className="col-sm-10">
-              <input
-                type="datetime-local"
-                value={this.state.form.scheduled_publish_time_at}
-                min={unixTimeToLocalDateStr(Date.now())}
-                id="post-schedule"
-                className="form-control mb-3"
-                onInput={e => handlePostScheduleChange(this, e)}
-              />
+        {this.editorType === "creator" &&
+          (!this.props.post_view ||
+            this.state.form.scheduled_publish_time_at) && (
+            <div className="mb-3 row">
+              <label
+                className="col-sm-2 col-form-label"
+                htmlFor="post-schedule"
+              >
+                {I18NextService.i18n.t("scheduled_publish_time")}
+              </label>
+              <div className="col-sm-10">
+                <input
+                  type="datetime-local"
+                  value={this.state.form.scheduled_publish_time_at}
+                  min={unixTimeToLocalDateStr(Date.now())}
+                  id="post-schedule"
+                  className="form-control mb-3"
+                  onInput={e => handlePostScheduleChange(this, e)}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
         {this.props.selectedCommunityTags &&
           this.props.selectedCommunityTags.length > 0 && (
             <div className="mb-3 row">
