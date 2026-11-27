@@ -91,19 +91,6 @@ These environment variables are for debugging purposes and are disabled by defau
 | `LEMMY_UI_SERVE_CSS_MAPS` | `bool` | `false` | runtime    | Serves `.css.map` files when requested. Map files are untracked, run `pnpm themes:build` to generate and update them. |
 | `LEMMY_UI_COMPRESSION`    | `bool` | `true`  | runtime    | Enables response body compression, useful to test on slow connections.                                                |
 
-## Prefilling comment drafts
-
-External sites can link to a post or comment with an editable draft:
-
-```text
-https://lemmy.example/post/123#commentDraft=I%20tried%20this%21
-https://lemmy.example/comment/456#commentDraft=Thanks%20for%20the%20tip%21
-```
-
-Use `URLSearchParams` or `encodeURIComponent` to encode the draft. The IDs are
-local to the destination instance. The draft stays in the browser's URL
-fragment, and the reader must sign in and submit it themselves.
-
 ## Credits
 
 Icons from [Feather Icons](https://feathericons.com/).
