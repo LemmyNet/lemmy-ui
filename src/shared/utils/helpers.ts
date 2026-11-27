@@ -254,12 +254,3 @@ export function unreadCommentsCount(pv: PostView): number | undefined {
     ? undefined
     : postComments - readComments;
 }
-
-export function getFirstCharacter(text: string): string {
-  const trimmed = text.trim();
-  // Use codePointAt so titles starting with an emoji don't split into a broken surrogate char
-  const codePoint = trimmed.codePointAt(0);
-  return codePoint !== undefined
-    ? String.fromCodePoint(codePoint).toUpperCase()
-    : "";
-}
