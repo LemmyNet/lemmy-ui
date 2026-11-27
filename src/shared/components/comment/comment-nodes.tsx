@@ -36,10 +36,11 @@ import {
   CommentNodeType,
   ShowMarkReadType,
 } from "@utils/types";
-import { CommentNode } from "./comment-node";
+import { CommentNode, CommentReplyDraft } from "./comment-node";
 
 interface CommentNodesProps {
   nodes: CommentNodeType[];
+  replyDraft?: CommentReplyDraft & { parentId: CommentId };
   /**
    * Only use this for the CommentSlim variant.
    **/
@@ -125,6 +126,12 @@ export class CommentNodes extends Component<CommentNodesProps, never> {
             <CommentNode
               key={node.view.comment_view.comment.id}
               node={node}
+              replyDraft={
+                this.props.replyDraft?.parentId ===
+                node.view.comment_view.comment.id
+                  ? this.props.replyDraft
+                  : undefined
+              }
               noBorder={this.props.noBorder}
               isTopLevel={this.props.isTopLevel}
               viewOnly={this.props.viewOnly}

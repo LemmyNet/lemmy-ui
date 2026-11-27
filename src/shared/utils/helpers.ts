@@ -105,6 +105,15 @@ export function getQueryString<T extends Record<string, string | undefined>>(
   return "";
 }
 
+export function getCommentDraftReturn(hash?: string): string | undefined {
+  const path = new URLSearchParams(hash?.slice(1)).get("commentDraftReturn");
+  // Only return to a local post or comment. The fragment is user input.
+  if (path && /^\/(?:post\/\d+(?:\/\d+)?|comment\/\d+)(?:\?|#|$)/.test(path)) {
+    return path;
+  }
+  return undefined;
+}
+
 export function getRandomCharFromAlphabet(alphabet: string): string {
   return alphabet.charAt(Math.floor(Math.random() * alphabet.length));
 }

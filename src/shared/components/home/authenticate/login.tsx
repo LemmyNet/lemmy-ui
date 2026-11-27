@@ -1,6 +1,10 @@
 import { setIsoData, updateMyUserInfo, WithHead } from "@utils/app";
 import { refreshTheme } from "@utils/browser";
-import { getQueryParams, validEmail } from "@utils/helpers";
+import {
+  getCommentDraftReturn,
+  getQueryParams,
+  validEmail,
+} from "@utils/helpers";
 import { Component, FormEvent } from "inferno";
 import { RouteComponentProps, RouterContext } from "inferno-router";
 import { LoginResponse } from "lemmy-js-client";
@@ -81,6 +85,10 @@ export class Login extends Component<LoginRouteProps, State> {
     }`;
   }
 
+  get commentDraftReturn(): string | undefined {
+    return getCommentDraftReturn(this.props.location.hash);
+  }
+
   render() {
     htmlTags({
       head: this.props.head,
@@ -99,7 +107,10 @@ export class Login extends Component<LoginRouteProps, State> {
         <div className="row">
           <div className="col-12 col-lg-6 offset-lg-3">{this.loginForm()}</div>
         </div>
-        <OAuthLogin oauth_providers={this.isoData.siteRes.oauth_providers} />
+        <OAuthLogin
+          oauth_providers={this.isoData.siteRes.oauth_providers}
+          prev={this.commentDraftReturn}
+        />
       </div>
     );
   }
@@ -220,7 +231,7 @@ async function handleLoginSuccess(i: Login, loginRes: LoginResponse) {
     );
   }
 
-  const { prev } = i.props;
+  const prev = i.commentDraftReturn ?? i.props.prev;
 
   if (prev) {
     i.props.history.replace(prev);

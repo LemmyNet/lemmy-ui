@@ -71,8 +71,14 @@ type CommentNodeState = {
   showAdvanced: boolean;
 };
 
+export type CommentReplyDraft = {
+  content: string;
+  onCancel: () => void;
+};
+
 type CommentNodeProps = {
   node: CommentNodeType;
+  replyDraft?: CommentReplyDraft;
   admins: PersonView[];
   readCommentsAt?: string;
   noBorder?: boolean;
@@ -448,11 +454,17 @@ export class CommentNode extends Component<CommentNodeProps, CommentNodeState> {
               </button>
             </div>
           )}
-          {this.state.showReply && (
+          {(this.state.showReply ||
+            (this.props.replyDraft && this.enableCommentForm)) && (
             <div className="ms-2">
               <CommentForm
+                key={this.props.replyDraft?.content}
                 node={node}
-                onReplyCancel={() => handleReplyCancel(this)}
+                draft={this.props.replyDraft?.content}
+                onReplyCancel={() => {
+                  this.props.replyDraft?.onCancel();
+                  handleReplyCancel(this);
+                }}
                 disabled={!this.enableCommentForm}
                 focus
                 allLanguages={this.props.allLanguages}

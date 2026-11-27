@@ -3,7 +3,10 @@ import { Component } from "inferno";
 import { PublicOAuthProvider } from "lemmy-js-client";
 import { v4 as uuidv4 } from "uuid";
 
-type OAuthLoginProps = { oauth_providers: PublicOAuthProvider[] };
+type OAuthLoginProps = {
+  oauth_providers: PublicOAuthProvider[];
+  prev?: string;
+};
 
 export class OAuthLogin extends Component<OAuthLoginProps, object> {
   render() {
@@ -20,7 +23,13 @@ export class OAuthLogin extends Component<OAuthLoginProps, object> {
                 (provider: PublicOAuthProvider) => (
                   <button
                     className="btn btn-primary my-2 d-block"
-                    onClick={() => handleLoginWithProvider(provider)}
+                    onClick={() =>
+                      handleLoginWithProvider(
+                        provider,
+                        undefined,
+                        this.props.prev,
+                      )
+                    }
                   >
                     {provider.display_name}
                   </button>
