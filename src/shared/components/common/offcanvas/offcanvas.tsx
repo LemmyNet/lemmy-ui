@@ -1,4 +1,4 @@
-import { Component, InfernoNode } from "inferno";
+import { Component, InfernoNode, createRef } from "inferno";
 import classNames from "classnames";
 import { I18NextService } from "@services/I18NextService";
 
@@ -25,6 +25,7 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
 
   private closeTimer?: ReturnType<typeof setTimeout>;
   private previousBodyOverflow = "";
+  private offcanvasRef = createRef<HTMLDivElement>();
 
   componentDidMount() {
     if (this.props.show) {
@@ -73,6 +74,7 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
     return (
       <>
         <div
+          ref={this.offcanvasRef}
           id={id}
           className={classNames("offcanvas", `offcanvas-${placement}`, {
             show: isOpen,
@@ -124,6 +126,7 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
     this.previousBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", this.keyDownHandler);
+    window.addEventListener("resize", this.resizeHandler);
 
     this.closeTimer = setTimeout(() => {
       this.setState({ isShown: true });
@@ -144,6 +147,7 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
   private restoreScroll() {
     document.body.style.overflow = this.previousBodyOverflow;
     document.removeEventListener("keydown", this.keyDownHandler);
+    window.removeEventListener("resize", this.resizeHandler);
   }
 
   private clearCloseTimer() {
@@ -154,6 +158,17 @@ export class Offcanvas extends Component<OffcanvasProps, OffcanvasState> {
   }
 
   private keyDownHandler = (event: KeyboardEvent) => handleKeyDown(this, event);
+
+  private resizeHandler = () => {
+    const element = this.offcanvasRef.current;
+    if (!this.props.show || !element) return;
+
+    const { position } = getComputedStyle(element);
+    // Close when CSS switches the drawer inline or hides an ancestor via display: none;
+    if (position !== "fixed" || element.getClientRects().length === 0) {
+      this.props.onClose();
+    }
+  };
 }
 
 function handleKeyDown(offcanvas: Offcanvas, event: KeyboardEvent) {
