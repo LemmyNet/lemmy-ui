@@ -3,7 +3,6 @@ import {
   getQueryParams,
   getQueryString,
   resourcesSettled,
-  numToSI,
 } from "@utils/helpers";
 import type { QueryParams } from "@utils/types";
 import { RouteDataResponse } from "@utils/types";
@@ -33,9 +32,9 @@ import {
 import { htmlTags } from "@components/common/html-tags";
 import { Spinner } from "@components/common/icon";
 import { CommunitiesSortDropdown } from "@components/common/sort-dropdown";
-import { SubscribeButton } from "@components/common/subscribe-button";
 import { Icon } from "@components/common/icon";
-import { communityLink, CommunityLink } from "./community-link";
+import { communityLink } from "./community-link";
+import { CommunityListItem } from "./community-list-item";
 import { communityLimit } from "@utils/config";
 import { getHttpBaseInternal } from "@utils/env";
 import { IRoutePropsWithFetch } from "@utils/routes";
@@ -43,10 +42,8 @@ import { RouteComponentProps, RouterContext } from "inferno-router";
 import { scrollMixin } from "../mixins/scroll-mixin";
 import { isBrowser } from "@utils/browser";
 import { PaginatorCursor } from "@components/common/paginator-cursor";
-import { ResponsiveTableRowHeader, TableHr } from "@components/common/tables";
 import { CreateCommunityButton } from "@components/common/content-actions/create-item-buttons";
 import { ListingTypeDropdown } from "@components/common/listing-type-dropdown";
-import { Separator } from "@components/common/separators";
 
 type CommunitiesData = RouteDataResponse<{
   listCommunitiesResponse: PagedResponse<CommunityView>;
@@ -140,11 +137,7 @@ export class Communities extends Component<
     }`;
   }
 
-  renderListingsTable(): InfernoNode | void {
-    const nameCols = "col-6 col-md-7";
-    // 5 of these
-    const countCols = "col-6 col-md-1";
-
+  renderListings(): InfernoNode | void {
     switch (this.state.listCommunitiesResponse.state) {
       case "loading":
         return (
@@ -154,72 +147,18 @@ export class Communities extends Component<
         );
       case "success": {
         return (
-          <div id="community_table">
-            <div className="d-none d-md-block">
-              <div className="row">
-                <div className={`${nameCols} fw-bold`}>
-                  {I18NextService.i18n.t("name")}
-                </div>
-                <div className={`${countCols} fw-bold`}>
-                  {I18NextService.i18n.t("community_visibility")}
-                </div>
-                <div className={`${countCols} fw-bold`}>
-                  {I18NextService.i18n.t("users")} /{" "}
-                  {I18NextService.i18n.t("month")}
-                </div>
-                <div className={`${countCols} fw-bold`}>
-                  {I18NextService.i18n.t("posts")}
-                </div>
-                <div className={`${countCols} fw-bold`}>
-                  {I18NextService.i18n.t("comments")}
-                </div>
-              </div>
-              <TableHr />
-            </div>
+          <ul className="list-group list-group-flush">
             {this.state.listCommunitiesResponse.data.items.map(cv => (
-              <>
-                <div className="row">
-                  <ResponsiveTableRowHeader title={"name"} />
-                  <div className={nameCols}>
-                    <CommunityLink
-                      community={cv.community}
-                      myUserInfo={this.isoData.myUserInfo}
-                      muted={false}
-                    />
-                  </div>
-                  <ResponsiveTableRowHeader title={"community_visibility"} />
-                  <div className={countCols}>
-                    {I18NextService.i18n.t(
-                      `community_visibility_${cv.community.visibility}`,
-                    )}
-                  </div>
-                  <ResponsiveTableRowHeader title={"users"} />
-                  <div className={countCols}>
-                    {numToSI(cv.community.users_active_month)}
-                  </div>
-                  <ResponsiveTableRowHeader title={"posts"} />
-                  <div className={countCols}>{numToSI(cv.community.posts)}</div>
-                  <ResponsiveTableRowHeader title={"comments"} />
-                  <div className={countCols}>
-                    {numToSI(cv.community.comments)}
-                  </div>
-                  <div className={countCols}>
-                    <SubscribeButton
-                      followState={cv.community_actions?.follow_state}
-                      apId={cv.community.ap_id}
-                      onFollow={() => handleFollow(this, cv.community.id, true)}
-                      onUnFollow={() =>
-                        handleFollow(this, cv.community.id, false)
-                      }
-                      isLink
-                      showRemoteFetch={!this.isoData.myUserInfo}
-                    />
-                  </div>
-                </div>
-                <Separator />
-              </>
+              <CommunityListItem
+                key={cv.community.id}
+                communityView={cv}
+                myUserInfo={this.isoData.myUserInfo}
+                onFollow={(communityId, follow) =>
+                  handleFollow(this, communityId, follow)
+                }
+              />
             ))}
-          </div>
+          </ul>
         );
       }
     }
@@ -239,11 +178,33 @@ export class Communities extends Component<
     return (
       <div className="communities container-lg">
         <div>
-          <h1 className="h4 mb-4">
-            {I18NextService.i18n.t("list_of_communities")}
-          </h1>
-          <div className="row row-cols-auto align-items-center g-3 mb-2">
-            <div className="col">
+          <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <h1 className="h4 mb-0">
+              {I18NextService.i18n.t("list_of_communities")}
+            </h1>
+            <div className="d-flex align-items-center gap-2">
+              <CreateCommunityButton
+                localSite={localSite}
+                myUserInfo={myUserInfo}
+                blockButton={false}
+              />
+              <button
+                type="button"
+                className="btn btn-sm btn-light border-light-subtle"
+                onClick={() => handleVisitRandomCommunity(this)}
+                aria-label={I18NextService.i18n.t("visit_random_community")}
+                title={I18NextService.i18n.t("visit_random_community")}
+                data-tippy-content={I18NextService.i18n.t(
+                  "visit_random_community",
+                )}
+              >
+                <Icon icon="shuffle" />
+              </button>
+            </div>
+          </div>
+
+          <div className="row align-items-center g-2 mb-3">
+            <div className="col-12 col-md-auto d-flex flex-wrap align-items-center gap-2">
               <ListingTypeDropdown
                 currentOption={listingType}
                 showLocal={showLocal(this.isoData)}
@@ -256,36 +217,18 @@ export class Communities extends Component<
                 showLabel
                 onSelect={val => handleListingTypeChange(this, val)}
               />
-            </div>
-            <div className="col">
               <CommunitiesSortDropdown
                 currentOption={sort}
                 onSelect={val => handleSortChange(this, val)}
                 showLabel
               />
             </div>
-            <div className="col">
-              <CreateCommunityButton
-                localSite={localSite}
-                myUserInfo={myUserInfo}
-                blockButton={false}
-              />
+            <div className="col-12 col-md-5 col-lg-4 ms-md-auto">
+              {this.searchForm()}
             </div>
-            <div className="col me-auto">
-              <button
-                className="btn btn-sm btn-light border-outline-subtle"
-                onClick={() => handleVisitRandomCommunity(this)}
-                aria-label={I18NextService.i18n.t("visit_random_community")}
-                data-tippy-content={I18NextService.i18n.t(
-                  "visit_random_community",
-                )}
-              >
-                <Icon icon="shuffle" />
-              </button>
-            </div>
-            <div className="col">{this.searchForm()}</div>
           </div>
-          <div>{this.renderListingsTable()}</div>
+
+          <div>{this.renderListings()}</div>
           <PaginatorCursor
             current={this.props.cursor}
             resource={this.state.listCommunitiesResponse}
@@ -298,23 +241,26 @@ export class Communities extends Component<
 
   searchForm() {
     return (
-      <form className="d-flex col" onSubmit={e => handleSearchSubmit(this, e)}>
+      <form
+        className="d-flex gap-1"
+        onSubmit={e => handleSearchSubmit(this, e)}
+      >
+        <label className="visually-hidden" htmlFor="communities-search">
+          {I18NextService.i18n.t("search")}
+        </label>
         <input
-          type="text"
+          type="search"
           id="communities-search"
-          className="form-control"
+          className="form-control form-control-sm"
           value={this.state.searchText}
           placeholder={`${I18NextService.i18n.t("search")}...`}
           onInput={e => handleSearchChange(this, e)}
           required
           minLength={3}
         />
-        <label className="visually-hidden" htmlFor="communities-search">
-          {I18NextService.i18n.t("search")}
-        </label>
         <button
           type="submit"
-          className="btn btn-light border-light-subtle ms-1"
+          className="btn btn-sm btn-light border-light-subtle flex-shrink-0 d-inline-flex align-items-center justify-content-center"
           aria-label={I18NextService.i18n.t("search")}
         >
           <Icon icon="search" />
@@ -443,10 +389,10 @@ async function handleFollow(
   i: Communities,
   communityId: number,
   follow: boolean,
-) {
+): Promise<void> {
   const res = await HttpService.client.followCommunity({
     community_id: communityId,
-    follow: follow,
+    follow,
   });
   i.findAndUpdateCommunity(res);
 }

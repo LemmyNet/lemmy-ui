@@ -15,6 +15,7 @@ interface CommunityLinkProps {
   muted: boolean;
   hideAvatar?: boolean;
   myUserInfo: MyUserInfo | undefined;
+  className?: string;
 }
 
 export class CommunityLink extends Component<CommunityLinkProps, never> {
@@ -27,9 +28,13 @@ export class CommunityLink extends Component<CommunityLinkProps, never> {
 
     const { link, serverStr } = communityLink(community, this.props.realLink);
 
-    const classes = classNames(`community-link`, {
-      "text-muted": this.props.muted,
-    });
+    const classes = classNames(
+      `community-link`,
+      {
+        "text-muted": this.props.muted,
+      },
+      this.props.className,
+    );
 
     return !this.props.realLink ? (
       <Link title={title} className={classes} to={link}>
