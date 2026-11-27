@@ -154,7 +154,7 @@ interface PostState {
   maxCommentsShown: number;
   isIsomorphic: boolean;
   lastCreatedCommentId?: CommentId;
-  commentDraft?: { locationKey: string; content: string };
+  commentDraft?: string;
   notifications: PostNotificationsMode;
 }
 
@@ -466,7 +466,7 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   componentDidMount() {
-    this.loadCommentDraft();
+    this.setState({ commentDraft: readCommentDraft(this.props.location.hash) });
     this.commentScrollDebounced = debounce(this.trackCommentsBoxScrolling, 100);
     document.addEventListener("scroll", this.commentScrollDebounced);
 
@@ -476,6 +476,12 @@ export class Post extends Component<PostRouteProps, PostState> {
   }
 
   async componentWillReceiveProps(nextProps: PostRouteProps) {
+    if (nextProps.location.key !== this.props.location.key) {
+      this.setState({
+        commentDraft: readCommentDraft(nextProps.location.hash),
+      });
+    }
+
     const { post_id: nextPost, comment_id: nextComment } =
       nextProps.match.params;
     const { post_id: prevPost, comment_id: prevComment } =
@@ -519,11 +525,7 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  componentDidUpdate(prevProps: PostRouteProps) {
-    if (prevProps.location.key !== this.props.location.key) {
-      this.loadCommentDraft();
-    }
-
+  componentDidUpdate() {
     if (
       this.commentSectionRef.current &&
       this.state.postRes.state === "success" &&
@@ -533,38 +535,15 @@ export class Post extends Component<PostRouteProps, PostState> {
     }
   }
 
-  private loadCommentDraft() {
-    const { key, hash } = this.props.location;
-    const content = new URLSearchParams(hash.slice(1)).get("commentDraft");
-    if (content?.trim()) {
-      this.setState({ commentDraft: { locationKey: key, content } });
-    } else if (this.state.commentDraft) {
-      this.setState({ commentDraft: undefined });
-    }
-  }
-
-  get commentDraft() {
-    const draft = this.state.commentDraft;
-    return draft?.locationKey === this.props.location.key ? draft : undefined;
-  }
-
   private get replyDraft() {
-    const draft = this.commentDraft;
     const parentId = getCommentIdFromProps(this.props);
-    if (draft && parentId) {
-      return {
-        parentId,
-        locationKey: draft.locationKey,
-        content: draft.content,
-        onCancel: () => this.clearCommentDraft(draft),
-      };
-    }
-    return undefined;
+    const content = this.state.commentDraft;
+    return parentId && content
+      ? { parentId, content, onCancel: () => this.clearCommentDraft() }
+      : undefined;
   }
 
-  clearCommentDraft(draft: NonNullable<PostState["commentDraft"]>) {
-    if (this.commentDraft !== draft) return;
-
+  clearCommentDraft() {
     // Keep the current history entry and mounted editors. Router navigation
     // here would reset the editors or trigger their unsaved-changes prompt.
     const url = new URL(window.location.href);
@@ -732,12 +711,12 @@ export class Post extends Component<PostRouteProps, PostState> {
               ) && (
                 <CommentForm
                   key={
-                    `${context.router.history.location.key}-${this.state.lastCreatedCommentId}-${!!this.commentDraft}`
+                    `${context.router.history.location.key}-${this.state.lastCreatedCommentId}-${!!this.state.commentDraft}`
                     // reset on new location, otherwise <Prompt /> stops working
                   }
                   node={res.post_view.post.id}
-                  draft={this.commentDraft?.content}
-                  focus={!!this.commentDraft}
+                  draft={this.state.commentDraft}
+                  focus={!!this.state.commentDraft}
                   disabled={postLockedDeletedOrRemoved(res.post_view)}
                   allLanguages={siteRes.all_languages}
                   siteLanguages={siteRes.discussion_languages}
@@ -1361,7 +1340,7 @@ async function handleCreateToplevelComment(i: Post, form: CreateComment) {
 }
 
 async function handleCreateComment(i: Post, form: CreateComment) {
-  const draft = i.commentDraft;
+  const { key } = i.props.location;
   i.setState({
     createCommentRes: {
       id: form.parent_id ?? 0,
@@ -1371,10 +1350,11 @@ async function handleCreateComment(i: Post, form: CreateComment) {
   const res = await HttpService.client.createComment(form);
   if (
     res.state === "success" &&
-    draft &&
+    i.state.commentDraft &&
+    key === i.props.location.key &&
     form.parent_id === getCommentIdFromProps(i.props)
   ) {
-    i.clearCommentDraft(draft);
+    i.clearCommentDraft();
   }
   i.setState({
     createCommentRes: {
@@ -1722,6 +1702,11 @@ function postLockedDeletedOrRemoved(post_view: PostView): boolean {
   return (
     post_view.post.locked || post_view.post.deleted || post_view.post.removed
   );
+}
+
+function readCommentDraft(hash: string): string | undefined {
+  const draft = new URLSearchParams(hash.slice(1)).get("commentDraft");
+  return draft?.trim() ? draft : undefined;
 }
 
 function commentsSlimToFlatNodes(
