@@ -2,11 +2,6 @@ body {
   overflow-y: scroll !important;
 }
 
-.navbar-expand-lg .navbar-nav .nav-link {
-  padding-right: 0.75rem !important;
-  padding-left: 0.75rem !important;
-}
-
 .pointer {
   cursor: pointer;
 }
@@ -630,4 +625,20 @@ em-emoji-picker {
 /* A faster animation for viewerjs */
 .viewer-transition {
   transition-duration: 0.1s; /* 0.3s -> 0.1s */
+}
+
+@media (max-width: 991.98px) {
+  #navbarOffcanvas {
+    --bs-offcanvas-width: min(17.5rem, 80vw);
+  }
+}
+
+/* Reusable corner badge for 16px icons (replaces #navbar .nav-badge) */
+.icon-badge {
+  --bs-badge-font-size: 0.55rem;
+  --bs-badge-padding-x: 0.35em;
+  --bs-badge-padding-y: 0.15em;
+  top: -0.35rem;
+  left: 85%;
+  box-shadow: 0 0 0 2px var(--bs-body-bg);
 }
