@@ -626,14 +626,14 @@ em-emoji-picker {
   #navbarOffcanvas {
     --bs-offcanvas-width: min(17.5rem, 80vw);
   }
-  #navbarOffcanvas .nav-link {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    border-radius: var(--bs-border-radius);
-  }
-  #navbarOffcanvas .nav-link.active {
-    color: var(--bs-emphasis-color);
-    background-color: var(--bs-tertiary-bg);
-    font-weight: 600;
-  }
+}
+
+/* Reusable corner badge for 16px icons (replaces #navbar .nav-badge) */
+.icon-badge {
+  --bs-badge-font-size: 0.55rem;
+  --bs-badge-padding-x: 0.35em;
+  --bs-badge-padding-y: 0.15em;
+  top: -0.35rem;
+  left: 85%;
+  box-shadow: 0 0 0 2px var(--bs-body-bg);
 }

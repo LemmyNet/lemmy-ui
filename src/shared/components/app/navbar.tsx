@@ -8,7 +8,7 @@ import {
 } from "@utils/roles";
 import classNames from "classnames";
 import { Component } from "inferno";
-import { NavLink, RouterContext } from "inferno-router";
+import { NavLink } from "inferno-router";
 import { GetSiteResponse, MyUserInfo } from "lemmy-js-client";
 import { donateLemmyUrl } from "@utils/config";
 import {
@@ -36,6 +36,16 @@ interface NavbarState {
   unreadApplicationCount: number;
   unreadPendingFollowsCount: number;
   showMobileMenu: boolean;
+}
+
+interface NotificationBadgeLinkProps {
+  id?: string;
+  to: string;
+  icon: string;
+  count: number;
+  label: string;
+  isMobileTopBar: boolean;
+  onClick: () => void;
 }
 
 @tippyMixin
@@ -118,7 +128,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
           </NavLink>
 
           {person && (
-            <ul className="navbar-nav d-flex flex-row align-items-center gap-1 ms-auto me-2 d-lg-none">
+            <ul className="navbar-nav d-flex flex-row align-items-center gap-2 ms-auto me-2 d-lg-none">
               {this.renderNotificationItems(true)}
             </ul>
           )}
@@ -140,14 +150,18 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
             onClose={() => handleSetMenuOpen(this, false)}
             title={siteView?.site.name}
             headerClasses="py-2 px-3 border-bottom"
-            bodyClasses="pt-2 pt-lg-0 pb-3 pb-lg-0 px-3 px-lg-0"
+            bodyClasses="pt-2 pt-lg-0 pb-3 pb-lg-0 px-2 px-lg-0 w-100"
             isAlwaysMounted
           >
-            <ul id="navbarLinks" className="navbar-nav small">
+            <ul
+              id="navbarLinks"
+              className="me-auto navbar-nav align-items-lg-center small"
+            >
               <li className="nav-item">
                 <NavLink
                   to="/communities"
-                  className="nav-link text-nowrap py-1 py-lg-2"
+                  activeClassName="active fw-semibold"
+                  className="nav-link text-nowrap py-1 py-lg-2 px-2 rounded"
                   title={I18NextService.i18n.t("communities")}
                   onClick={() => handleSetMenuOpen(this, false)}
                 >
@@ -157,7 +171,8 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               <li className="nav-item">
                 <NavLink
                   to="/multi_communities"
-                  className="nav-link text-nowrap py-1 py-lg-2"
+                  activeClassName="active fw-semibold"
+                  className="nav-link text-nowrap py-1 py-lg-2 px-2 rounded"
                   title={I18NextService.i18n.t("multi_communities")}
                   onClick={() => handleSetMenuOpen(this, false)}
                 >
@@ -166,7 +181,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
               </li>
               <li className="nav-item">
                 <a
-                  className="nav-link d-inline-flex align-items-center text-nowrap py-1 py-lg-2"
+                  className="nav-link d-inline-flex align-items-center d-lg-inline-block text-nowrap py-1 py-lg-2 px-2 rounded"
                   title={I18NextService.i18n.t("support_lemmy")}
                   aria-label={I18NextService.i18n.t("support_lemmy")}
                   href={donateLemmyUrl}
@@ -182,12 +197,13 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
 
             <ul
               id="navbarIcons"
-              className="navbar-nav align-items-lg-center small my-1"
+              className="navbar-nav align-items-lg-center gap-lg-1 small my-1 my-lg-0"
             >
               <li id="navSearch" className="nav-item">
                 <NavLink
                   to="/search"
-                  className="nav-link d-inline-flex align-items-center text-nowrap py-1 py-lg-2"
+                  activeClassName="active fw-semibold"
+                  className="nav-link d-inline-flex align-items-center d-lg-inline-block text-nowrap py-1 py-lg-2 px-2 rounded"
                   title={I18NextService.i18n.t("search")}
                   aria-label={I18NextService.i18n.t("search")}
                   onClick={() => handleSetMenuOpen(this, false)}
@@ -220,10 +236,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                         )}
                       {person.display_name ?? person.name}
                     </button>
-                    <ul
-                      className="dropdown-menu dropdown-menu-end small"
-                      style={{ "min-width": "fit-content" }}
-                    >
+                    <ul className="dropdown-menu dropdown-menu-end p-1">
                       {this.renderUserMenuItems(person.name, true)}
                     </ul>
                   </li>
@@ -238,7 +251,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                   <li className="nav-item">
                     <NavLink
                       to="/login"
-                      className="nav-link text-nowrap py-1 py-lg-2"
+                      className="nav-link text-nowrap py-1 py-lg-2 px-2 rounded"
                       title={I18NextService.i18n.t("login")}
                       onClick={() => handleSetMenuOpen(this, false)}
                     >
@@ -249,7 +262,7 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
                     <li className="nav-item">
                       <NavLink
                         to="/signup"
-                        className="nav-link text-nowrap py-1 py-lg-2"
+                        className="nav-link text-nowrap py-1 py-lg-2 px-2 rounded"
                         title={I18NextService.i18n.t("sign_up")}
                         onClick={() => handleSetMenuOpen(this, false)}
                       >
@@ -267,109 +280,59 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
   }
 
   private renderNotificationItems(isMobileTopBar: boolean) {
-    const itemClasses = classNames("nav-item", {
-      "nav-item-icon": isMobileTopBar,
-      "d-none d-lg-block": !isMobileTopBar,
-    });
-    const linkClasses = classNames(
-      "nav-link d-inline-flex align-items-center",
-      {
-        "p-2 border-0": isMobileTopBar,
-      },
-    );
-
-    const notifsLabel = unreadNotificationsCount(this.state.unreadNotifsCount);
-    const reportsLabel = unreadReportsCount(this.state.unreadReportCount);
-    const appsLabel = unreadApplicationCount(this.state.unreadApplicationCount);
-    const followsLabel = pendingPrivateCommunityFollowsCount(
-      this.state.unreadPendingFollowsCount,
-    );
+    const closeMenu = () => handleSetMenuOpen(this, false);
 
     return (
       <>
-        <li
+        <NotificationBadgeLink
           id={isMobileTopBar ? undefined : "navMessages"}
-          className={itemClasses}
-        >
-          <NavLink
-            to="/notifications"
-            className={classNames(linkClasses, {
-              "nav-messages": isMobileTopBar,
-            })}
-            title={notifsLabel}
-            aria-label={notifsLabel}
-            onClick={() => handleSetMenuOpen(this, false)}
-          >
-            <Icon icon="bell" />
-            {this.state.unreadNotifsCount > 0 && (
-              <span className="ms-1 badge rounded-pill text-bg-danger">
-                {numToSI(this.state.unreadNotifsCount)}
-              </span>
-            )}
-          </NavLink>
-        </li>
+          to="/notifications"
+          icon="bell"
+          count={this.state.unreadNotifsCount}
+          label={unreadNotificationsCount(this.state.unreadNotifsCount)}
+          isMobileTopBar={isMobileTopBar}
+          onClick={closeMenu}
+        />
 
         {this.state.unreadReportCount > 0 &&
           moderatesSomething(this.props.myUserInfo) && (
-            <li
+            <NotificationBadgeLink
               id={isMobileTopBar ? undefined : "navModeration"}
-              className={itemClasses}
-            >
-              <NavLink
-                to="/reports"
-                className={linkClasses}
-                title={reportsLabel}
-                aria-label={reportsLabel}
-                onClick={() => handleSetMenuOpen(this, false)}
-              >
-                <Icon icon="shield" />
-                <span className="ms-1 badge rounded-pill text-bg-danger">
-                  {numToSI(this.state.unreadReportCount)}
-                </span>
-              </NavLink>
-            </li>
+              to="/reports"
+              icon="shield"
+              count={this.state.unreadReportCount}
+              label={unreadReportsCount(this.state.unreadReportCount)}
+              isMobileTopBar={isMobileTopBar}
+              onClick={closeMenu}
+            />
           )}
 
         {this.state.unreadApplicationCount > 0 &&
           amAdmin(this.props.myUserInfo) && (
-            <li
+            <NotificationBadgeLink
               id={isMobileTopBar ? undefined : "navApplications"}
-              className={itemClasses}
-            >
-              <NavLink
-                to="/registration_applications"
-                className={linkClasses}
-                title={appsLabel}
-                aria-label={appsLabel}
-                onClick={() => handleSetMenuOpen(this, false)}
-              >
-                <Icon icon="clipboard" />
-                <span className="ms-1 badge rounded-pill text-bg-danger">
-                  {numToSI(this.state.unreadApplicationCount)}
-                </span>
-              </NavLink>
-            </li>
+              to="/registration_applications"
+              icon="clipboard"
+              count={this.state.unreadApplicationCount}
+              label={unreadApplicationCount(this.state.unreadApplicationCount)}
+              isMobileTopBar={isMobileTopBar}
+              onClick={closeMenu}
+            />
           )}
 
         {this.state.unreadPendingFollowsCount > 0 &&
           moderatesPrivateCommunity(this.props.myUserInfo) && (
-            <li
+            <NotificationBadgeLink
               id={isMobileTopBar ? undefined : "navPendingFollows"}
-              className={itemClasses}
-            >
-              <NavLink
-                to="/pending_follows"
-                className={linkClasses}
-                title={followsLabel}
-                aria-label={followsLabel}
-                onClick={() => handleSetMenuOpen(this, false)}
-              >
-                <Icon icon="lock" />
-                <span className="ms-1 badge rounded-pill text-bg-danger">
-                  {numToSI(this.state.unreadPendingFollowsCount)}
-                </span>
-              </NavLink>
-            </li>
+              to="/pending_follows"
+              icon="lock"
+              count={this.state.unreadPendingFollowsCount}
+              label={pendingPrivateCommunityFollowsCount(
+                this.state.unreadPendingFollowsCount,
+              )}
+              isMobileTopBar={isMobileTopBar}
+              onClick={closeMenu}
+            />
           )}
       </>
     );
@@ -423,31 +386,27 @@ export class Navbar extends Component<NavbarProps, NavbarState> {
         )}
         {isDropdown && (
           <li aria-hidden="true">
-            <hr className="dropdown-divider" />
+            <hr className="dropdown-divider my-1" />
           </li>
         )}
 
         <li className={isDropdown ? undefined : "nav-item d-lg-none"}>
           <button
             type="button"
-            className={
+            className={classNames(
+              "d-flex align-items-center py-1 px-2 rounded w-100 text-start",
               isDropdown
-                ? "dropdown-item btn btn-link px-2"
-                : "nav-link d-flex align-items-center py-1 w-100 text-start border-0 bg-transparent"
-            }
+                ? "dropdown-item small"
+                : "nav-link border-0 bg-transparent",
+            )}
             onClick={() => handleLogOut(this)}
           >
-            <Icon icon="log-out" classes={isDropdown ? "me-1" : "me-2"} />
+            <Icon icon="log-out" classes="me-2" />
             {I18NextService.i18n.t("logout")}
           </button>
         </li>
       </>
     );
-  }
-
-  get currentLocation() {
-    const context = this.context as RouterContext;
-    return context.router.history.location.pathname;
   }
 }
 
@@ -481,15 +440,15 @@ function UserMenuLink({
     <li className={isDropdown ? undefined : "nav-item d-lg-none"}>
       <NavLink
         to={to}
-        className={
-          isDropdown
-            ? "dropdown-item px-2"
-            : "nav-link d-flex align-items-center py-1"
-        }
+        activeClassName="fw-semibold text-body-emphasis"
+        className={classNames(
+          "d-flex align-items-center py-1 px-2 rounded",
+          isDropdown ? "dropdown-item small" : "nav-link",
+        )}
         title={I18NextService.i18n.t(label)}
         onClick={onClick}
       >
-        <Icon icon={icon} classes={isDropdown ? "me-1" : "me-2"} />
+        <Icon icon={icon} classes="me-2" />
         {I18NextService.i18n.t(label)}
       </NavLink>
     </li>
@@ -524,4 +483,50 @@ function unreadNotificationsCount(unreadNotifsCount: number) {
     count: Number(unreadNotifsCount),
     formattedCount: numToSI(unreadNotifsCount),
   });
+}
+
+function NotificationBadgeLink({
+  id,
+  to,
+  icon,
+  count,
+  label,
+  isMobileTopBar,
+  onClick,
+}: NotificationBadgeLinkProps) {
+  const formattedNumber = numToSI(count);
+  const characterLength = formattedNumber.length;
+  return (
+    <li
+      id={id}
+      className={classNames("nav-item", {
+        "nav-item-icon": isMobileTopBar,
+        "d-none d-lg-block": !isMobileTopBar,
+        "me-1": characterLength > 2 && characterLength <= 3,
+        "me-3": characterLength > 3,
+      })}
+    >
+      <NavLink
+        to={to}
+        className={classNames("nav-link d-inline-flex align-items-center", {
+          "p-2 border-0": isMobileTopBar,
+        })}
+        title={label}
+        aria-label={label}
+        onClick={onClick}
+      >
+        <span className="position-relative d-inline-flex">
+          <Icon icon={icon} />
+          {count > 0 && (
+            <span
+              aria-hidden="true"
+              className="position-absolute badge rounded-pill text-bg-danger lh-1 icon-badge"
+            >
+              {formattedNumber}
+            </span>
+          )}
+        </span>
+      </NavLink>
+    </li>
+  );
 }
