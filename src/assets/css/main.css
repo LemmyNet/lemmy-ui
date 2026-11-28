@@ -110,6 +110,11 @@ button[aria-label="Unsave"] .icon {
   overflow-x: auto;
 }
 
+/* Add the .border classes to hr to make them stand out more */
+.md-div hr {
+  border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+}
+
 /* Sidebar Markdown */
 aside .md-div {
   font-size: 0.875rem;
