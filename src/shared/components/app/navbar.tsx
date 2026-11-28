@@ -502,7 +502,7 @@ function NotificationBadgeLink({
       className={classNames("nav-item", {
         "nav-item-icon": isMobileTopBar,
         "d-none d-lg-block": !isMobileTopBar,
-        "me-1": characterLength > 2 && characterLength <= 3,
+        "me-1": characterLength === 3,
         "me-3": characterLength > 3,
       })}
     >
